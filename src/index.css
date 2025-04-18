@@ -114,11 +114,11 @@
   }
   
   .btn-secondary {
-    @apply bg-transparent border border-current text-secondary h-11 px-5 py-2.5 rounded-[10px] font-medium text-sm flex items-center justify-center;
+    @apply bg-transparent border border-cast-moss-gray text-secondary h-11 px-5 py-2.5 rounded-[10px] font-medium text-sm flex items-center justify-center;
   }
   
   .metadata {
-    @apply text-xs font-normal text-secondary;
+    @apply text-[10px] font-normal text-secondary;
   }
 
   .nav-active {
