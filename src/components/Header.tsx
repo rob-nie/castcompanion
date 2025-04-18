@@ -42,7 +42,7 @@ export function Header() {
                 Anmelden
               </button>
               <button 
-                onClick={handleRegister}
+                onClick="/auth/register"
                 className="btn-primary"
               >
                 Registrieren
