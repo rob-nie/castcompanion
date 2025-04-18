@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // useEffect hinzufügen
 import { useLocation, useNavigate, Navigate, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -13,6 +13,17 @@ const Auth = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // useLocation hinzufügen
+  const [initialRoute, setInitialRoute] = useState("/login"); // Zustand für die initiale Route
+
+  useEffect(() => {
+    // Beim Mounten prüfen wir den state und setzen die initiale Route
+    if (location.state?.initialMode === "register") {
+      setInitialRoute("/register");
+    } else {
+      setInitialRoute("/login");
+    }
+  }, [location.state]); // Abhängigkeit von location.state, damit bei Änderungen reagiert wird
 
   if (user) {
     return <Navigate to="/" replace />;
@@ -38,8 +49,8 @@ const Auth = () => {
   const handleRegister = async (email: string, password: string, name: string) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({ 
-        email, 
+      const { error } = await supabase.auth.signUp({
+        email,
         password,
         options: {
           data: {
@@ -71,7 +82,7 @@ const Auth = () => {
         <Routes>
           <Route path="/login" element={<LoginForm onSubmit={handleLogin} isLoading={isLoading} />} />
           <Route path="/register" element={<RegisterForm onSubmit={handleRegister} isLoading={isLoading} />} />
-          <Route path="*" element={<Navigate to="/auth/login" replace />} />
+          <Route path="*" element={<Navigate to={`/auth${initialRoute}`} replace />} /> {/* Dynamische Weiterleitung */}
         </Routes>
       </main>
       <Footer />
