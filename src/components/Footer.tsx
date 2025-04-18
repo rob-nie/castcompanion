@@ -9,7 +9,7 @@ export function Footer() {
         
         <div className="metadata flex items-center order-3 md:order-none">
           <span className="mr-2">V 0.1</span>
-          <span className="border border-cast-moss-gray rounded-full px-2 py-0.5 text-xs bg-transparent">BETA</span>
+          <span className="border border-current rounded-full px-2 py-0.5 text-xs bg-transparent">BETA</span>
         </div>
         
         <div className="flex gap-4 metadata order-2 md:order-none">
