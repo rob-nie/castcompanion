@@ -61,7 +61,20 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// CastCompanion custom colors
+				cast: {
+					"sea-green": "#14A090",
+					"moss-gray": "#7A9992",
+					"silver-gray": "#CCCCCC",
+					"deep-forest": "#0A1915",
+					"early-mist": "#DAE5E2",
+					"shadow-green": "#5E6664",
+					"light-bg": "#F9F9F9",
+					"dark-bg": "#222625",
+				},
+			fontFamily: {
+				inter: ['Inter', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
