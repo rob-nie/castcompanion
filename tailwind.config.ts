@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -72,7 +73,8 @@ export default {
 					"shadow-green": "#5E6664",
 					"light-bg": "#F9F9F9",
 					"dark-bg": "#222625",
-				},
+				}
+			}, // Added missing comma here
 			fontFamily: {
 				inter: ['Inter', 'sans-serif'],
 			},
