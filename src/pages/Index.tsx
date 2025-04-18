@@ -1,3 +1,4 @@
+
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
@@ -6,7 +7,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col font-inter bg-background">
       <Header />
       
-      <main className="flex-grow flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-24 py-16">
+      <main className="flex-grow flex flex-col items-center justify-center text-center px-6 md:px-12 lg:px-24 py-16 mx-auto max-w-[1288px] w-full">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-primary">
           Synchronisiere deine<br />Interviews!
         </h1>
