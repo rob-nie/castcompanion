@@ -13,6 +13,10 @@ export function Header() {
     navigate("/auth");
   };
 
+  const handleRegister = () => {
+    navigate("/auth", { state: { initialMode: "register" } });
+  };
+
   return (
     <header className="w-full px-6 md:px-12 lg:px-24 py-5">
       <div className="mx-auto max-w-[1288px] flex justify-between items-center">
@@ -38,10 +42,7 @@ export function Header() {
                 Anmelden
               </button>
               <button 
-                onClick={() => {
-                  navigate("/auth");
-                  setTimeout(() => document.querySelector('form button[type="button"]')?.click(), 0);
-                }} 
+                onClick={handleRegister}
                 className="btn-primary"
               >
                 Registrieren
