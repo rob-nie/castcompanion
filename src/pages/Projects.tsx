@@ -12,35 +12,42 @@ import { CreateProjectModal } from "@/components/CreateProjectModal";
 import type { Tables } from "@/integrations/supabase/types";
 
 const Projects = () => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth(); // Add isLoading
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Tables<"projects">[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    // Only redirect if we're sure the session has been checked
+    if (!isLoading && !user) {
       navigate("/auth");
       return;
     }
 
-    const fetchProjects = async () => {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: false });
+    if (user) {
+      const fetchProjects = async () => {
+        const { data, error } = await supabase
+          .from("projects")
+          .select("*")
+          .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching projects:", error);
-        return;
-      }
+        if (error) {
+          console.error("Error fetching projects:", error);
+          return;
+        }
 
-      setProjects(data || []);
-      setLoading(false);
-    };
+        setProjects(data || []);
+        setLoading(false);
+      };
 
-    fetchProjects();
-  }, [user, navigate]);
+      fetchProjects();
+    }
+  }, [user, navigate, isLoading]); // Add isLoading to dependencies
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Laden...</div>;
+  }
 
   if (!user) return null;
 
@@ -95,3 +102,4 @@ const Projects = () => {
 };
 
 export default Projects;
+
