@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthProvider";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -20,14 +21,29 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Fehler",
+        description: "Du musst angemeldet sein, um ein Projekt zu erstellen."
+      });
+      setIsLoading(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("projects")
-      .insert([{ title, description }]);
+      .insert([{ 
+        title, 
+        description,
+        user_id: user.id 
+      }]);
 
     setIsLoading(false);
 
