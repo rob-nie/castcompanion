@@ -3,6 +3,13 @@ import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User } from "lucide-react";
 
 interface HeaderProps {
   currentPage?: string;
@@ -32,7 +39,7 @@ export function Header({ currentPage }: HeaderProps) {
             <nav className="hidden sm:flex items-center gap-6">
               <a 
                 href="/projects"
-                className={`text-sm ${currentPage === "projects" ? "text-primary font-medium" : "text-secondary font-normal"}`}
+                className={`text-sm ${currentPage === "projects" ? "text-[#14A090] font-medium" : "text-[#7A9992] font-normal"}`}
               >
                 Meine Projekte
               </a>
@@ -44,12 +51,19 @@ export function Header({ currentPage }: HeaderProps) {
           <ThemeToggle />
           {user ? (
             <div className="flex items-center gap-4">
-              <span className="text-sm text-secondary hidden md:block">
-                {user.email}
-              </span>
-              <button onClick={handleLogout} className="btn-secondary">
-                Abmelden
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-2 text-sm text-[#7A9992] cursor-pointer">
+                  <User className="h-4 w-4" />
+                  <span className="hidden md:block">
+                    {user.user_metadata.full_name || user.email}
+                  </span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Abmelden
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ) : (
             <>
