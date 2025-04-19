@@ -37,7 +37,7 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
   }, []);
 
   const boxShadow = isDarkMode
-    ? '0 5px 15px rgba(206, 159, 124, 0.2), 0 5px 15px rgba(20, 160, 144, 0.2)'
+    ? '0 5px 15px rgba(206, 159, 124, 0.1), 0 5px 15px rgba(20, 160, 144, 0.1)'
     : '0 5px 15px rgba(20, 160, 130, 0.3)';
 
   return (
