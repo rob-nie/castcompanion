@@ -10,17 +10,13 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Prüfe, ob der Dark Mode aktiv ist
     const checkDarkMode = () => {
-      // Überprüft, ob das HTML-Element die 'dark'-Klasse hat
       const isDark = document.documentElement.classList.contains('dark');
       setIsDarkMode(isDark);
     };
 
-    // Initial prüfen
     checkDarkMode();
 
-    // Observer für Änderungen an den Klassen einrichten
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (
@@ -32,7 +28,6 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
       });
     });
 
-    // Observer starten
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class'],
@@ -41,6 +36,11 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
     return () => observer.disconnect();
   }, []);
 
+  // Mehrere Schatten mit unterschiedlichen Farben für einen Verlaufseffekt
+  const boxShadow = isDarkMode
+    ? '5px 5px 15px rgba(206, 159, 124, 0.5), -5px -5px 15px rgba(20, 160, 144, 0.5)'
+    : '5px 5px 15px rgba(10, 37, 80, 0.5), -5px -5px 15px rgba(20, 160, 144, 0.5)';
+
   return (
     <div 
       className="h-[150px] max-w-[414px] p-6 rounded-[20px] border border-[#CCCCCC] dark:border-[#5C6664] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
@@ -48,7 +48,7 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
         background: isDarkMode 
           ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
           : 'linear-gradient(135deg, #14A090, #0A2550)',
-        boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)',
+        boxShadow: boxShadow,
       }}
     >
       <div className="text-white h-full flex flex-col">
