@@ -42,7 +42,7 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
 
   return (
     <div 
-      className="h-[150px] max-w-[414px] p-6 rounded-[20px] border border-[#CCCCCC] dark:border-[#5C6664] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
+      className="h-[150px] max-w-[414px] p-6 rounded-[20px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
       style={{
         background: isDarkMode 
           ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
