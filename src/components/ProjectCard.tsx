@@ -36,10 +36,10 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
     return () => observer.disconnect();
   }, []);
 
-  // Mehrere Schatten mit unterschiedlichen Farben für einen Verlaufseffekt
+  // Mehrere Schatten mit den ursprünglichen Werten (x5 y20 w20)
   const boxShadow = isDarkMode
-    ? '5px 5px 15px rgba(206, 159, 124, 0.5), -5px -5px 15px rgba(20, 160, 144, 0.5)'
-    : '5px 5px 15px rgba(10, 37, 80, 0.5), -5px -5px 15px rgba(20, 160, 144, 0.5)';
+    ? '0 5px 15px rgba(206, 159, 124, 0.4), 0 5px 20px rgba(20, 160, 144, 0.3)'
+    : '0 5px 15px rgba(20, 160, 130, 0.5)';
 
   return (
     <div 
