@@ -19,6 +19,14 @@ export function Header({ currentPage }: HeaderProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const handleLogoClick = () => {
+    if (user) {
+      navigate("/projects");
+    } else {
+      navigate("/");
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
@@ -30,7 +38,7 @@ export function Header({ currentPage }: HeaderProps) {
         <div className="flex items-center gap-8">
           <div 
             className="font-inter font-bold text-xl md:text-2xl cursor-pointer"
-            onClick={() => navigate("/")}
+            onClick={handleLogoClick}
           >
             <span className="font-bold">Cast</span>Companion
           </div>

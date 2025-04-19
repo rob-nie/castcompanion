@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"; // useEffect hinzufügen
 import { useLocation, useNavigate, Navigate, Routes, Route } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,20 +12,19 @@ const Auth = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation(); // useLocation hinzufügen
-  const [initialRoute, setInitialRoute] = useState("/login"); // Zustand für die initiale Route
+  const location = useLocation();
+  const [initialRoute, setInitialRoute] = useState("/login");
 
   useEffect(() => {
-    // Beim Mounten prüfen wir den state und setzen die initiale Route
     if (location.state?.initialMode === "register") {
       setInitialRoute("/register");
     } else {
       setInitialRoute("/login");
     }
-  }, [location.state]); // Abhängigkeit von location.state, damit bei Änderungen reagiert wird
+  }, [location.state]);
 
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/projects" replace />;
   }
 
   const handleLogin = async (email: string, password: string) => {
@@ -34,7 +32,7 @@ const Auth = () => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate("/");
+      navigate("/projects");
     } catch (error: any) {
       toast({
         title: "Error",
