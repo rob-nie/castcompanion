@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface ProjectCardProps {
@@ -6,11 +7,47 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard = ({ project }: ProjectCardProps) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    // Prüfe, ob der Dark Mode aktiv ist
+    const checkDarkMode = () => {
+      // Überprüft, ob das HTML-Element die 'dark'-Klasse hat
+      const isDark = document.documentElement.classList.contains('dark');
+      setIsDarkMode(isDark);
+    };
+
+    // Initial prüfen
+    checkDarkMode();
+
+    // Observer für Änderungen an den Klassen einrichten
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.attributeName === 'class' &&
+          mutation.target === document.documentElement
+        ) {
+          checkDarkMode();
+        }
+      });
+    });
+
+    // Observer starten
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div 
       className="h-[150px] max-w-[414px] p-6 rounded-[20px] border border-[#CCCCCC] dark:border-[#5C6664] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
       style={{
-        background: 'linear-gradient(135deg, #14A090, #0A2550)',
+        background: isDarkMode 
+          ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
+          : 'linear-gradient(135deg, #14A090, #0A2550)',
         boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)',
       }}
     >
