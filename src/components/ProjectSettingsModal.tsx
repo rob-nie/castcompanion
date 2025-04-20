@@ -34,39 +34,48 @@ export function ProjectSettingsModal({
     e.preventDefault();
     setIsLoading(true);
 
-    const { error } = await supabase
-      .from("projects")
-      .update({ 
-        title, 
-        description,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', project.id);
+    try {
+      const { error } = await supabase
+        .from("projects")
+        .update({ 
+          title, 
+          description,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', project.id);
 
-    setIsLoading(false);
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Fehler",
+          description: "Projekt konnte nicht aktualisiert werden."
+        });
+        return;
+      }
 
-    if (error) {
+      toast({
+        title: "Projekt aktualisiert",
+        description: "Die Projekteinstellungen wurden erfolgreich aktualisiert."
+      });
+      
+      onUpdate();
+      onClose();
+    } catch (err) {
       toast({
         variant: "destructive",
         title: "Fehler",
-        description: "Projekt konnte nicht aktualisiert werden."
+        description: "Ein unerwarteter Fehler ist aufgetreten."
       });
-      return;
+      console.error("Update error:", err);
+    } finally {
+      setIsLoading(false);
     }
-
-    toast({
-      title: "Projekt aktualisiert",
-      description: "Die Projekteinstellungen wurden erfolgreich aktualisiert."
-    });
-    
-    onUpdate();
-    onClose();
   };
 
   const handleDelete = async () => {
+    setIsLoading(true);
+    
     try {
-      setIsLoading(true);
-
       const { error } = await supabase
         .from("projects")
         .delete()
@@ -78,7 +87,6 @@ export function ProjectSettingsModal({
           title: "Fehler",
           description: "Projekt konnte nicht gelöscht werden."
         });
-        setIsLoading(false);
         return;
       }
 
@@ -87,17 +95,19 @@ export function ProjectSettingsModal({
         description: "Das Projekt wurde erfolgreich gelöscht."
       });
       
-      // Erst onDelete aufrufen und dann Dialoge schließen
+      // Call onDelete first to update the projects state
       onDelete();
+      
+      // Then close the dialogs after state is updated
       setShowDeleteDialog(false);
       onClose();
     } catch (err) {
-      console.error("Fehler beim Löschen:", err);
       toast({
         variant: "destructive",
         title: "Fehler",
         description: "Ein unerwarteter Fehler ist aufgetreten."
       });
+      console.error("Delete error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -105,9 +115,12 @@ export function ProjectSettingsModal({
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={(open) => {
-        if (!open && !isLoading) onClose();
-      }}>
+      <Dialog 
+        open={isOpen} 
+        onOpenChange={(open) => {
+          if (!open && !isLoading) onClose();
+        }}
+      >
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Projekteinstellungen</DialogTitle>
@@ -183,7 +196,10 @@ export function ProjectSettingsModal({
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isLoading}>Abbrechen</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.preventDefault(); // Prevent default form submission
+                handleDelete();
+              }}
               className="bg-red-600 hover:bg-red-700"
               disabled={isLoading}
             >

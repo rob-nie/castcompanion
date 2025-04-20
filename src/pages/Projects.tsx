@@ -39,8 +39,8 @@ const Projects = () => {
     }
   };
 
-  const handleProjectDelete = () => {
-    fetchProjects();
+  const handleProjectDelete = async () => {
+    await fetchProjects();
   };
 
   useEffect(() => {
