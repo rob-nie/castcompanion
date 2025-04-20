@@ -73,7 +73,21 @@ const Projects = () => {
               </div>
             ) : (
               projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+                <ProjectCard 
+                  key={project.id} 
+                  project={project} 
+                  onUpdate={() => {
+                    // Refresh projects after update
+                    const fetchProjects = async () => {
+                      const { data } = await supabase
+                        .from("projects")
+                        .select("*")
+                        .order("created_at", { ascending: false });
+                      setProjects(data || []);
+                    };
+                    fetchProjects();
+                  }}
+                />
               ))
             )}
           </div>
