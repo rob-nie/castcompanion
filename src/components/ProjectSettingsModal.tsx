@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -64,40 +64,56 @@ export function ProjectSettingsModal({
   };
 
   const handleDelete = async () => {
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
 
-    const { error } = await supabase
-      .from("projects")
-      .delete()
-      .eq('id', project.id);
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq('id', project.id);
 
-    setIsLoading(false);
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Fehler",
+          description: "Projekt konnte nicht gelöscht werden."
+        });
+        setIsLoading(false);
+        return;
+      }
 
-    if (error) {
+      toast({
+        title: "Projekt gelöscht",
+        description: "Das Projekt wurde erfolgreich gelöscht."
+      });
+      
+      // Erst onDelete aufrufen und dann Dialoge schließen
+      onDelete();
+      setShowDeleteDialog(false);
+      onClose();
+    } catch (err) {
+      console.error("Fehler beim Löschen:", err);
       toast({
         variant: "destructive",
         title: "Fehler",
-        description: "Projekt konnte nicht gelöscht werden."
+        description: "Ein unerwarteter Fehler ist aufgetreten."
       });
-      return;
+    } finally {
+      setIsLoading(false);
     }
-
-    toast({
-      title: "Projekt gelöscht",
-      description: "Das Projekt wurde erfolgreich gelöscht."
-    });
-    
-    onDelete();
-    setShowDeleteDialog(false);
-    onClose();
   };
 
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
+      <Dialog open={isOpen} onOpenChange={(open) => {
+        if (!open && !isLoading) onClose();
+      }}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Projekteinstellungen</DialogTitle>
+            <DialogDescription>
+              Hier können Sie die Einstellungen Ihres Projekts bearbeiten.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -129,11 +145,17 @@ export function ProjectSettingsModal({
                 type="button" 
                 variant="destructive"
                 onClick={() => setShowDeleteDialog(true)}
+                disabled={isLoading}
               >
                 Projekt löschen
               </Button>
               <div className="flex gap-3">
-                <Button variant="outline" type="button" onClick={onClose}>
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  onClick={onClose}
+                  disabled={isLoading}
+                >
                   Abbrechen
                 </Button>
                 <Button type="submit" disabled={isLoading}>
@@ -145,7 +167,12 @@ export function ProjectSettingsModal({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialog 
+        open={showDeleteDialog} 
+        onOpenChange={(open) => {
+          if (!open && !isLoading) setShowDeleteDialog(false);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Projekt löschen?</AlertDialogTitle>
@@ -154,12 +181,13 @@ export function ProjectSettingsModal({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel disabled={isLoading}>Abbrechen</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
+              disabled={isLoading}
             >
-              Löschen
+              {isLoading ? "Wird gelöscht..." : "Löschen"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
