@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthProvider";
@@ -18,6 +17,21 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const fetchProjects = async () => {
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching projects:", error);
+      return;
+    }
+
+    setProjects(data || []);
+    setLoading(false);
+  };
+
   useEffect(() => {
     // Only redirect if we're sure the session has been checked
     if (!isLoading && !user) {
@@ -26,24 +40,9 @@ const Projects = () => {
     }
 
     if (user) {
-      const fetchProjects = async () => {
-        const { data, error } = await supabase
-          .from("projects")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          console.error("Error fetching projects:", error);
-          return;
-        }
-
-        setProjects(data || []);
-        setLoading(false);
-      };
-
       fetchProjects();
     }
-  }, [user, navigate, isLoading]); 
+  }, [user, navigate, isLoading]);
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Laden...</div>;
@@ -73,7 +72,12 @@ const Projects = () => {
               </div>
             ) : (
               projects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+                <ProjectCard 
+                  key={project.id} 
+                  project={project} 
+                  onUpdate={fetchProjects}
+                  onDelete={fetchProjects}
+                />
               ))
             )}
           </div>
@@ -83,17 +87,7 @@ const Projects = () => {
       <CreateProjectModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={() => {
-          // Refresh projects after creation
-          const fetchProjects = async () => {
-            const { data } = await supabase
-              .from("projects")
-              .select("*")
-              .order("created_at", { ascending: false });
-            setProjects(data || []);
-          };
-          fetchProjects();
-        }}
+        onSuccess={fetchProjects}
       />
 
       <Footer />
