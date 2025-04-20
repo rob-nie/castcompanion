@@ -12,7 +12,7 @@ import { CreateProjectModal } from "@/components/CreateProjectModal";
 import type { Tables } from "@/integrations/supabase/types";
 
 const Projects = () => {
-  const { user, isLoading } = useAuth(); // Add isLoading
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Tables<"projects">[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +43,7 @@ const Projects = () => {
 
       fetchProjects();
     }
-  }, [user, navigate, isLoading]); // Add isLoading to dependencies
+  }, [user, navigate, isLoading]); 
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Laden...</div>;
@@ -102,4 +102,3 @@ const Projects = () => {
 };
 
 export default Projects;
-
