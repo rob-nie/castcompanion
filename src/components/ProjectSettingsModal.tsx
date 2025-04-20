@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,99 +34,70 @@ export function ProjectSettingsModal({
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const { error } = await supabase
-        .from("projects")
-        .update({ 
-          title, 
-          description,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', project.id);
+    const { error } = await supabase
+      .from("projects")
+      .update({ 
+        title, 
+        description,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', project.id);
 
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Fehler",
-          description: "Projekt konnte nicht aktualisiert werden."
-        });
-        return;
-      }
+    setIsLoading(false);
 
-      toast({
-        title: "Projekt aktualisiert",
-        description: "Die Projekteinstellungen wurden erfolgreich aktualisiert."
-      });
-      
-      onUpdate();
-      onClose();
-    } catch (err) {
+    if (error) {
       toast({
         variant: "destructive",
         title: "Fehler",
-        description: "Ein unerwarteter Fehler ist aufgetreten."
+        description: "Projekt konnte nicht aktualisiert werden."
       });
-      console.error("Update error:", err);
-    } finally {
-      setIsLoading(false);
+      return;
     }
+
+    toast({
+      title: "Projekt aktualisiert",
+      description: "Die Projekteinstellungen wurden erfolgreich aktualisiert."
+    });
+    
+    onUpdate();
+    onClose();
   };
 
   const handleDelete = async () => {
     setIsLoading(true);
-    
-    try {
-      const { error } = await supabase
-        .from("projects")
-        .delete()
-        .eq('id', project.id);
 
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Fehler",
-          description: "Projekt konnte nicht gelöscht werden."
-        });
-        return;
-      }
+    const { error } = await supabase
+      .from("projects")
+      .delete()
+      .eq('id', project.id);
 
-      toast({
-        title: "Projekt gelöscht",
-        description: "Das Projekt wurde erfolgreich gelöscht."
-      });
-      
-      // Call onDelete first to update the projects state
-      onDelete();
-      
-      // Then close the dialogs after state is updated
-      setShowDeleteDialog(false);
-      onClose();
-    } catch (err) {
+    setIsLoading(false);
+
+    if (error) {
       toast({
         variant: "destructive",
         title: "Fehler",
-        description: "Ein unerwarteter Fehler ist aufgetreten."
+        description: "Projekt konnte nicht gelöscht werden."
       });
-      console.error("Delete error:", err);
-    } finally {
-      setIsLoading(false);
+      return;
     }
+
+    toast({
+      title: "Projekt gelöscht",
+      description: "Das Projekt wurde erfolgreich gelöscht."
+    });
+    
+    onDelete();
+    setShowDeleteDialog(false);
+    onClose();
   };
 
   return (
     <>
-      <Dialog 
-        open={isOpen} 
-        onOpenChange={(open) => {
-          if (!open && !isLoading) onClose();
-        }}
-      >
+      <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Projekteinstellungen</DialogTitle>
-            <DialogDescription>
-              Hier können Sie die Einstellungen Ihres Projekts bearbeiten.
-            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -158,17 +129,11 @@ export function ProjectSettingsModal({
                 type="button" 
                 variant="destructive"
                 onClick={() => setShowDeleteDialog(true)}
-                disabled={isLoading}
               >
                 Projekt löschen
               </Button>
               <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
-                  type="button" 
-                  onClick={onClose}
-                  disabled={isLoading}
-                >
+                <Button variant="outline" type="button" onClick={onClose}>
                   Abbrechen
                 </Button>
                 <Button type="submit" disabled={isLoading}>
@@ -180,12 +145,7 @@ export function ProjectSettingsModal({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog 
-        open={showDeleteDialog} 
-        onOpenChange={(open) => {
-          if (!open && !isLoading) setShowDeleteDialog(false);
-        }}
-      >
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Projekt löschen?</AlertDialogTitle>
@@ -194,16 +154,12 @@ export function ProjectSettingsModal({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>Abbrechen</AlertDialogCancel>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault(); // Prevent default form submission
-                handleDelete();
-              }}
+              onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
-              disabled={isLoading}
             >
-              {isLoading ? "Wird gelöscht..." : "Löschen"}
+              Löschen
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

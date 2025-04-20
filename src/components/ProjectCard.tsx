@@ -1,9 +1,7 @@
-
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
-import { Settings2 } from "lucide-react";
+import { Settings2, Pencil } from "lucide-react";
 import { ProjectSettingsModal } from "./ProjectSettingsModal";
 
 interface ProjectCardProps {
@@ -15,7 +13,6 @@ interface ProjectCardProps {
 export const ProjectCard = ({ project, onUpdate, onDelete }: ProjectCardProps) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const checkDarkMode = () => {
@@ -51,11 +48,6 @@ export const ProjectCard = ({ project, onUpdate, onDelete }: ProjectCardProps) =
   const formattedDate = project.updated_at 
     ? format(new Date(project.updated_at), 'dd.MM.yyyy HH:mm')
     : null;
-    
-  const handleCardClick = () => {
-    // Hier könnte später eine Navigation zum Projekt erfolgen
-    console.log("Card clicked:", project.id);
-  };
 
   return (
     <>
@@ -67,7 +59,6 @@ export const ProjectCard = ({ project, onUpdate, onDelete }: ProjectCardProps) =
             : 'linear-gradient(135deg, #14A090, #0A2550)',
           boxShadow: boxShadow,
         }}
-        onClick={handleCardClick}
       >
         <button
           onClick={(e) => {
@@ -75,7 +66,6 @@ export const ProjectCard = ({ project, onUpdate, onDelete }: ProjectCardProps) =
             setShowSettings(true);
           }}
           className="absolute top-3 right-3 p-1.5 rounded-full bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20"
-          aria-label="Projekteinstellungen"
         >
           <Settings2 className="w-4 h-4 text-white" />
         </button>

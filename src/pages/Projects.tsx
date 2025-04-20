@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthProvider";
@@ -19,28 +18,18 @@ const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchProjects = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .order("updated_at", { ascending: false });
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-      if (error) {
-        console.error("Error fetching projects:", error);
-        return;
-      }
-
-      setProjects(data || []);
-    } catch (err) {
-      console.error("Unexpected error:", err);
-    } finally {
-      setLoading(false);
+    if (error) {
+      console.error("Error fetching projects:", error);
+      return;
     }
-  };
 
-  const handleProjectDelete = async () => {
-    await fetchProjects();
+    setProjects(data || []);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -87,7 +76,7 @@ const Projects = () => {
                   key={project.id} 
                   project={project} 
                   onUpdate={fetchProjects}
-                  onDelete={handleProjectDelete}
+                  onDelete={fetchProjects}
                 />
               ))
             )}
