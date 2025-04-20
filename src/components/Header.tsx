@@ -60,8 +60,8 @@ export function Header({ currentPage }: HeaderProps) {
           {user ? (
             <div className="flex items-center gap-4">
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-2 text-sm text-[#7A9992] cursor-pointer">
-                  <User className="h-4 w-4" />
+                <DropdownMenuTrigger className="flex items-center gap-2 text-sm cursor-pointer">
+                  <User className="h-4 w-4 text-[#0A1915]" />
                   <span className="hidden md:block font-medium text-[#0A1915]">
                     {user.user_metadata.full_name || user.email}
                   </span>
