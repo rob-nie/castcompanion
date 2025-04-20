@@ -62,7 +62,7 @@ export function Header({ currentPage }: HeaderProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-2 text-sm text-[#7A9992] cursor-pointer">
                   <User className="h-4 w-4" />
-                  <span className="hidden md:block">
+                  <span className="hidden md:block font-medium text-[#0A1915]">
                     {user.user_metadata.full_name || user.email}
                   </span>
                 </DropdownMenuTrigger>
@@ -94,3 +94,4 @@ export function Header({ currentPage }: HeaderProps) {
     </header>
   );
 }
+
