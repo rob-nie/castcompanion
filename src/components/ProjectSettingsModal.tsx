@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Settings, Trash2, UserPlus2, LogOut } from "lucide-react";
+import { Settings, Trash2, LogOut } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Tables } from "@/integrations/supabase/types";
+import { useProjectMembers } from "@/hooks/useProjectMembers";
+import { MembersList } from "./project/MembersList";
+import { AddMemberForm } from "./project/AddMemberForm";
 
 interface ProjectSettingsModalProps {
   project: Tables<"projects">;
@@ -29,62 +33,8 @@ export const ProjectSettingsModal = ({
 }: ProjectSettingsModalProps) => {
   const [title, setTitle] = useState(project.title);
   const [description, setDescription] = useState(project.description || "");
-  const [newMemberEmail, setNewMemberEmail] = useState("");
-  const [members, setMembers] = useState<{ 
-    id: string; 
-    email: string | null; 
-    role: string 
-  }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchProjectMembers();
-    }
-  }, [isOpen, project.id]);
-
-  const fetchProjectMembers = async () => {
-    // Fetch project members
-    const { data: membersData, error } = await supabase
-      .from("project_members")
-      .select(`
-        id,
-        role,
-        user_id
-      `)
-      .eq("project_id", project.id);
-
-    if (error) {
-      console.error("Error fetching project members:", error);
-      return;
-    }
-
-    // For each member, separately fetch their profile information
-    const memberPromises = membersData.map(async (member) => {
-      if (!member.user_id) {
-        return {
-          id: member.id,
-          email: "Unbekannt",
-          role: member.role
-        };
-      }
-
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("email")
-        .eq("id", member.user_id)
-        .single();
-      
-      return {
-        id: member.id,
-        email: profileError || !profileData?.email ? `User (${member.user_id.substring(0, 8)})` : profileData.email,
-        role: member.role,
-      };
-    });
-
-    const resolvedMembers = await Promise.all(memberPromises);
-    setMembers(resolvedMembers);
-  };
+  const { members, isLoading, addMember } = useProjectMembers(project.id);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,53 +58,6 @@ export const ProjectSettingsModal = ({
     } catch (error) {
       console.error("Error updating project:", error);
       toast.error("Fehler beim Aktualisieren des Projekts");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleAddMember = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMemberEmail) return;
-
-    setIsSubmitting(true);
-    try {
-      // First, get the user ID from the email in profiles table
-      const { data: userData, error: userError } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("email", newMemberEmail)
-        .single();
-
-      if (userError || !userData) {
-        toast.error("Benutzer nicht gefunden");
-        return;
-      }
-
-      // Add the user as a project member
-      const { error: memberError } = await supabase
-        .from("project_members")
-        .insert({
-          project_id: project.id,
-          user_id: userData.id,
-          role: "member",
-        });
-
-      if (memberError) {
-        if (memberError.code === '23505') { // unique constraint violation
-          toast.error("Benutzer ist bereits Mitglied des Projekts");
-        } else {
-          throw memberError;
-        }
-        return;
-      }
-
-      toast.success("Mitglied erfolgreich hinzugefügt");
-      setNewMemberEmail("");
-      fetchProjectMembers();
-    } catch (error) {
-      console.error("Error adding member:", error);
-      toast.error("Fehler beim Hinzufügen des Mitglieds");
     } finally {
       setIsSubmitting(false);
     }
@@ -229,12 +132,12 @@ export const ProjectSettingsModal = ({
                 >
                   Titel
                 </label>
-                <input
+                <Input
                   id="title"
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full rounded-[10px] border border-[#7A9992] bg-transparent p-2"
+                  className="w-full"
                   required
                 />
               </div>
@@ -256,23 +159,7 @@ export const ProjectSettingsModal = ({
                 <label className="block text-sm font-medium text-[#0A1915] dark:text-white mb-2">
                   Mitglieder hinzufügen
                 </label>
-                <div className="flex gap-2">
-                  <Input
-                    type="email"
-                    value={newMemberEmail}
-                    onChange={(e) => setNewMemberEmail(e.target.value)}
-                    placeholder="E-Mail-Adresse"
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleAddMember}
-                    disabled={isSubmitting || !newMemberEmail}
-                    className="bg-[#14A090] hover:bg-[#14A090]/90"
-                  >
-                    <UserPlus2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                <AddMemberForm onAdd={addMember} isSubmitting={isSubmitting} />
               </div>
             </>
           )}
@@ -280,17 +167,7 @@ export const ProjectSettingsModal = ({
             <label className="block text-sm font-medium text-[#0A1915] dark:text-white">
               Projektmitglieder
             </label>
-            <div className="space-y-2">
-              {members.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex items-center justify-between p-2 rounded-[10px] border border-[#7A9992]"
-                >
-                  <span>{member.email || 'Unbekannt'}</span>
-                  <span className="text-sm text-[#7A9992]">{member.role}</span>
-                </div>
-              ))}
-            </div>
+            <MembersList members={members} />
           </div>
           <div className="flex justify-between">
             {isOwner ? (
