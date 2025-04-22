@@ -41,6 +41,7 @@ export const ProjectSettingsModal = ({
   }, [isOpen, project.id]);
 
   const fetchProjectMembers = async () => {
+    // Fetch project members with their user ids and roles
     const { data: membersData, error } = await supabase
       .from("project_members")
       .select(`
@@ -55,12 +56,17 @@ export const ProjectSettingsModal = ({
       return;
     }
 
-    // Fetch user emails for each member
+    // For each member, fetch the user email from profiles table
     const memberPromises = membersData.map(async (member) => {
-      const { data: userData } = await supabase.auth.admin.getUserById(member.user_id);
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("id", member.user_id)
+        .single();
+      
       return {
         id: member.id,
-        email: userData?.user?.email || 'Unknown',
+        email: profileError || !profileData ? member.user_id : profileData.email,
         role: member.role,
       };
     });
