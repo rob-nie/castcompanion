@@ -2,8 +2,9 @@
 import { useState, useEffect } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
-import { Settings, Trash2 } from "lucide-react";
+import { Settings } from "lucide-react";
 import { ProjectSettingsModal } from "./ProjectSettingsModal";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProjectCardProps {
   project: Tables<"projects">;
@@ -13,6 +14,7 @@ interface ProjectCardProps {
 export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     const checkDarkMode = () => {
@@ -38,8 +40,25 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
       attributeFilter: ['class'],
     });
 
+    // Check if current user is owner
+    const checkOwnership = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("project_members")
+        .select("role")
+        .eq("project_id", project.id)
+        .eq("user_id", user.id)
+        .single();
+
+      setIsOwner(data?.role === "owner");
+    };
+
+    checkOwnership();
+
     return () => observer.disconnect();
-  }, []);
+  }, [project.id]);
 
   const boxShadow = isDarkMode
     ? '0 5px 15px rgba(206, 159, 124, 0.1), 0 5px 15px rgba(20, 160, 144, 0.1)'
@@ -89,6 +108,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
         onSuccess={onUpdate}
+        isOwner={isOwner}
       />
     </>
   );
