@@ -31,7 +31,11 @@ export const ProjectSettingsModal = ({
   const [title, setTitle] = useState(project.title);
   const [description, setDescription] = useState(project.description || "");
   const [newMemberEmail, setNewMemberEmail] = useState("");
-  const [members, setMembers] = useState<{ id: string; email: string; role: string }[]>([]);
+  const [members, setMembers] = useState<{ 
+    id: string; 
+    email: string | null; 
+    role: string 
+  }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -47,7 +51,8 @@ export const ProjectSettingsModal = ({
       .select(`
         id,
         role,
-        user_id
+        user_id,
+        profiles (email)
       `)
       .eq("project_id", project.id);
 
@@ -56,23 +61,14 @@ export const ProjectSettingsModal = ({
       return;
     }
 
-    // For each member, fetch the user email from profiles table
-    const memberPromises = membersData.map(async (member) => {
-      const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("email")
-        .eq("id", member.user_id)
-        .single();
-      
-      return {
-        id: member.id,
-        email: profileError || !profileData ? member.user_id : profileData.email,
-        role: member.role,
-      };
-    });
+    // Transform the data to match our expected structure
+    const transformedMembers = membersData.map(member => ({
+      id: member.id,
+      email: member.profiles?.email || null,
+      role: member.role
+    }));
 
-    const resolvedMembers = await Promise.all(memberPromises);
-    setMembers(resolvedMembers);
+    setMembers(transformedMembers);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,7 +104,7 @@ export const ProjectSettingsModal = ({
 
     setIsSubmitting(true);
     try {
-      // First, get the user ID from the email
+      // First, get the user ID from the email in profiles table
       const { data: userData, error: userError } = await supabase
         .from("profiles")
         .select("id")
@@ -154,11 +150,17 @@ export const ProjectSettingsModal = ({
 
     setIsSubmitting(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Nicht authentifiziert");
+        return;
+      }
+
       const { error } = await supabase
         .from("project_members")
         .delete()
         .eq("project_id", project.id)
-        .eq("user_id", (await supabase.auth.getUser()).data.user?.id);
+        .eq("user_id", user.id);
 
       if (error) throw error;
 
@@ -269,7 +271,7 @@ export const ProjectSettingsModal = ({
                   key={member.id}
                   className="flex items-center justify-between p-2 rounded-[10px] border border-[#7A9992]"
                 >
-                  <span>{member.email}</span>
+                  <span>{member.email || 'Unbekannt'}</span>
                   <span className="text-sm text-[#7A9992]">{member.role}</span>
                 </div>
               ))}
