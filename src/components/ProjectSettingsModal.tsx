@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,14 +44,13 @@ export const ProjectSettingsModal = ({
   }, [isOpen, project.id]);
 
   const fetchProjectMembers = async () => {
-    // Fetch project members with their user ids and roles
+    // Fetch project members
     const { data: membersData, error } = await supabase
       .from("project_members")
       .select(`
         id,
         role,
-        user_id,
-        profiles (email)
+        user_id
       `)
       .eq("project_id", project.id);
 
@@ -61,14 +59,31 @@ export const ProjectSettingsModal = ({
       return;
     }
 
-    // Transform the data to match our expected structure
-    const transformedMembers = membersData.map(member => ({
-      id: member.id,
-      email: member.profiles?.email || `User (${member.user_id?.substring(0, 8)})`,
-      role: member.role
-    }));
+    // For each member, separately fetch their profile information
+    const memberPromises = membersData.map(async (member) => {
+      if (!member.user_id) {
+        return {
+          id: member.id,
+          email: "Unbekannt",
+          role: member.role
+        };
+      }
 
-    setMembers(transformedMembers);
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("email")
+        .eq("id", member.user_id)
+        .single();
+      
+      return {
+        id: member.id,
+        email: profileError || !profileData?.email ? `User (${member.user_id.substring(0, 8)})` : profileData.email,
+        role: member.role,
+      };
+    });
+
+    const resolvedMembers = await Promise.all(memberPromises);
+    setMembers(resolvedMembers);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
