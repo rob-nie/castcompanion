@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
 import { Settings } from "lucide-react";
-import { ProjectSettingsModal } from "./ProjectSettingsModal";
+import { ProjectSettingsModal } from "./project-settings/ProjectSettingsModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
