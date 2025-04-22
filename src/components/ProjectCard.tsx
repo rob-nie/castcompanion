@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { Settings } from "lucide-react";
 import { ProjectSettingsModal } from "./ProjectSettingsModal";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectCardProps {
   project: Tables<"projects">;
@@ -15,6 +16,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkDarkMode = () => {
@@ -42,23 +44,27 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
 
     // Check if current user is owner
     const checkOwnership = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-      const { data } = await supabase
-        .from("project_members")
-        .select("role")
-        .eq("project_id", project.id)
-        .eq("user_id", user.id)
-        .single();
+        const { data } = await supabase
+          .from("project_members")
+          .select("role")
+          .eq("project_id", project.id)
+          .eq("user_id", user.id)
+          .single();
 
-      setIsOwner(data?.role === "owner");
+        setIsOwner(data?.role === "owner" || project.user_id === user.id);
+      } catch (error) {
+        console.error("Error checking ownership:", error);
+      }
     };
 
     checkOwnership();
 
     return () => observer.disconnect();
-  }, [project.id]);
+  }, [project.id, project.user_id]);
 
   const boxShadow = isDarkMode
     ? '0 5px 15px rgba(206, 159, 124, 0.1), 0 5px 15px rgba(20, 160, 144, 0.1)'
@@ -68,10 +74,17 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
     ? format(new Date(project.updated_at), 'dd.MM.yyyy HH:mm')
     : null;
 
+  const handleCardClick = () => {
+    // In the future this could navigate to the project detail page
+    // navigate(`/projects/${project.id}`);
+    setIsSettingsModalOpen(true);
+  };
+
   return (
     <>
       <div 
         className="h-[150px] max-w-[414px] p-6 rounded-[20px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] relative"
+        onClick={handleCardClick}
         style={{
           background: isDarkMode 
             ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 

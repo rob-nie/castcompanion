@@ -1,12 +1,11 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/context/AuthProvider";
 
 interface CreateProjectModalProps {
@@ -19,8 +18,6 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,43 +25,48 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
     setIsLoading(true);
 
     if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Fehler",
-        description: "Du musst angemeldet sein, um ein Projekt zu erstellen."
-      });
+      toast.error("Du musst angemeldet sein, um ein Projekt zu erstellen.");
       setIsLoading(false);
       return;
     }
 
-    const { error } = await supabase
-      .from("projects")
-      .insert([{ 
-        title, 
-        description,
-        user_id: user.id 
-      }]);
+    try {
+      // Insert project and get the project id
+      const { data: projectData, error: projectError } = await supabase
+        .from("projects")
+        .insert([{ 
+          title, 
+          description,
+          user_id: user.id 
+        }])
+        .select('id')
+        .single();
 
-    setIsLoading(false);
+      if (projectError) throw projectError;
+      
+      // Add project owner to project_members
+      const { error: memberError } = await supabase
+        .from("project_members")
+        .insert([{
+          project_id: projectData.id,
+          user_id: user.id,
+          role: "owner"
+        }]);
 
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Fehler",
-        description: "Projekt konnte nicht erstellt werden."
-      });
-      return;
+      if (memberError) throw memberError;
+
+      toast.success("Projekt erfolgreich erstellt");
+      
+      setTitle("");
+      setDescription("");
+      onSuccess();
+      onClose();
+    } catch (error: any) {
+      console.error("Error creating project:", error);
+      toast.error("Fehler beim Erstellen des Projekts");
+    } finally {
+      setIsLoading(false);
     }
-
-    toast({
-      title: "Projekt erstellt",
-      description: "Dein neues Projekt wurde erfolgreich erstellt."
-    });
-    
-    setTitle("");
-    setDescription("");
-    onSuccess();
-    onClose();
   };
 
   return (
@@ -102,10 +104,10 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button variant="outline" type="button" onClick={onClose}>
+            <Button variant="outline" type="button" onClick={onClose} className="border-[#7A9992] text-[#7A9992]">
               Abbrechen
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="bg-[#14A090] hover:bg-[#14A090]/90">
               {isLoading ? "Wird erstellt..." : "Erstellen"}
             </Button>
           </div>
