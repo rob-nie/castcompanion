@@ -14,28 +14,55 @@ export const useProjectMembers = (projectId: string) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchProjectMembers = async () => {
-    const { data: membersData, error } = await supabase
-      .from("project_members")
-      .select(`
-        id,
-        role,
-        user_id,
-        profiles (email)
-      `)
-      .eq("project_id", projectId);
+    setIsLoading(true);
+    try {
+      // First, get the project members with their user_ids
+      const { data: membersData, error: membersError } = await supabase
+        .from("project_members")
+        .select(`
+          id,
+          role,
+          user_id
+        `)
+        .eq("project_id", projectId);
 
-    if (error) {
-      console.error("Error fetching project members:", error);
-      return;
+      if (membersError) {
+        console.error("Error fetching project members:", membersError);
+        return;
+      }
+
+      // Create an array to store the members with their emails
+      const membersWithEmails: Member[] = [];
+
+      // For each member, fetch the profile email separately
+      for (const member of membersData) {
+        if (member.user_id) {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles")
+            .select("email")
+            .eq("id", member.user_id)
+            .single();
+
+          membersWithEmails.push({
+            id: member.id,
+            email: profileError ? null : profileData?.email || null,
+            role: member.role,
+          });
+        } else {
+          membersWithEmails.push({
+            id: member.id,
+            email: null,
+            role: member.role,
+          });
+        }
+      }
+
+      setMembers(membersWithEmails);
+    } catch (error) {
+      console.error("Error in fetchProjectMembers:", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    const transformedMembers = membersData.map(member => ({
-      id: member.id,
-      email: member.profiles?.email || null,
-      role: member.role
-    }));
-
-    setMembers(transformedMembers);
   };
 
   const addMember = async (email: string) => {
@@ -82,7 +109,9 @@ export const useProjectMembers = (projectId: string) => {
   };
 
   useEffect(() => {
-    fetchProjectMembers();
+    if (projectId) {
+      fetchProjectMembers();
+    }
   }, [projectId]);
 
   return {
