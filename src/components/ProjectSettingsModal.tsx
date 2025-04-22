@@ -64,7 +64,7 @@ export const ProjectSettingsModal = ({
     // Transform the data to match our expected structure
     const transformedMembers = membersData.map(member => ({
       id: member.id,
-      email: member.profiles?.email || null,
+      email: member.profiles?.email || `User (${member.user_id?.substring(0, 8)})`,
       role: member.role
     }));
 
