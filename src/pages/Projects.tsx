@@ -35,24 +35,69 @@ const Projects = () => {
         return;
       }
       
-      // With our new RLS policies in place, we can simply fetch all projects
-      // The RLS will automatically filter projects based on ownership and membership
-      const { data, error } = await supabase
+      // Fetch projects the user owns
+      const { data: ownedProjects, error: ownedError } = await supabase
         .from("projects")
         .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching projects:", error);
-        setError(error.message);
-        toast.error(`Fehler beim Laden der Projekte: ${error.message}`);
+        .eq("user_id", user.id);
+        
+      if (ownedError) {
+        console.error("Error fetching owned projects:", ownedError);
+        setError(ownedError.message);
+        toast.error(`Fehler beim Laden eigener Projekte: ${ownedError.message}`);
         return;
       }
 
-      setProjects(data || []);
+      // Fetch projects where the user is a member
+      const { data: memberProjects, error: memberError } = await supabase
+        .from("project_members")
+        .select("project_id")
+        .eq("user_id", user.id);
+
+      if (memberError) {
+        console.error("Error fetching project memberships:", memberError);
+        // Still show owned projects, don't block on membership error
+      }
+
+      // If user is a member of any projects, fetch those projects
+      let memberProjectData: Tables<"projects">[] = [];
+      if (memberProjects && memberProjects.length > 0) {
+        const projectIds = memberProjects.map(membership => membership.project_id).filter(Boolean) as string[];
+        
+        if (projectIds.length > 0) {
+          const { data: projects, error: projectsError } = await supabase
+            .from("projects")
+            .select("*")
+            .in("id", projectIds);
+            
+          if (projectsError) {
+            console.error("Error fetching member projects:", projectsError);
+          } else if (projects) {
+            memberProjectData = projects;
+          }
+        }
+      }
+
+      // Combine owned and member projects, avoiding duplicates
+      const combinedProjects = [...(ownedProjects || [])];
+      
+      // Add member projects that aren't already in owned projects
+      memberProjectData.forEach(memberProject => {
+        if (!combinedProjects.some(p => p.id === memberProject.id)) {
+          combinedProjects.push(memberProject);
+        }
+      });
+      
+      // Sort by updated_at date
+      combinedProjects.sort((a, b) => 
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+      
+      setProjects(combinedProjects);
+      setError(null);
     } catch (error: any) {
       console.error("Error fetching projects:", error);
-      setError(error.message);
+      setError("Unerwarteter Fehler beim Laden der Projekte");
       toast.error("Fehler beim Laden der Projekte");
     } finally {
       setIsLoading(false);
