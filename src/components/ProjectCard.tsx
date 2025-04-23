@@ -66,9 +66,12 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
           .eq("user_id", user.id)
           .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') {
+        if (error) {
           console.error("Error checking ownership:", error);
-          toast.error("Fehler beim Laden der Projektdetails");
+          // Don't show error toast here as it might be too noisy
+          if (error.code !== 'PGRST116') { // Not found
+            console.error(error);
+          }
         }
 
         setIsOwner(data?.role === "owner");
