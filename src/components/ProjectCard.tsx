@@ -58,23 +58,16 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
           return;
         }
 
-        // Check project_members table
+        // Using our RLS function through a helper function call
         const { data, error } = await supabase
-          .from("project_members")
-          .select("role")
-          .eq("project_id", project.id)
-          .eq("user_id", user.id)
-          .maybeSingle();
+          .rpc('is_project_owner', { project_id: project.id });
 
         if (error) {
           console.error("Error checking ownership:", error);
           // Don't show error toast here as it might be too noisy
-          if (error.code !== 'PGRST116') { // Not found
-            console.error(error);
-          }
         }
 
-        setIsOwner(data?.role === "owner");
+        setIsOwner(!!data); // Convert to boolean
       } catch (error) {
         console.error("Error checking ownership:", error);
       } finally {

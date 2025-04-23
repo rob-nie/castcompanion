@@ -35,63 +35,21 @@ const Projects = () => {
         return;
       }
       
-      // Fetch user's own projects
-      const { data: ownProjects, error: ownProjectsError } = await supabase
+      // With our new RLS policies in place, we can simply fetch all projects
+      // The RLS will automatically filter projects based on ownership and membership
+      const { data, error } = await supabase
         .from("projects")
         .select("*")
-        .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (ownProjectsError) {
-        console.error("Error fetching own projects:", ownProjectsError);
-        setError(ownProjectsError.message);
-        toast.error(`Fehler beim Laden eigener Projekte: ${ownProjectsError.message}`);
+      if (error) {
+        console.error("Error fetching projects:", error);
+        setError(error.message);
+        toast.error(`Fehler beim Laden der Projekte: ${error.message}`);
         return;
       }
 
-      // Fetch projects where user is a member
-      const { data: memberProjects, error: memberError } = await supabase
-        .from("project_members")
-        .select("project_id")
-        .eq("user_id", user.id);
-
-      if (memberError) {
-        console.error("Error fetching project memberships:", memberError);
-        setProjects(ownProjects || []);
-        return;
-      }
-
-      // If user is a member of any projects, fetch those projects
-      if (memberProjects && memberProjects.length > 0) {
-        const projectIds = memberProjects.map(item => item.project_id);
-        
-        const { data: membershipProjects, error: membershipProjectsError } = await supabase
-          .from("projects")
-          .select("*")
-          .in("id", projectIds)
-          .order("created_at", { ascending: false });
-
-        if (membershipProjectsError) {
-          console.error("Error fetching membership projects:", membershipProjectsError);
-          setProjects(ownProjects || []);
-          return;
-        }
-
-        // Combine own projects and membership projects
-        const allProjects = [
-          ...(ownProjects || []),
-          ...(membershipProjects || [])
-        ];
-
-        // Remove duplicates (in case user is both owner and member)
-        const uniqueProjects = Array.from(
-          new Map(allProjects.map(project => [project.id, project])).values()
-        );
-
-        setProjects(uniqueProjects);
-      } else {
-        setProjects(ownProjects || []);
-      }
+      setProjects(data || []);
     } catch (error: any) {
       console.error("Error fetching projects:", error);
       setError(error.message);
