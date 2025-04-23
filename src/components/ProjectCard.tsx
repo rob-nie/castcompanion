@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
@@ -5,6 +6,7 @@ import { Settings } from "lucide-react";
 import { ProjectSettingsModal } from "./project-settings/ProjectSettingsModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface ProjectCardProps {
   project: Tables<"projects">;
@@ -15,6 +17,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,19 +47,35 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
     // Check if current user is owner
     const checkOwnership = async () => {
       try {
+        setIsLoading(true);
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data } = await supabase
+        // Direct match with project creator
+        if (project.user_id === user.id) {
+          setIsOwner(true);
+          setIsLoading(false);
+          return;
+        }
+
+        // Check project_members table
+        const { data, error } = await supabase
           .from("project_members")
           .select("role")
           .eq("project_id", project.id)
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
 
-        setIsOwner(data?.role === "owner" || project.user_id === user.id);
+        if (error && error.code !== 'PGRST116') {
+          console.error("Error checking ownership:", error);
+          toast.error("Fehler beim Laden der Projektdetails");
+        }
+
+        setIsOwner(data?.role === "owner");
       } catch (error) {
         console.error("Error checking ownership:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 

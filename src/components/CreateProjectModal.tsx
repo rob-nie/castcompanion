@@ -31,6 +31,14 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
     }
 
     try {
+      // Check session again to make sure user is still authenticated
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        toast.error("Deine Sitzung ist abgelaufen. Bitte melde dich erneut an.");
+        setIsLoading(false);
+        return;
+      }
+      
       // Insert project and get the project id
       const { data: projectData, error: projectError } = await supabase
         .from("projects")
@@ -42,7 +50,11 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         .select('id')
         .single();
 
-      if (projectError) throw projectError;
+      if (projectError) {
+        console.error("Error creating project:", projectError);
+        toast.error(`Fehler beim Erstellen des Projekts: ${projectError.message}`);
+        return;
+      }
       
       // Add project owner to project_members
       const { error: memberError } = await supabase
@@ -53,7 +65,11 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
           role: "owner"
         }]);
 
-      if (memberError) throw memberError;
+      if (memberError) {
+        console.error("Error adding project member:", memberError);
+        toast.error(`Fehler beim Hinzufügen als Projektbesitzer: ${memberError.message}`);
+        return;
+      }
 
       toast.success("Projekt erfolgreich erstellt");
       
