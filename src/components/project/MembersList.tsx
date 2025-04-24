@@ -25,7 +25,7 @@ export const MembersList = ({ members, isOwner, onDeleteMember }: MembersListPro
           <span>{member.email || 'Unbekannt'}</span>
           <div className="flex items-center gap-2">
             <span className="text-sm text-[#7A9992] dark:text-[#CCCCCC]">{member.role}</span>
-            {isOwner && onDeleteMember && (
+            {isOwner && onDeleteMember && member.role !== "owner" && (
               <Button
                 variant="ghost"
                 size="sm"
