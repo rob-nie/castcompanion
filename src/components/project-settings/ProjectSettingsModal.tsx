@@ -38,11 +38,25 @@ export const ProjectSettingsModal = ({
         return;
       }
 
+      // First, find the member entry for the current user
+      const { data: memberData, error: findError } = await supabase
+        .from("project_members")
+        .select("id")
+        .eq("project_id", project.id)
+        .eq("user_id", user.id)
+        .single();
+
+      if (findError || !memberData) {
+        console.error("Error finding project member:", findError);
+        toast.error("Fehler beim Finden der Mitgliedschaft");
+        return;
+      }
+
+      // Then delete the specific member entry by id
       const { error } = await supabase
         .from("project_members")
         .delete()
-        .eq("project_id", project.id)
-        .eq("user_id", user.id);
+        .eq("id", memberData.id);
 
       if (error) throw error;
 
