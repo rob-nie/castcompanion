@@ -58,7 +58,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
           return;
         }
 
-        // Using simple query instead of RPC to avoid type issues
+        // Check if user is a member with owner role
         const { data, error } = await supabase
           .from("project_members")
           .select("role")
@@ -92,8 +92,6 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
     : null;
 
   const handleCardClick = () => {
-    // In the future this could navigate to the project detail page
-    // navigate(`/projects/${project.id}`);
     setIsSettingsModalOpen(true);
   };
 

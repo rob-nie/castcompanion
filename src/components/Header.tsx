@@ -37,7 +37,7 @@ export function Header({ currentPage }: HeaderProps) {
       <div className="mx-auto max-w-[1288px] flex justify-between items-center">
         <div className="flex items-center gap-8">
           <div 
-            className="font-inter font-bold text-xl md:text-2xl cursor-pointer"
+            className="font-inter font-bold text-xl md:text-2xl cursor-pointer text-[#0A1915] dark:text-white"
             onClick={handleLogoClick}
           >
             <span className="font-bold">Cast</span>Companion

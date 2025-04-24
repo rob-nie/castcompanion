@@ -48,32 +48,37 @@ const Projects = () => {
         return;
       }
 
-      // Fetch projects where the user is a member
-      const { data: memberProjects, error: memberError } = await supabase
+      // Fetch project IDs where user is a member
+      const { data: memberProjectIds, error: membershipError } = await supabase
         .from("project_members")
         .select("project_id")
         .eq("user_id", user.id);
 
-      if (memberError) {
-        console.error("Error fetching project memberships:", memberError);
+      if (membershipError) {
+        console.error("Error fetching member project IDs:", membershipError);
         // Still show owned projects, don't block on membership error
+        setProjects(ownedProjects || []);
+        setIsLoading(false);
+        return;
       }
 
       // If user is a member of any projects, fetch those projects
       let memberProjectData: Tables<"projects">[] = [];
-      if (memberProjects && memberProjects.length > 0) {
-        const projectIds = memberProjects.map(membership => membership.project_id).filter(Boolean) as string[];
+      if (memberProjectIds && memberProjectIds.length > 0) {
+        const projectIds = memberProjectIds
+          .map(membership => membership.project_id)
+          .filter(Boolean) as string[];
         
         if (projectIds.length > 0) {
-          const { data: projects, error: projectsError } = await supabase
+          const { data: memberProjects, error: projectsError } = await supabase
             .from("projects")
             .select("*")
             .in("id", projectIds);
             
           if (projectsError) {
             console.error("Error fetching member projects:", projectsError);
-          } else if (projects) {
-            memberProjectData = projects;
+          } else {
+            memberProjectData = memberProjects || [];
           }
         }
       }
@@ -94,7 +99,6 @@ const Projects = () => {
       );
       
       setProjects(combinedProjects);
-      setError(null);
     } catch (error: any) {
       console.error("Error fetching projects:", error);
       setError("Unerwarteter Fehler beim Laden der Projekte");

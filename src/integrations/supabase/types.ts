@@ -60,13 +60,6 @@ export type Database = {
             foreignKeyName: "project_members_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "accessible_projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "project_members_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
@@ -101,37 +94,11 @@ export type Database = {
       }
     }
     Views: {
-      accessible_projects: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string | null
-          title: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          title?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          title?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       is_project_member: {
-        Args: { project_id: string }
+        Args: { project_id: string; user_id: string }
         Returns: boolean
       }
     }
