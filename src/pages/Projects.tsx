@@ -35,70 +35,26 @@ const Projects = () => {
         return;
       }
       
-      // Fetch projects the user owns
-      const { data: ownedProjects, error: ownedError } = await supabase
+      // Fetch ALL projects - we'll let RLS handle the filtering
+      // This should include both owned projects and projects where user is a member
+      // thanks to the RLS policy using the is_project_member function
+      const { data: allProjects, error: projectsError } = await supabase
         .from("projects")
-        .select("*")
-        .eq("user_id", user.id);
+        .select("*");
         
-      if (ownedError) {
-        console.error("Error fetching owned projects:", ownedError);
-        setError(ownedError.message);
-        toast.error(`Fehler beim Laden eigener Projekte: ${ownedError.message}`);
+      if (projectsError) {
+        console.error("Error fetching projects:", projectsError);
+        setError(projectsError.message);
+        toast.error(`Fehler beim Laden der Projekte: ${projectsError.message}`);
         return;
       }
-
-      // Fetch project IDs where user is a member
-      const { data: memberProjectIds, error: membershipError } = await supabase
-        .from("project_members")
-        .select("project_id")
-        .eq("user_id", user.id);
-
-      if (membershipError) {
-        console.error("Error fetching member project IDs:", membershipError);
-        // Still show owned projects, don't block on membership error
-        setProjects(ownedProjects || []);
-        setIsLoading(false);
-        return;
-      }
-
-      // If user is a member of any projects, fetch those projects
-      let memberProjectData: Tables<"projects">[] = [];
-      if (memberProjectIds && memberProjectIds.length > 0) {
-        const projectIds = memberProjectIds
-          .map(membership => membership.project_id)
-          .filter(Boolean) as string[];
-        
-        if (projectIds.length > 0) {
-          const { data: memberProjects, error: projectsError } = await supabase
-            .from("projects")
-            .select("*")
-            .in("id", projectIds);
-            
-          if (projectsError) {
-            console.error("Error fetching member projects:", projectsError);
-          } else {
-            memberProjectData = memberProjects || [];
-          }
-        }
-      }
-
-      // Combine owned and member projects, avoiding duplicates
-      const combinedProjects = [...(ownedProjects || [])];
-      
-      // Add member projects that aren't already in owned projects
-      memberProjectData.forEach(memberProject => {
-        if (!combinedProjects.some(p => p.id === memberProject.id)) {
-          combinedProjects.push(memberProject);
-        }
-      });
       
       // Sort by updated_at date
-      combinedProjects.sort((a, b) => 
+      const sortedProjects = [...(allProjects || [])].sort((a, b) => 
         new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
       );
       
-      setProjects(combinedProjects);
+      setProjects(sortedProjects);
     } catch (error: any) {
       console.error("Error fetching projects:", error);
       setError("Unerwarteter Fehler beim Laden der Projekte");
