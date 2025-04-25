@@ -48,7 +48,11 @@ export function UserSettingsModal({ isOpen, onClose }: UserSettingsModalProps) {
         });
       }
       
-      onClose();
+      // Use setTimeout to avoid state update conflicts
+      setTimeout(() => {
+        onClose();
+        setIsSaving(false);
+      }, 100);
     } catch (error) {
       console.error("Error updating user:", error);
       toast({
@@ -56,13 +60,19 @@ export function UserSettingsModal({ isOpen, onClose }: UserSettingsModalProps) {
         description: "Deine Einstellungen konnten nicht gespeichert werden.",
         variant: "destructive",
       });
-    } finally {
       setIsSaving(false);
     }
   };
 
+  // Separate handler for dialog close to prevent closing while saving
+  const handleDialogChange = (open: boolean) => {
+    if (!open && !isSaving) {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !isSaving && onClose()}>
+    <Dialog open={isOpen} onOpenChange={handleDialogChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">Benutzereinstellungen</DialogTitle>
