@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface UserSettingsModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface UserSettingsModalProps {
 export function UserSettingsModal({ isOpen, onClose }: UserSettingsModalProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
   const [username, setUsername] = useState(user?.user_metadata?.full_name || "");
   const [email, setEmail] = useState(user?.email || "");
   
@@ -74,16 +76,16 @@ export function UserSettingsModal({ isOpen, onClose }: UserSettingsModalProps) {
             <Label>Darstellung</Label>
             <div className="flex gap-2">
               <Button
-                onClick={() => document.documentElement.classList.remove('dark')}
-                variant="outline"
-                className="flex-1 h-11 rounded-[10px]"
+                onClick={() => setTheme("light")}
+                variant={theme === "light" ? "default" : "outline"}
+                className={`flex-1 h-11 rounded-[10px] ${theme === "light" ? "bg-[#14A090] text-white hover:bg-[#14A090]/90" : ""}`}
               >
                 Light Mode
               </Button>
               <Button
-                onClick={() => document.documentElement.classList.add('dark')}
-                variant="outline"
-                className="flex-1 h-11 rounded-[10px]"
+                onClick={() => setTheme("dark")}
+                variant={theme === "dark" ? "default" : "outline"}
+                className={`flex-1 h-11 rounded-[10px] ${theme === "dark" ? "bg-[#14A090] text-white hover:bg-[#14A090]/90" : ""}`}
               >
                 Dark Mode
               </Button>
@@ -100,7 +102,7 @@ export function UserSettingsModal({ isOpen, onClose }: UserSettingsModalProps) {
           </Button>
           <Button
             onClick={handleSave}
-            className="h-11 px-5 rounded-[10px] bg-cast-sea-green text-white hover:bg-cast-sea-green/90"
+            className="h-11 px-5 rounded-[10px] bg-[#14A090] text-white hover:bg-[#14A090]/90"
           >
             Änderungen speichern
           </Button>
