@@ -78,7 +78,7 @@ const Project = () => {
       <main className="flex-grow px-6 md:px-12 lg:px-24 py-16">
         <div className="mx-auto max-w-[1288px]">
           <h1 className="text-2xl font-medium text-[#0A1915] dark:text-white mb-6">
-            {project.name}
+            {project.title}
           </h1>
           
           <div className="bg-[#F9F9F9] dark:bg-[#222625] border border-[#CCCCCC] dark:border-[#5E6664] rounded-[20px] p-6 shadow-md">
