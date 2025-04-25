@@ -20,20 +20,33 @@ export function UserSettingsModal({ isOpen, onClose }: UserSettingsModalProps) {
   const { theme, setTheme } = useTheme();
   const [username, setUsername] = useState(user?.user_metadata?.full_name || "");
   const [email, setEmail] = useState(user?.email || "");
+  const [isSaving, setIsSaving] = useState(false);
   
   const handleSave = async () => {
+    if (isSaving) return; // Prevent multiple save attempts
+    
     try {
-      const { error: updateError } = await supabase.auth.updateUser({
-        email: email,
-        data: { full_name: username }
-      });
+      setIsSaving(true);
+      
+      // Only update if there are actual changes
+      if (email !== user?.email || username !== user?.user_metadata?.full_name) {
+        const { error: updateError } = await supabase.auth.updateUser({
+          email: email,
+          data: { full_name: username }
+        });
 
-      if (updateError) throw updateError;
+        if (updateError) throw updateError;
 
-      toast({
-        title: "Erfolgreich gespeichert",
-        description: "Deine Einstellungen wurden aktualisiert.",
-      });
+        toast({
+          title: "Erfolgreich gespeichert",
+          description: "Deine Einstellungen wurden aktualisiert.",
+        });
+      } else {
+        toast({
+          title: "Keine Änderungen",
+          description: "Es wurden keine Änderungen vorgenommen.",
+        });
+      }
       
       onClose();
     } catch (error) {
@@ -43,11 +56,13 @@ export function UserSettingsModal({ isOpen, onClose }: UserSettingsModalProps) {
         description: "Deine Einstellungen konnten nicht gespeichert werden.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !isSaving && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">Benutzereinstellungen</DialogTitle>
@@ -96,15 +111,17 @@ export function UserSettingsModal({ isOpen, onClose }: UserSettingsModalProps) {
           <Button
             variant="outline"
             onClick={onClose}
+            disabled={isSaving}
             className="h-11 px-5 rounded-[10px]"
           >
             Abbrechen
           </Button>
           <Button
             onClick={handleSave}
+            disabled={isSaving}
             className="h-11 px-5 rounded-[10px] bg-[#14A090] text-white hover:bg-[#14A090]/90"
           >
-            Änderungen speichern
+            {isSaving ? "Wird gespeichert..." : "Änderungen speichern"}
           </Button>
         </div>
       </DialogContent>

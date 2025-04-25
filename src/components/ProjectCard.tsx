@@ -92,6 +92,11 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
     : null;
 
   const handleCardClick = () => {
+    navigate(`/projects/${project.id}`);
+  };
+
+  const handleSettingsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsSettingsModalOpen(true);
   };
 
@@ -107,7 +112,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
           boxShadow: boxShadow,
         }}
       >
-        <div className="text-white h-full flex flex-col">
+        <div className="text-white h-full flex flex-col text-left">
           <h3 className="text-xl font-medium mb-2">{project.title}</h3>
           {project.description && (
             <p className="text-sm opacity-90 line-clamp-2">{project.description}</p>
@@ -119,10 +124,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
           )}
           <div className="absolute top-4 right-4 flex gap-2">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsSettingsModalOpen(true);
-              }}
+              onClick={handleSettingsClick}
               className="p-2 rounded-full hover:bg-white/10 transition-colors"
             >
               <Settings className="w-5 h-5 text-white" />
