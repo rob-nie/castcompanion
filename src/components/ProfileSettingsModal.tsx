@@ -65,7 +65,12 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.rpc('delete_user');
+      // Call the delete_user function using a direct SQL query instead of rpc
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', user.id);
+        
       if (error) throw error;
 
       await supabase.auth.signOut();
