@@ -1,15 +1,18 @@
 
+import { useState } from "react";
 import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
+import { ProfileSettingsModal } from "./ProfileSettingsModal";
 import { 
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserRound } from "lucide-react";
+import { Settings, LogOut, UserRound } from "lucide-react";
 
 interface HeaderProps {
   currentPage?: string;
@@ -18,6 +21,7 @@ interface HeaderProps {
 export function Header({ currentPage }: HeaderProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
 
   const handleLogoClick = () => {
     if (user) {
@@ -67,7 +71,13 @@ export function Header({ currentPage }: HeaderProps) {
                   </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setShowProfileSettings(true)}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Einstellungen
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
                     Abmelden
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -91,6 +101,11 @@ export function Header({ currentPage }: HeaderProps) {
           )}
         </div>
       </div>
+
+      <ProfileSettingsModal
+        isOpen={showProfileSettings}
+        onClose={() => setShowProfileSettings(false)}
+      />
     </header>
   );
 }
