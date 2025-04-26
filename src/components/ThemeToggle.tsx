@@ -1,15 +1,35 @@
-
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "./ThemeProvider";
+import { useEffect, useState } from "react";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    // Check for system preference or saved preference
+    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    
+    const initialTheme = savedTheme || (systemPrefersDark ? "dark" : "light");
+    setTheme(initialTheme);
+    applyTheme(initialTheme);
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
+    applyTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+  };
+
+  const applyTheme = (theme: "light" | "dark") => {
+    const root = window.document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
   };
 
   return (
@@ -19,9 +39,9 @@ export function ThemeToggle() {
       aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
     >
       {theme === "light" ? (
-        <Moon className="h-5 w-5 text-[#7A9992] dark:text-[#CCCCCC] group-hover:text-[#14A090]" />
+        <Moon className="h-5 w-5 text-secondary group-hover:text-white" />
       ) : (
-        <Sun className="h-5 w-5 text-[#7A9992] dark:text-[#CCCCCC] group-hover:text-[#14A090]" />
+        <Sun className="h-5 w-5 text-secondary group-hover:text-white" />
       )}
     </button>
   );

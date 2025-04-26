@@ -30,7 +30,7 @@ export const RegisterForm = ({ onSubmit, isLoading }: RegisterFormProps) => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-4">
-          <div className="space-y-2 text-left">
+          <div className="space-y-2">
             <label htmlFor="name" className="block text-sm font-medium">Name</label>
             <Input
               id="name"
@@ -42,7 +42,7 @@ export const RegisterForm = ({ onSubmit, isLoading }: RegisterFormProps) => {
             />
           </div>
 
-          <div className="space-y-2 text-left">
+          <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium">E-Mail</label>
             <Input
               id="email"
@@ -54,7 +54,7 @@ export const RegisterForm = ({ onSubmit, isLoading }: RegisterFormProps) => {
             />
           </div>
           
-          <div className="space-y-2 text-left">
+          <div className="space-y-2">
             <label htmlFor="password" className="block text-sm font-medium">Passwort</label>
             <Input
               id="password"
@@ -65,7 +65,7 @@ export const RegisterForm = ({ onSubmit, isLoading }: RegisterFormProps) => {
             />
           </div>
 
-          <div className="space-y-2 text-left">
+          <div className="space-y-2">
             <label htmlFor="confirmPassword" className="block text-sm font-medium">Passwort bestätigen</label>
             <Input
               id="confirmPassword"

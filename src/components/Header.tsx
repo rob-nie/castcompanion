@@ -1,9 +1,8 @@
+
 import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
-import { useState } from "react";
-import { UserSettingsModal } from "./user/UserSettingsModal";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +18,6 @@ interface HeaderProps {
 export function Header({ currentPage }: HeaderProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showSettings, setShowSettings] = useState(false);
 
   const handleLogoClick = () => {
     if (user) {
@@ -69,9 +67,6 @@ export function Header({ currentPage }: HeaderProps) {
                   </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setShowSettings(true)}>
-                    Benutzereinstellungen
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     Abmelden
                   </DropdownMenuItem>
@@ -96,10 +91,6 @@ export function Header({ currentPage }: HeaderProps) {
           )}
         </div>
       </div>
-      <UserSettingsModal 
-        isOpen={showSettings} 
-        onClose={() => setShowSettings(false)} 
-      />
     </header>
   );
 }
