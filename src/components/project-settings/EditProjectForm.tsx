@@ -64,11 +64,12 @@ export const EditProjectForm = ({ project, onSuccess, onClose }: EditProjectForm
         <label htmlFor="description" className="block text-sm font-medium text-[#0A1915] dark:text-white mb-2">
           Beschreibung
         </label>
-        <textarea
+        <Input
           id="description"
+          type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full rounded-[10px] border border-[#7A9992] bg-transparent p-2 min-h-[100px]"
+          className="w-full"
         />
       </div>
       <div className="flex justify-end gap-2">
@@ -83,3 +84,4 @@ export const EditProjectForm = ({ project, onSuccess, onClose }: EditProjectForm
     </form>
   );
 };
+
