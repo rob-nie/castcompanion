@@ -4,7 +4,6 @@ import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
-import { ProfileSettingsModal } from "./ProfileSettingsModal";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +20,6 @@ interface HeaderProps {
 export function Header({ currentPage }: HeaderProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showProfileSettings, setShowProfileSettings] = useState(false);
 
   const handleLogoClick = () => {
     if (user) {
@@ -71,7 +69,7 @@ export function Header({ currentPage }: HeaderProps) {
                   </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setShowProfileSettings(true)}>
+                  <DropdownMenuItem onClick={() => navigate("/settings")}>
                     <Settings className="mr-2 h-4 w-4" />
                     Einstellungen
                   </DropdownMenuItem>
@@ -101,11 +99,6 @@ export function Header({ currentPage }: HeaderProps) {
           )}
         </div>
       </div>
-
-      <ProfileSettingsModal
-        isOpen={showProfileSettings}
-        onClose={() => setShowProfileSettings(false)}
-      />
     </header>
   );
 }

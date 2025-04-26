@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +7,7 @@ import { AuthProvider } from "./context/AuthProvider";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Projects from "./pages/Projects";
+import Settings from "./pages/Settings";
 import { useAuth } from "./context/AuthProvider";
 
 const queryClient = new QueryClient();
@@ -39,6 +39,7 @@ const AppRoutes = () => {
       <Route path="/" element={user ? <Navigate to="/projects" replace /> : <Navigate to="/auth" replace />} />
       <Route path="/auth/*" element={user ? <Navigate to="/projects" replace /> : <Auth />} />
       <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

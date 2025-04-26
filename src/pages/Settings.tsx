@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,12 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
-interface ProfileSettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalProps) {
+export default function Settings() {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -52,7 +48,6 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
       if (updateError) throw updateError;
 
       toast.success("Profil erfolgreich aktualisiert");
-      onClose();
     } catch (error: any) {
       toast.error(`Fehler beim Aktualisieren: ${error.message}`);
     } finally {
@@ -65,7 +60,6 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
     setIsLoading(true);
 
     try {
-      // Call the delete_user function using a direct SQL query instead of rpc
       const { error } = await supabase
         .from('profiles')
         .delete()
@@ -84,14 +78,14 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
   };
 
   return (
-    <>
-      <Sheet open={isOpen} onOpenChange={() => !isLoading && onClose()}>
-        <SheetContent className="w-full sm:max-w-lg">
-          <SheetHeader>
-            <SheetTitle>Profileinstellungen</SheetTitle>
-          </SheetHeader>
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header currentPage="settings" />
+      
+      <main className="flex-grow px-6 md:px-12 lg:px-24 py-16">
+        <div className="mx-auto max-w-[600px]">
+          <h1 className="text-2xl font-medium mb-8 text-[#0A1915] dark:text-white">Profileinstellungen</h1>
           
-          <div className="mt-6 space-y-6">
+          <div className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="fullName" className="text-left">Name</Label>
               <Input
@@ -99,6 +93,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 disabled={isLoading}
+                className="w-full"
               />
             </div>
 
@@ -110,6 +105,7 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
+                className="w-full"
               />
             </div>
 
@@ -121,25 +117,17 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
               >
                 Konto löschen
               </Button>
-              <div className="space-x-2">
-                <Button
-                  variant="outline"
-                  onClick={onClose}
-                  disabled={isLoading}
-                >
-                  Abbrechen
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={isLoading}
-                >
-                  Speichern
-                </Button>
-              </div>
+              <Button
+                onClick={handleSave}
+                disabled={isLoading}
+                className="bg-[#14A090] hover:bg-[#14A090]/90"
+              >
+                Speichern
+              </Button>
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
+        </div>
+      </main>
 
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
@@ -161,6 +149,8 @@ export function ProfileSettingsModal({ isOpen, onClose }: ProfileSettingsModalPr
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+
+      <Footer />
+    </div>
   );
 }
