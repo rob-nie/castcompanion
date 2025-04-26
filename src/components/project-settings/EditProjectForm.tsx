@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
@@ -64,12 +65,12 @@ export const EditProjectForm = ({ project, onSuccess, onClose }: EditProjectForm
         <label htmlFor="description" className="block text-sm font-medium text-[#0A1915] dark:text-white mb-2">
           Beschreibung
         </label>
-        <Input
+        <Textarea
           id="description"
-          type="text"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full"
+          className="w-full h-32"
+          placeholder="Projektbeschreibung"
         />
       </div>
       <div className="flex justify-end gap-2">
@@ -84,4 +85,3 @@ export const EditProjectForm = ({ project, onSuccess, onClose }: EditProjectForm
     </form>
   );
 };
-
