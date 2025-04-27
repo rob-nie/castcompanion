@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -170,39 +169,23 @@ export const WatchTile = ({ project }: WatchTileProps) => {
       }}
     >
       <div className="text-white h-full flex flex-col items-center">
-        <div className="font-inter font-bold text-[20px] mb-3 font-mono">
-          {formatTime(displayTime)}
-        </div>
-        
-        <div className="text-center mb-4">
-          <div className="text-[14px] font-normal">
-            {format(currentTime, 'HH:mm')} Uhr
-          </div>
-          <div className="text-[10px] font-normal">
-            {format(currentTime, 'EEE, d. MMMM yyyy', { locale: de })}
-          </div>
-        </div>
-
-        <div className="flex gap-4 items-center">
-          <Button
+        <div className="flex items-center gap-8 mb-3">
+          <button
             onClick={toggleTimer}
-            size="sm"
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/50"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/50"
           >
             {isRunning ? (
-              <>
-                <Pause className="mr-2 h-4 w-4" />
-                Pause
-              </>
+              <Pause className="h-4 w-4" />
             ) : (
-              <>
-                <Play className="mr-2 h-4 w-4" />
-                Start
-              </>
+              <Play className="h-4 w-4" />
             )}
-          </Button>
+          </button>
 
-          <Button
+          <div className="font-inter font-bold text-[20px] font-mono">
+            {formatTime(displayTime)}
+          </div>
+
+          <button
             onClick={() => {
               setDisplayTime(0);
               setAccumulatedTime(0);
@@ -210,11 +193,19 @@ export const WatchTile = ({ project }: WatchTileProps) => {
                 toggleTimer();
               }
             }}
-            size="sm"
-            className="bg-white/20 hover:bg-white/30 text-white border border-white/50"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/50"
           >
             <RotateCcw className="h-4 w-4" />
-          </Button>
+          </button>
+        </div>
+        
+        <div className="text-center">
+          <div className="font-inter font-normal text-[14px]">
+            {format(currentTime, 'HH:mm')} Uhr
+          </div>
+          <div className="font-inter font-normal text-[10px]">
+            {format(currentTime, 'EEE, d. MMMM yyyy', { locale: de })}
+          </div>
         </div>
       </div>
     </div>
