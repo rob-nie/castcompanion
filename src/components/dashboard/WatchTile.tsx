@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Timer } from "lucide-react";
+import { Play, Pause } from "lucide-react";
 import { format } from "date-fns";
+import { de } from "date-fns/locale";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface WatchTileProps {
@@ -151,7 +152,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
             {format(currentTime, 'HH:mm')} Uhr
           </div>
           <div className="text-sm opacity-90">
-            {format(currentTime, 'EEE, d. MMMM yyyy', { locale: require('date-fns/locale/de') })}
+            {format(currentTime, 'EEE, d. MMMM yyyy', { locale: de })}
           </div>
         </div>
 
