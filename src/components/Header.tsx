@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,12 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Settings, LogOut, UserRound } from "lucide-react";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface HeaderProps {
   currentPage?: string;
+  project?: Tables<"projects">;
 }
 
-export function Header({ currentPage }: HeaderProps) {
+export function Header({ currentPage, project }: HeaderProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -49,10 +50,18 @@ export function Header({ currentPage }: HeaderProps) {
             <nav className="hidden sm:flex items-center gap-6">
               <a 
                 href="/projects"
-                className={`text-sm ${currentPage === "projects" ? "text-[#14A090] font-medium" : "text-[#7A9992] font-normal"}`}
+                className={`text-sm ${currentPage === "projects" && !project ? "text-[#14A090] font-medium" : "text-[#7A9992] font-normal"}`}
               >
                 Meine Projekte
               </a>
+              {project && (
+                <a 
+                  href={`/projects/${project.id}`}
+                  className="text-[#14A090] font-medium text-sm"
+                >
+                  {project.title}
+                </a>
+              )}
             </nav>
           )}
         </div>

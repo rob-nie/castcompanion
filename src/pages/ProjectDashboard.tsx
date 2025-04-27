@@ -40,22 +40,18 @@ const ProjectDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header currentPage="projects" />
+      <Header currentPage="projects" project={project} />
       
       <main className="flex-grow px-6 md:px-12 lg:px-24 py-16 h-[calc(100vh-theme(spacing.32))]">
         <div className="mx-auto max-w-[1288px] h-full">
-          <h1 className="text-2xl font-medium text-[#0A1915] dark:text-white mb-6">
-            {project.title}
-          </h1>
-          
-          <div className="grid grid-cols-12 gap-6 h-[calc(100%-theme(spacing.16))]">
+          <div className="grid grid-cols-12 gap-[23px] h-full">
             {/* Notes Tile - Left Column */}
-            <div className="col-span-5 h-full">
+            <div className="col-span-7">
               <NotesTile project={project} />
             </div>
             
             {/* Right Column - Watch and Messenger */}
-            <div className="col-span-7 flex flex-col gap-6 h-full">
+            <div className="col-span-5 flex flex-col gap-[23px]">
               <WatchTile project={project} />
               <MessengerTile project={project} />
             </div>
