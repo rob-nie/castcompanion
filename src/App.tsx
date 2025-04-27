@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import Projects from "./pages/Projects";
 import Settings from "./pages/Settings";
 import { useAuth } from "./context/AuthProvider";
+import ProjectDashboard from "./pages/ProjectDashboard";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const AppRoutes = () => {
       <Route path="/auth/*" element={user ? <Navigate to="/projects" replace /> : <Auth />} />
       <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/projects/:projectId" element={<ProtectedRoute><ProjectDashboard /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

@@ -65,6 +65,38 @@ export type Database = {
           },
         ]
       }
+      project_timers: {
+        Row: {
+          accumulated_time: number
+          is_running: boolean
+          project_id: string
+          start_time: string | null
+          updated_at: string
+        }
+        Insert: {
+          accumulated_time?: number
+          is_running?: boolean
+          project_id: string
+          start_time?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accumulated_time?: number
+          is_running?: boolean
+          project_id?: string
+          start_time?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_timers_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
@@ -92,7 +91,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
     : null;
 
   const handleCardClick = () => {
-    setIsSettingsModalOpen(true);
+    navigate(`/projects/${project.id}`);
   };
 
   return (
