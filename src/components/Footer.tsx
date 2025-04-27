@@ -1,4 +1,3 @@
-
 export function Footer() {
   return (
     <footer className="w-full px-6 md:px-12 lg:px-24 py-5">
