@@ -59,12 +59,14 @@ export const WatchTile = ({ project }: WatchTileProps) => {
       }}
     >
       <div className="text-white h-full flex flex-col items-center justify-between">
-        <TimerControls 
-          isRunning={isRunning} 
-          displayTime={displayTime}
-          onToggle={toggleTimer} 
-          onReset={resetTimer} 
-        />
+        <div className="w-full px-3">
+          <TimerControls 
+            isRunning={isRunning} 
+            displayTime={displayTime}
+            onToggle={toggleTimer} 
+            onReset={resetTimer} 
+          />
+        </div>
         <TimeDisplay currentTime={currentTime} />
       </div>
     </div>
