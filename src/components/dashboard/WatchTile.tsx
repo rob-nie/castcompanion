@@ -4,7 +4,6 @@ import type { Tables } from "@/integrations/supabase/types";
 import { TimerControls } from "./watch/TimerControls";
 import { TimeDisplay } from "./watch/TimeDisplay";
 import { useTimer } from "./watch/useTimer";
-import { formatTime } from "./watch/utils";
 
 interface WatchTileProps {
   project: Tables<"projects">;
@@ -62,6 +61,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
       <div className="text-white h-full flex flex-col items-center justify-between">
         <TimerControls 
           isRunning={isRunning} 
+          displayTime={displayTime}
           onToggle={toggleTimer} 
           onReset={resetTimer} 
         />

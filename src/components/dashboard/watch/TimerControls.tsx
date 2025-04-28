@@ -1,13 +1,15 @@
 
 import { Play, Pause, RotateCcw } from "lucide-react";
+import { formatTime } from "./utils";
 
 interface TimerControlsProps {
   isRunning: boolean;
+  displayTime: number;
   onToggle: () => void;
   onReset: () => void;
 }
 
-export const TimerControls = ({ isRunning, onToggle, onReset }: TimerControlsProps) => {
+export const TimerControls = ({ isRunning, displayTime, onToggle, onReset }: TimerControlsProps) => {
   return (
     <div className="flex items-center gap-8">
       <button
