@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Play, Pause, RotateCcw } from "lucide-react";
@@ -149,6 +150,25 @@ export const WatchTile = ({ project }: WatchTileProps) => {
     }
   };
 
+  const resetTimer = async () => {
+    const currentTime = new Date().toISOString();
+    
+    await supabase
+      .from("project_timers")
+      .update({
+        is_running: false,
+        start_time: null,
+        accumulated_time: 0,
+        updated_at: currentTime
+      })
+      .eq("project_id", project.id);
+      
+    setDisplayTime(0);
+    setAccumulatedTime(0);
+    setStartTime(null);
+    setIsRunning(false);
+  };
+
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
@@ -168,11 +188,11 @@ export const WatchTile = ({ project }: WatchTileProps) => {
         boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)'
       }}
     >
-      <div className="text-white h-full flex flex-col items-center">
+      <div className="text-white h-full flex flex-col items-center justify-between">
         <div className="flex items-center gap-8 mb-3">
           <button
             onClick={toggleTimer}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/50"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors text-white border border-white/50"
           >
             {isRunning ? (
               <Pause className="h-4 w-4" />
@@ -181,19 +201,13 @@ export const WatchTile = ({ project }: WatchTileProps) => {
             )}
           </button>
 
-          <div className="font-inter font-bold text-[20px] font-mono">
+          <div className="font-inter font-bold text-[20px]">
             {formatTime(displayTime)}
           </div>
 
           <button
-            onClick={() => {
-              setDisplayTime(0);
-              setAccumulatedTime(0);
-              if (isRunning) {
-                toggleTimer();
-              }
-            }}
-            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/50"
+            onClick={resetTimer}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors text-white border border-white/50"
           >
             <RotateCcw className="h-4 w-4" />
           </button>
@@ -211,3 +225,4 @@ export const WatchTile = ({ project }: WatchTileProps) => {
     </div>
   );
 };
+
