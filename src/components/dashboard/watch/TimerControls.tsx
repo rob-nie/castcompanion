@@ -11,7 +11,7 @@ interface TimerControlsProps {
 
 export const TimerControls = ({ isRunning, displayTime, onToggle, onReset }: TimerControlsProps) => {
   return (
-    <div className="flex items-center gap-8">
+    <div className="flex items-center justify-between w-full px-12">
       <button
         onClick={onToggle}
         className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors text-white border border-white/50"
