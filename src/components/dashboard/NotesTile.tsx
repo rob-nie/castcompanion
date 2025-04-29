@@ -12,7 +12,9 @@ export const NotesTile = ({ project }: NotesTileProps) => {
   const [activeTab, setActiveTab] = useState("live-notes");
   const { displayTime } = useTimer(project.id);
   return (
-    <div cclassName="flex-1 max-w-[414px] p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_20px_20px_rgba(0,0,0,0.1)] dark:shadow-[5px_20px_20px_rgba(255,255,255,0.05)]">
+    <div className="h-full max-w-[851px] p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[
+#CCCCCC] dark:border-[
+#5E6664] shadow-[5px_20px_20px_rgba(0,0,0,0.1)] dark:shadow-[5px_20px_20px_rgba(255,255,255,0.05)] flex flex-col">
       <h2 className="text-xl font-medium mb-4">Notes</h2>
 
       <Tabs 
