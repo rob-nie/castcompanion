@@ -25,7 +25,10 @@ export const TimerControls = ({ isRunning, displayTime, onToggle, onReset }: Tim
         </button>
       </div>
 
-      <div className="font-inter font-bold text-[20px] text-white w-[100px] text-center">
+      <div
+        className="font-inter font-bold text-[20px] text-white w-[100px] text-center"
+        style={{ fontVariantNumeric: "tabular-nums" }}
+      >
         {formatTime(displayTime)}
       </div>
 
