@@ -38,11 +38,11 @@ export const NotesTile = ({ project }: NotesTileProps) => {
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="live-notes" className="flex-1">
+        <TabsContent value="live-notes" className="flex-1 overflow-hidden">
           <LiveNotesTab projectId={project.id} displayTime={displayTime} />
         </TabsContent>
         
-        <TabsContent value="interview-notes" className="flex-1">
+        <TabsContent value="interview-notes" className="flex-1 overflow-hidden">
           <InterviewNotesTab projectId={project.id} />
         </TabsContent>
       </Tabs>

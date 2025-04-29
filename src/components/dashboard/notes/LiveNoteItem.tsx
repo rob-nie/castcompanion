@@ -24,8 +24,22 @@ export const LiveNoteItem: React.FC<LiveNoteItemProps> = ({ note, onUpdate, onDe
   useEffect(() => {
     if (isEditing && textareaRef.current) {
       textareaRef.current.focus();
+      
+      // Auto-resize textarea when focused
+      adjustTextareaHeight();
     }
   }, [isEditing]);
+  
+  // Function to adjust textarea height based on content
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = 'auto';
+    // Set the height to the scrollHeight
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  };
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -50,6 +64,12 @@ export const LiveNoteItem: React.FC<LiveNoteItemProps> = ({ note, onUpdate, onDe
       await onDelete(note.id);
     }
   };
+  
+  // Handle content change and resize textarea
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value);
+    adjustTextareaHeight();
+  };
 
   return (
     <div className="bg-background border border-[#CCCCCC] dark:border-[#5E6664] p-3 rounded-lg mb-3">
@@ -67,9 +87,10 @@ export const LiveNoteItem: React.FC<LiveNoteItemProps> = ({ note, onUpdate, onDe
           <Textarea
             ref={textareaRef}
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="min-h-[100px] text-[14px] mb-2 border-[#7A9992]"
+            onChange={handleContentChange}
+            className="min-h-[40px] text-[14px] mb-2 border-[#7A9992]"
             placeholder="Notiz eingeben..."
+            rows={1}
           />
           <div className="flex justify-end gap-2">
             <Button
@@ -96,7 +117,7 @@ export const LiveNoteItem: React.FC<LiveNoteItemProps> = ({ note, onUpdate, onDe
       ) : (
         <div className="relative">
           <div 
-            className="text-[14px] whitespace-pre-wrap break-words min-h-[60px] cursor-pointer"
+            className="text-[14px] whitespace-pre-wrap break-words min-h-[30px] cursor-pointer"
             onClick={handleEdit}
           >
             {content || <span className="text-[#7A9992] dark:text-[#CCCCCC] italic">Notiz eingeben...</span>}

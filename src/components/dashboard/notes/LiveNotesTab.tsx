@@ -5,6 +5,7 @@ import { Plus, Download } from 'lucide-react';
 import { LiveNoteItem } from './LiveNoteItem';
 import { useLiveNotes } from '@/hooks/useLiveNotes';
 import { exportLiveNotesAsCSV } from '@/utils/exportUtils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface LiveNotesTabProps {
   projectId: string;
@@ -44,7 +45,7 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
         </Button>
       </div>
       
-      <div className="flex-1 overflow-y-auto">
+      <ScrollArea className="flex-1">
         {isLoading ? (
           <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">
             Laden...
@@ -54,16 +55,18 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
             Noch keine Notizen vorhanden.
           </div>
         ) : (
-          liveNotes.map(note => (
-            <LiveNoteItem
-              key={note.id}
-              note={note}
-              onUpdate={updateLiveNote}
-              onDelete={deleteLiveNote}
-            />
-          ))
+          <div className="pr-4">
+            {liveNotes.map(note => (
+              <LiveNoteItem
+                key={note.id}
+                note={note}
+                onUpdate={updateLiveNote}
+                onDelete={deleteLiveNote}
+              />
+            ))}
+          </div>
         )}
-      </div>
+      </ScrollArea>
     </div>
   );
 };
