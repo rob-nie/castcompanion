@@ -25,7 +25,8 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
   
   return (
     <div className="flex flex-col h-full">
-      <div className="flex justify-between items-center mb-4">
+      {/* Feste Höhe für die Button-Leiste */}
+      <div className="flex justify-between items-center mb-4 flex-shrink-0">
         <Button
           onClick={handleCreateNote}
           className="bg-[#14A090] text-white hover:bg-[#14A090]/90 h-[44px] rounded-[10px] px-[20px] py-[10px]"
@@ -45,30 +46,32 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
         </Button>
       </div>
       
-      {/* Stellen Sie sicher, dass die ScrollArea die restliche Höhe einnimmt */}
-      <ScrollArea className="flex-1 h-[calc(100%-60px)]">
-        {isLoading ? (
-          <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">
-            Laden...
-          </div>
-        ) : liveNotes.length === 0 ? (
-          <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">
-            Noch keine Notizen vorhanden.
-          </div>
-        ) : (
-          <div className="pr-4">
-            {liveNotes.map(note => (
-              <LiveNoteItem
-                key={note.id}
-                note={note}
-                onUpdate={updateLiveNote}
-                onDelete={deleteLiveNote}
-                autoFocus={note.content === '' && note.created_at === note.updated_at}
-              />
-            ))}
-          </div>
-        )}
-      </ScrollArea>
+      {/* Die ScrollArea wird den restlichen verfügbaren Platz einnehmen */}
+      <div className="flex-1 min-h-0"> {/* min-h-0 ist wichtig, damit flex-child schrumpfen kann */}
+        <ScrollArea className="h-full">
+          {isLoading ? (
+            <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">
+              Laden...
+            </div>
+          ) : liveNotes.length === 0 ? (
+            <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">
+              Noch keine Notizen vorhanden.
+            </div>
+          ) : (
+            <div className="pr-4">
+              {liveNotes.map(note => (
+                <LiveNoteItem
+                  key={note.id}
+                  note={note}
+                  onUpdate={updateLiveNote}
+                  onDelete={deleteLiveNote}
+                  autoFocus={note.content === '' && note.created_at === note.updated_at}
+                />
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </div>
     </div>
   );
 };
