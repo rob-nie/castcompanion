@@ -10,11 +10,12 @@ interface LiveNoteItemProps {
   note: LiveNote;
   onUpdate: (id: string, content: string) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
+  autoFocus?: boolean;
 }
 
-export const LiveNoteItem: React.FC<LiveNoteItemProps> = ({ note, onUpdate, onDelete }) => {
+export const LiveNoteItem: React.FC<LiveNoteItemProps> = ({ note, onUpdate, onDelete, autoFocus = false }) => {
   const [content, setContent] = useState(note.content);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(autoFocus);
   const [isSaving, setIsSaving] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -70,6 +71,15 @@ export const LiveNoteItem: React.FC<LiveNoteItemProps> = ({ note, onUpdate, onDe
     setContent(e.target.value);
     adjustTextareaHeight();
   };
+  
+  // Handle key press events for saving with Enter (Return)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Enter without Shift key saves the note
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSave();
+    }
+  };
 
   return (
     <div className="bg-background border border-[#CCCCCC] dark:border-[#5E6664] p-3 rounded-lg mb-3">
@@ -88,9 +98,11 @@ export const LiveNoteItem: React.FC<LiveNoteItemProps> = ({ note, onUpdate, onDe
             ref={textareaRef}
             value={content}
             onChange={handleContentChange}
+            onKeyDown={handleKeyDown}
             className="min-h-[40px] text-[14px] mb-2 border-[#7A9992]"
             placeholder="Notiz eingeben..."
             rows={1}
+            autoFocus={autoFocus}
           />
           <div className="flex justify-end gap-2">
             <Button

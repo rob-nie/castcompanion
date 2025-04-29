@@ -16,7 +16,9 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
   const { liveNotes, isLoading, createLiveNote, updateLiveNote, deleteLiveNote } = useLiveNotes(projectId);
 
   const handleCreateNote = async () => {
-    await createLiveNote(displayTime);
+    const newNote = await createLiveNote(displayTime);
+    // Die neue Notiz wird automatisch im Bearbeitungsmodus geöffnet
+    // durch das newNote Objekt, das an LiveNoteItem übergeben wird
   };
 
   const handleExportCSV = () => {
@@ -62,6 +64,7 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
                 note={note}
                 onUpdate={updateLiveNote}
                 onDelete={deleteLiveNote}
+                autoFocus={note.content === '' && note.created_at === note.updated_at}
               />
             ))}
           </div>
