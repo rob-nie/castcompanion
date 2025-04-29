@@ -55,14 +55,14 @@ const ProjectDashboard = () => {
             </div>
           ) : (
             // Desktop layout - original grid layout
-            <div className="grid grid-cols-12 gap-[23px] h-full">
+            <div className="grid grid-cols-3 gap-[23px] h-full">
               {/* Notes Tile - Left Column */}
-              <div className="col-span-7">
+              <div className="col-span-2">
                 <NotesTile project={project} />
               </div>
               
               {/* Right Column - Watch and Messenger */}
-              <div className="col-span-5 flex flex-col gap-[23px]">
+              <div className="col-span-1 flex flex-col gap-[23px]">
                 <WatchTile project={project} />
                 <MessengerTile project={project} />
               </div>
