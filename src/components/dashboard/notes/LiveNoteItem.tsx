@@ -82,7 +82,7 @@ export const LiveNoteItem: React.FC<LiveNoteItemProps> = ({ note, onUpdate, onDe
   };
 
   return (
-    <div className="bg-background border border-[#CCCCCC] dark:border-[#5E6664] p-3 rounded-lg mb-3">
+    <div className="bg-background p-3 mb-3">
       <div className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mb-1 flex justify-between">
         <div>
           {new Date(note.created_at).toLocaleString('de-DE')}
