@@ -44,7 +44,7 @@ const ProjectDashboard = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header currentPage="projects" project={project} />
       
-      <main className="flex-grow px-6 md:px-12 lg:px-24 py-16 h-[calc(100vh-theme(spacing.32))]">
+      <main className="flex-grow px-6 md:px-12 lg:px-24 py-6 h-[calc(100vh-theme(spacing.32))]">
         <div className="mx-auto max-w-[1288px] h-full">
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
