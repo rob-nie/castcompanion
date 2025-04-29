@@ -14,19 +14,17 @@ interface LiveNotesTabProps {
 
 export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTime }) => {
   const { liveNotes, isLoading, createLiveNote, updateLiveNote, deleteLiveNote } = useLiveNotes(projectId);
-
+  
   const handleCreateNote = async () => {
     const newNote = await createLiveNote(displayTime);
-    // Die neue Notiz wird automatisch im Bearbeitungsmodus geöffnet
-    // durch das newNote Objekt, das an LiveNoteItem übergeben wird
   };
-
+  
   const handleExportCSV = () => {
     exportLiveNotesAsCSV(liveNotes);
   };
-
+  
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-4">
         <Button
           onClick={handleCreateNote}
@@ -47,7 +45,8 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
         </Button>
       </div>
       
-      <ScrollArea className="flex-1">
+      {/* Stellen Sie sicher, dass die ScrollArea die restliche Höhe einnimmt */}
+      <ScrollArea className="flex-1 h-[calc(100%-60px)]">
         {isLoading ? (
           <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">
             Laden...
