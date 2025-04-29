@@ -145,8 +145,10 @@ export const useLiveNotes = (projectId: string) => {
           filter: `project_id=eq.${projectId}`
         },
         (payload) => {
+          // Type check the payload to ensure user_id exists before comparing
           // Only refresh if the change was for the current user
-          if (payload.new && payload.new.user_id === user?.id) {
+          const newData = payload.new as Record<string, any>;
+          if (newData && typeof newData === 'object' && 'user_id' in newData && newData.user_id === user?.id) {
             fetchLiveNotes();
           }
         }

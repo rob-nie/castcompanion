@@ -13,7 +13,8 @@ export const exportLiveNotesAsCSV = (notes: LiveNote[]): void => {
   notes.forEach(note => {
     const formattedTime = formatTime(note.time_marker);
     // Escape quotes in the content to prevent CSV issues
-    const escapedContent = note.content.replaceAll('"', '""');
+    // Using replace with global flag instead of replaceAll for better compatibility
+    const escapedContent = note.content.replace(/"/g, '""');
     csvContent += `"${new Date(note.created_at).toLocaleString()}","${formattedTime}","${escapedContent}"\n`;
   });
 
