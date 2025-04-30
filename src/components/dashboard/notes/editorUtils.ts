@@ -1,5 +1,8 @@
 
 import { Editor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Underline from '@tiptap/extension-underline';
 
 /**
  * Handles adding or updating a link in the editor
