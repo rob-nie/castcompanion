@@ -1,4 +1,6 @@
+
 import type { Config } from "tailwindcss";
+import typography from '@tailwindcss/typography';
 
 export default {
 	darkMode: ["class"],
@@ -76,7 +78,7 @@ export default {
 					"light-bg": "#F9F9F9",
 					"dark-bg": "#222625",
 				}
-			}, // Added missing comma here
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
@@ -103,8 +105,44 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+			},
+			typography: (theme: any) => ({
+				DEFAULT: {
+					css: {
+						'code::before': {
+							content: '""',
+						},
+						'code::after': {
+							content: '""',
+						},
+						'blockquote p:first-of-type::before': {
+							content: '""',
+						},
+						'blockquote p:last-of-type::after': {
+							content: '""',
+						},
+					},
+				},
+				light: {
+					css: {
+						color: '#0A1915',
+						a: { color: '#14A090' },
+						'h1,h2,h3,h4,h5,h6': { color: '#0A1915' },
+						'ul > li::marker': { color: '#0A1915' },
+						'ol > li::marker': { color: '#0A1915' },
+					},
+				},
+				dark: {
+					css: {
+						color: '#FFFFFF',
+						a: { color: '#14A090' },
+						'h1,h2,h3,h4,h5,h6': { color: '#FFFFFF' },
+						'ul > li::marker': { color: '#FFFFFF' },
+						'ol > li::marker': { color: '#FFFFFF' },
+					},
+				},
+			}),
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [typography, require("tailwindcss-animate")],
 } satisfies Config;

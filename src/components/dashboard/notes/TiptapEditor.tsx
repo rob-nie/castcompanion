@@ -21,16 +21,18 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
       StarterKit,
       Underline,
       Link.configure({
-        openOnClick: false,
+        openOnClick: true, // Make links clickable
         HTMLAttributes: {
           class: 'text-[#14A090] underline',
+          rel: 'noopener noreferrer',
+          target: '_blank',
         },
       }),
     ],
     content,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose-base dark:prose-invert focus:outline-none max-w-full px-4 py-2',
+        class: 'prose prose-sm sm:prose-base dark:prose-invert focus:outline-none max-w-full px-4 py-2 editor-content',
       },
     },
     onUpdate: ({ editor }) => {
@@ -41,6 +43,90 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
 
   useEffect(() => {
     setIsMounted(true);
+    
+    // Add css to document head to ensure proper styling
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .editor-content {
+        color: var(--foreground);
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.2;
+      }
+      
+      .editor-content h1 {
+        font-family: 'Inter', sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-top: 24px;
+        margin-bottom: 10px;
+        color: var(--foreground);
+      }
+      
+      .editor-content h2 {
+        font-family: 'Inter', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: var(--foreground);
+      }
+      
+      .editor-content h3 {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-top: 14px;
+        margin-bottom: 10px;
+        color: var(--foreground);
+      }
+      
+      .editor-content p {
+        margin-top: 0;
+        margin-bottom: 10px;
+        line-height: 1.2;
+      }
+      
+      .editor-content ul {
+        list-style-type: disc;
+        padding-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .editor-content ol {
+        list-style-type: decimal;
+        padding-left: 1.5rem;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .editor-content li {
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+      }
+      
+      .dark .editor-content * {
+        color: #FFFFFF !important;
+      }
+      
+      .editor-content * {
+        color: #0A1915 !important;
+      }
+      
+      .editor-content a {
+        color: #14A090 !important;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   // Handle link adding
