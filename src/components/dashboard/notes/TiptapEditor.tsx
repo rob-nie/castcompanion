@@ -110,11 +110,22 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
         margin-bottom: 0.25rem;
       }
       
+      /* Make text and bullet points the same color */
       .dark .editor-content * {
         color: #FFFFFF !important;
       }
       
+      .dark .editor-content ul > li::marker,
+      .dark .editor-content ol > li::marker {
+        color: #FFFFFF !important;
+      }
+      
       .editor-content * {
+        color: #0A1915 !important;
+      }
+      
+      .editor-content ul > li::marker,
+      .editor-content ol > li::marker {
         color: #0A1915 !important;
       }
       
