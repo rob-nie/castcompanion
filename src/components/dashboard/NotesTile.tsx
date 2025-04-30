@@ -5,47 +5,46 @@ import type { Tables } from "@/integrations/supabase/types";
 import { LiveNotesTab } from "./notes/LiveNotesTab";
 import { InterviewNotesTab } from "./notes/InterviewNotesTab";
 import { useTimer } from "./watch/useTimer";
+
 interface NotesTileProps {
   project: Tables<"projects">;
 }
+
 export const NotesTile = ({ project }: NotesTileProps) => {
   const [activeTab, setActiveTab] = useState("live-notes");
   const { displayTime } = useTimer(project.id);
+
   return (
     <div className="h-full max-w-[851px] p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_20px_20px_rgba(0,0,0,0.1)] dark:shadow-[5px_20px_20px_rgba(255,255,255,0.05)] flex flex-col">
       <Tabs 
         value={activeTab} 
         onValueChange={setActiveTab}
-        className="flex-1 flex flex-col"
+        className="flex-1 flex flex-col h-full"
       >
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger 
             value="live-notes"
-            className="text-[14px] data-[state=active]:text-[
-#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[
-#7A9992] dark:data-[state=inactive]:text-[
-#CCCCCC]"
+            className="text-[14px] data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC]"
           >
             Live Notes
           </TabsTrigger>
           <TabsTrigger 
             value="interview-notes"
-            className="text-[14px] data-[state=active]:text-[
-#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[
-#7A9992] dark:data-[state=inactive]:text-[
-#CCCCCC]"
+            className="text-[14px] data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC]"
           >
             Interview Notes
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="live-notes" className="flex-1 overflow-hidden">
-          <LiveNotesTab projectId={project.id} displayTime={displayTime} />
-        </TabsContent>
+        <div className="flex-1 overflow-hidden">
+          <TabsContent value="live-notes" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
+            <LiveNotesTab projectId={project.id} displayTime={displayTime} />
+          </TabsContent>
 
-        <TabsContent value="interview-notes" className="flex-1 overflow-hidden">
-          <InterviewNotesTab projectId={project.id} />
-        </TabsContent>
+          <TabsContent value="interview-notes" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
+            <InterviewNotesTab projectId={project.id} />
+          </TabsContent>
+        </div>
       </Tabs>
     </div>
   );

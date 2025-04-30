@@ -44,11 +44,11 @@ const ProjectDashboard = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header currentPage="projects" project={project} />
       
-      <main className="flex-grow px-6 md:px-12 lg:px-24 py-6 h-[calc(100vh-theme(spacing.32))]">
+      <main className="flex-grow px-6 md:px-12 lg:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-hidden">
         <div className="mx-auto max-w-[1288px] h-full">
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
-            <div className="flex flex-col gap-[23px]">
+            <div className="flex flex-col gap-[23px] h-full overflow-auto">
               <WatchTile project={project} />
               <NotesTile project={project} />
               <MessengerTile project={project} />
@@ -57,7 +57,7 @@ const ProjectDashboard = () => {
             // Desktop layout - original grid layout
             <div className="grid grid-cols-3 gap-[23px] h-full">
               {/* Notes Tile - Left Column */}
-              <div className="col-span-2">
+              <div className="col-span-2 h-full">
                 <NotesTile project={project} />
               </div>
               
