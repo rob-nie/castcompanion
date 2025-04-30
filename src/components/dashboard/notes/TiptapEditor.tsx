@@ -1,8 +1,9 @@
 
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
-import { Bold, Italic, Underline, Heading1, Heading2, Heading3, List, ListOrdered, Link as LinkIcon } from 'lucide-react';
+import Underline from '@tiptap/extension-underline';
+import { Bold, Italic, Underline as UnderlineIcon, Heading1, Heading2, Heading3, List, ListOrdered, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 
@@ -18,6 +19,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Underline,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -94,7 +96,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
             onClick={() => editor?.chain().focus().toggleUnderline().run()}
             className={`h-8 w-8 ${editor?.isActive('underline') ? 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#14A090]' : 'text-[#7A9992] dark:text-[#CCCCCC]'}`}
           >
-            <Underline className="h-4 w-4" />
+            <UnderlineIcon className="h-4 w-4" />
           </Button>
 
           <span className="mx-1 text-[#7A9992] dark:text-[#CCCCCC]">|</span>
