@@ -75,7 +75,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
             type="button"
             size="icon"
             variant="ghost"
-            onClick={() => editor?.chain().focus().toggleBold().run()}
+            onClick={() => editor?.chain().focus().setBold().run()}
             className={`h-8 w-8 ${editor?.isActive('bold') ? 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#14A090]' : 'text-[#7A9992] dark:text-[#CCCCCC]'}`}
           >
             <Bold className="h-4 w-4" />
@@ -84,7 +84,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
             type="button"
             size="icon"
             variant="ghost"
-            onClick={() => editor?.chain().focus().toggleItalic().run()}
+            onClick={() => editor?.chain().focus().setItalic().run()}
             className={`h-8 w-8 ${editor?.isActive('italic') ? 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#14A090]' : 'text-[#7A9992] dark:text-[#CCCCCC]'}`}
           >
             <Italic className="h-4 w-4" />
@@ -93,7 +93,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
             type="button"
             size="icon"
             variant="ghost"
-            onClick={() => editor?.chain().focus().toggleUnderline().run()}
+            onClick={() => editor?.chain().focus().setUnderline().run()}
             className={`h-8 w-8 ${editor?.isActive('underline') ? 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#14A090]' : 'text-[#7A9992] dark:text-[#CCCCCC]'}`}
           >
             <UnderlineIcon className="h-4 w-4" />
@@ -105,7 +105,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
             type="button"
             size="icon"
             variant="ghost"
-            onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+            onClick={() => editor?.chain().focus().setHeading({ level: 1 }).run()}
             className={`h-8 w-8 ${editor?.isActive('heading', { level: 1 }) ? 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#14A090]' : 'text-[#7A9992] dark:text-[#CCCCCC]'}`}
           >
             <Heading1 className="h-4 w-4" />
@@ -114,7 +114,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
             type="button"
             size="icon"
             variant="ghost"
-            onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+            onClick={() => editor?.chain().focus().setHeading({ level: 2 }).run()}
             className={`h-8 w-8 ${editor?.isActive('heading', { level: 2 }) ? 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#14A090]' : 'text-[#7A9992] dark:text-[#CCCCCC]'}`}
           >
             <Heading2 className="h-4 w-4" />
@@ -123,7 +123,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
             type="button"
             size="icon"
             variant="ghost"
-            onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
+            onClick={() => editor?.chain().focus().setHeading({ level: 3 }).run()}
             className={`h-8 w-8 ${editor?.isActive('heading', { level: 3 }) ? 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#14A090]' : 'text-[#7A9992] dark:text-[#CCCCCC]'}`}
           >
             <Heading3 className="h-4 w-4" />
@@ -135,7 +135,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
             type="button"
             size="icon"
             variant="ghost"
-            onClick={() => editor?.chain().focus().toggleBulletList().run()}
+            onClick={() => editor?.chain().focus().setBulletList().run()}
             className={`h-8 w-8 ${editor?.isActive('bulletList') ? 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#14A090]' : 'text-[#7A9992] dark:text-[#CCCCCC]'}`}
           >
             <List className="h-4 w-4" />
@@ -144,7 +144,7 @@ export const TiptapEditor = ({ content, onChange, autofocus = false }: TiptapEdi
             type="button"
             size="icon"
             variant="ghost"
-            onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+            onClick={() => editor?.chain().focus().setOrderedList().run()}
             className={`h-8 w-8 ${editor?.isActive('orderedList') ? 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#14A090]' : 'text-[#7A9992] dark:text-[#CCCCCC]'}`}
           >
             <ListOrdered className="h-4 w-4" />
