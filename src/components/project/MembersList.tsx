@@ -20,7 +20,7 @@ export const MembersList = ({ members, isOwner, onDeleteMember }: MembersListPro
   {members.map((member) => (
     <div
       key={member.id}
-      className="bg-background p-3 mb-2"
+      className="bg-background mb-2"
     >
       {/* Rolle oben */}
       <div className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mb-1">
