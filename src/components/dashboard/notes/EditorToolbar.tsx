@@ -4,16 +4,25 @@ import { Editor } from '@tiptap/react';
 import { 
   Bold, Italic, Underline as UnderlineIcon, 
   Heading1, Heading2, Heading3,
-  List, ListOrdered, Link as LinkIcon 
+  List, ListOrdered, Link as LinkIcon, Save 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface EditorToolbarProps {
   editor: Editor | null;
   addLink: () => void;
+  isSaving?: boolean; // Added this
+  hasUnsavedChanges?: boolean; // Added this
+  onSave?: () => void; // Added this
 }
 
-export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor, addLink }) => {
+export const EditorToolbar: React.FC<EditorToolbarProps> = ({ 
+  editor, 
+  addLink, 
+  isSaving = false, 
+  hasUnsavedChanges = false, 
+  onSave 
+}) => {
   if (!editor) {
     return null;
   }
@@ -111,6 +120,22 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor, addLink })
         >
           <LinkIcon className="h-4 w-4" />
         </Button>
+
+        {onSave && (
+          <>
+            <span className="mx-1 text-[#7A9992] dark:text-[#CCCCCC]">|</span>
+            <Button
+              type="button"
+              size="icon"
+              variant="ghost"
+              onClick={onSave}
+              disabled={isSaving || !hasUnsavedChanges}
+              className="h-8 w-8 text-[#7A9992] dark:text-[#CCCCCC]"
+            >
+              <Save className="h-4 w-4" />
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

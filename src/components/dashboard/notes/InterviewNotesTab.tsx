@@ -1,8 +1,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { TiptapEditor } from './TiptapEditor';
-import { supabase } from '@/integrations/supabase/client'; // Updated import path
-import useInterval from '@/hooks/useInterviewNotes'; // Fixed import path for useInterval hook
+import { supabase } from '@/integrations/supabase/client';
+import { useInterval } from '@/hooks/useInterval'; // Changed to named import
+import { useAuth } from "@/context/AuthProvider";
 
 interface InterviewNotesTabProps {
   projectId: string;
@@ -56,9 +57,9 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
     loadNotes();
   }, [projectId, userId]);
 
-  // Speichern der Notizen in der Datenbank
-  const saveNotes = useCallback(async (content: string) => {
-    if (!projectId || !userId) return false;
+  // Speichern der Notizen in der Datenbank - Fix the return type to be Promise<void> instead of Promise<boolean>
+  const saveNotes = useCallback(async (content: string): Promise<void> => {
+    if (!projectId || !userId) return;
     
     setIsSaving(true);
     setError(null);
@@ -82,11 +83,9 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
       if (upsertError) throw upsertError;
       
       setLastSavedAt(now);
-      return true;
     } catch (err) {
       console.error('Fehler beim Speichern der Notizen:', err);
       setError('Die Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es später erneut.');
-      return false;
     } finally {
       setIsSaving(false);
     }
@@ -171,5 +170,3 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
     </div>
   );
 };
-
-import { useAuth } from "@/context/AuthProvider";

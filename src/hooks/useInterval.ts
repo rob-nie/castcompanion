@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react';
  * @param callback Function to execute periodically
  * @param delay Interval in milliseconds (null to pause)
  */
-const useInterval = (callback: () => void, delay: number | null) => {
+export const useInterval = (callback: () => void, delay: number | null) => {
   const savedCallback = useRef<() => void>();
 
   // Remember the latest callback
