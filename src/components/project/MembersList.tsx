@@ -22,10 +22,17 @@ export const MembersList = ({ members, isOwner, onDeleteMember }: MembersListPro
       key={member.id}
       className="bg-background p-3 mb-2"
     >
-      <div className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mb-1 flex justify-between">
-        <div className="font-normal">
-          {member.role}
-        </div>
+      {/* Rolle oben */}
+      <div className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mb-1">
+        {member.role}
+      </div>
+
+      {/* Email und Lösch-Icon in einer Zeile */}
+      <div className="flex justify-between items-center">
+        <span className="text-sm">
+          {member.email || 'Unbekannt'}
+        </span>
+
         {isOwner && onDeleteMember && member.role !== "owner" && (
           <Button
             variant="ghost"
@@ -37,10 +44,6 @@ export const MembersList = ({ members, isOwner, onDeleteMember }: MembersListPro
             <span className="sr-only">Mitglied entfernen</span>
           </Button>
         )}
-      </div>
-
-      <div className="text-sm">
-        {member.email || 'Unbekannt'}
       </div>
     </div>
   ))}
