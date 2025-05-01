@@ -4,6 +4,7 @@ import { TiptapEditor } from './TiptapEditor';
 import { supabase } from '@/integrations/supabase/client';
 import { useInterval } from '@/hooks/useInterval'; // Changed to named import
 import { useAuth } from "@/context/AuthProvider";
+import { toast } from "sonner";
 
 interface InterviewNotesTabProps {
   projectId: string;
@@ -27,21 +28,23 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
       setError(null);
       
       try {
-        // Supabase Abfrage zum Laden der Notizen
+        // Supabase Abfrage zum Laden der Notizen - Geändert, um mit mehreren Notizen umzugehen
         const { data: notesData, error: fetchError } = await supabase
           .from('interview_notes')
           .select('content, updated_at')
           .eq('project_id', projectId)
           .eq('user_id', userId)
-          .maybeSingle();
+          .order('updated_at', { ascending: false });
         
         if (fetchError) {
           throw fetchError;
         }
         
-        if (notesData) {
-          setNotes(notesData.content || '');
-          setLastSavedAt(notesData.updated_at ? new Date(notesData.updated_at) : null);
+        if (notesData && notesData.length > 0) {
+          // Wir nehmen den neuesten Eintrag (basierend auf updated_at, absteigend sortiert)
+          const latestNote = notesData[0];
+          setNotes(latestNote.content || '');
+          setLastSavedAt(latestNote.updated_at ? new Date(latestNote.updated_at) : null);
         } else {
           // Dokument existiert noch nicht
           setNotes('');
@@ -57,7 +60,7 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
     loadNotes();
   }, [projectId, userId]);
 
-  // Speichern der Notizen in der Datenbank - Fix the return type to be Promise<void> instead of Promise<boolean>
+  // Speichern der Notizen in der Datenbank
   const saveNotes = useCallback(async (content: string): Promise<void> => {
     if (!projectId || !userId) return;
     
@@ -136,7 +139,7 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
       console.log('Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
-  }, [projectId, userId]);
+  }, [projectId, userId, notes, lastSavedAt]);
 
   // Immer aktives Polling als Fallback für Echtzeit-Updates
   useInterval(() => {
@@ -151,7 +154,8 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
           .select('content, updated_at')
           .eq('project_id', projectId)
           .eq('user_id', userId)
-          .maybeSingle()
+          .order('updated_at', { ascending: false })
+          .limit(1)
       )
       .then(({ data, error: fetchError }) => {
         if (fetchError) {
@@ -159,9 +163,10 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
           return;
         }
         
-        if (data) {
-          const remoteContent = data.content || '';
-          const remoteUpdatedAt = data.updated_at ? new Date(data.updated_at) : null;
+        if (data && data.length > 0) {
+          const latestNote = data[0];
+          const remoteContent = latestNote.content || '';
+          const remoteUpdatedAt = latestNote.updated_at ? new Date(latestNote.updated_at) : null;
           
           if (
             remoteContent !== notes && 
