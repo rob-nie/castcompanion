@@ -44,7 +44,7 @@ export function Header({ currentPage, project }: HeaderProps) {
           onClick={handleLogoClick}
         >
           <span className="font-bold">Cast</span>
-          <span className="font-light">Companion</span>
+          <span className="font-extralight">Companion</span>
         </div>
           
         {user && (
