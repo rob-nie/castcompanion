@@ -207,12 +207,6 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
         syncId={`interview-notes-${projectId}-${userId}`}
         autofocus={false}
       />
-      
-      {lastSavedAt && (
-        <div className="text-sm text-gray-500 mt-2">
-          Zuletzt gespeichert: {lastSavedAt.toLocaleString('de-DE')}
-        </div>
-      )}
     </div>
   );
 };
