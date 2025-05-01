@@ -89,7 +89,6 @@ const Projects = () => {
       <main className="flex-grow px-6 md:px-12 lg:px-24 py-16">
         <div className="mx-auto max-w-[1288px]">
           <div className="flex justify-between mb-6">
-            <h1 className="text-2xl font-medium text-[#0A1915] dark:text-white">Meine Projekte</h1>
             <Button onClick={() => setIsModalOpen(true)} className="bg-[#14A090] hover:bg-[#14A090]/90">
               <Plus className="mr-2 h-4 w-4" />
               Neues Projekt
