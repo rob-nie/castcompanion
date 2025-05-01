@@ -211,20 +211,6 @@ export const TiptapEditor = ({
       <div className="h-[calc(100%-40px)] overflow-auto">
         <EditorContent editor={editor} className="h-full min-h-[300px]" />
       </div>
-      
-      {/* Statusleiste für Synchronisation */}
-      <div className="flex items-center justify-end px-2 py-1 text-xs border-t border-[#7A9992] dark:border-[#CCCCCC]">
-        {isSaving ? (
-          <span className="text-amber-600 dark:text-amber-400 flex items-center">
-            <SavingIcon className="w-3 h-3 mr-1 animate-spin" />
-            Wird gespeichert...
-          </span>
-        ) : hasUnsavedChanges ? (
-          <span className="text-amber-600 dark:text-amber-400">Ungespeicherte Änderungen</span>
-        ) : (
-          <span className="text-green-600 dark:text-green-400">Alle Änderungen gespeichert</span>
-        )}
-      </div>
     </div>
   );
 };
