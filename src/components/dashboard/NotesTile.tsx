@@ -21,18 +21,18 @@ export const NotesTile = ({ project }: NotesTileProps) => {
         onValueChange={setActiveTab}
         className="flex-1 flex flex-col h-full"
       >
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger 
-            value="live-notes"
-            className="text-[14px] data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC]"
-          >
-            Live Notes
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 mb-4 bg-transparent p-0">
           <TabsTrigger 
             value="interview-notes"
-            className="text-[14px] data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC]"
+            className="text-[14px] py-2 bg-transparent rounded-none font-medium data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC] data-[state=active]:border-b-[3px] data-[state=active]:border-[#14A090] data-[state=active]:rounded-sm data-[state=active]:pb-[calc(0.5rem-3px)] relative"
           >
             Interview Notes
+          </TabsTrigger>
+          <TabsTrigger 
+            value="live-notes"
+            className="text-[14px] py-2 bg-transparent rounded-none font-medium data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC] data-[state=active]:border-b-[3px] data-[state=active]:border-[#14A090] data-[state=active]:rounded-sm data-[state=active]:pb-[calc(0.5rem-3px)] relative"
+          >
+            Live Notes
           </TabsTrigger>
         </TabsList>
 

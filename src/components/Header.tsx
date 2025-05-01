@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,34 +38,34 @@ export function Header({ currentPage, project }: HeaderProps) {
 
   return (
     <header className="w-full px-6 md:px-12 lg:px-24 py-5">
-      <div className="mx-auto max-w-[1288px] flex justify-between items-center">
-        <div className="flex items-center gap-8">
-          <div 
-            className="font-inter font-bold text-xl md:text-2xl cursor-pointer text-[#0A1915] dark:text-white"
-            onClick={handleLogoClick}
-          >
-            <span className="font-bold">Cast</span>Companion
-          </div>
-          
-          {user && (
-            <nav className="hidden sm:flex items-center gap-6">
-              <a 
-                href="/projects"
-                className={`text-sm ${currentPage === "projects" && !project ? "text-[#14A090] font-medium" : "text-[#7A9992] font-normal"}`}
-              >
-                Meine Projekte
-              </a>
-              {project && (
-                <a 
-                  href={`/projects/${project.id}`}
-                  className="text-[#14A090] font-medium text-sm"
-                >
-                  {project.title}
-                </a>
-              )}
-            </nav>
-          )}
+      <div className="mx-auto max-w-[1288px] flex items-center justify-between">
+        <div 
+          className="font-inter font-bold text-xl md:text-2xl cursor-pointer text-[#0A1915] dark:text-white"
+          onClick={handleLogoClick}
+        >
+          <span className="font-bold">Cast</span>Companion
         </div>
+          
+        {user && (
+          <nav className="absolute left-1/2 transform -translate-x-1/2 flex items-baseline">
+            <a 
+              href="/projects"
+              className={`relative text-sm mx-3 py-2 ${currentPage === "projects" && !project ? 
+                "text-[#14A090] font-medium border-b-[3px] border-[#14A090] rounded-sm pb-[calc(0.5rem-3px)]" : 
+                "text-[#7A9992] dark:text-[#CCCCCC] font-normal"}`}
+            >
+              Meine Projekte
+            </a>
+            {project && (
+              <a 
+                href={`/projects/${project.id}`}
+                className="relative text-sm mx-3 py-2 text-[#14A090] font-medium border-b-[3px] border-[#14A090] rounded-sm pb-[calc(0.5rem-3px)]"
+              >
+                {project.title}
+              </a>
+            )}
+          </nav>
+        )}
         
         <div className="flex items-center gap-2 md:gap-4">
           <ThemeToggle />
