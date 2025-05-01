@@ -1,144 +1,207 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useState, useEffect, useCallback } from 'react';
 import { TiptapEditor } from './TiptapEditor';
-import { useInterviewNotes } from '@/hooks/useInterviewNotes';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { supabase } from '../lib/supabase';
+import useInterval from '../hooks/useInterval'; // Hilfs-Hook für Polling (optional)
 
 interface InterviewNotesTabProps {
-  projectId: string;
+  interviewId: string;
+  userId: string;
 }
 
-export const InterviewNotesTab: React.FC<InterviewNotesTabProps> = ({ projectId }) => {
-  const { interviewNotes, isLoading, createInterviewNote, updateInterviewNote } = useInterviewNotes(projectId);
-  const [content, setContent] = useState('');
+export const InterviewNotesTab = ({ interviewId, userId }: InterviewNotesTabProps) => {
+  const [notes, setNotes] = useState('');
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [noteId, setNoteId] = useState<string | null>(null);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const contentRef = useRef(content);
-  const lastSavedContentRef = useRef('');
-  const lastTypingTimeRef = useRef(0);
-  const initialLoadCompleted = useRef(false);
-  
-  // Load existing note when data is available
-  useEffect(() => {
-    if (!isLoading && interviewNotes.length > 0) {
-      // Only update content from database if it hasn't been modified locally
-      // or during initial load
-      if (!initialLoadCompleted.current || content === lastSavedContentRef.current) {
-        setContent(interviewNotes[0].content);
-        setNoteId(interviewNotes[0].id);
-        lastSavedContentRef.current = interviewNotes[0].content;
-        initialLoadCompleted.current = true;
-        console.log('Editor content updated from database:', interviewNotes[0].content);
-      }
-    }
-  }, [isLoading, interviewNotes]);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Create or update note
-  const handleSave = async () => {
-    // Skip save if content hasn't changed
-    if (content === lastSavedContentRef.current) {
-      return;
-    }
-    
-    setIsSaving(true);
-    try {
-      let success;
+  // Lade die Notizen beim ersten Laden
+  useEffect(() => {
+    const loadNotes = async () => {
+      setIsLoading(true);
+      setError(null);
       
-      if (noteId) {
-        // Update existing note
-        success = await updateInterviewNote(noteId, content);
-      } else {
-        // Create new note
-        const newNote = await createInterviewNote(content);
-        if (newNote) {
-          setNoteId(newNote.id);
-          success = true;
-        } else {
-          success = false;
+      try {
+        // Supabase Abfrage zum Laden der Notizen
+        const { data: notesData, error: fetchError } = await supabase
+          .from('interview_notes')
+          .select('content, updated_at')
+          .eq('interview_id', interviewId)
+          .eq('user_id', userId)
+          .single();
+        
+        if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = not found
+          throw fetchError;
         }
+        
+        if (notesData) {
+          setNotes(notesData.content || '');
+          setLastSavedAt(notesData.updated_at ? new Date(notesData.updated_at) : null);
+        } else {
+          // Dokument existiert noch nicht
+          setNotes('');
+        }
+      } catch (err) {
+        console.error('Fehler beim Laden der Notizen:', err);
+        setError('Die Notizen konnten nicht geladen werden. Bitte versuchen Sie es später erneut.');
+      } finally {
+        setIsLoading(false);
       }
+    };
+
+    loadNotes();
+  }, [interviewId, userId]);
+
+  // Speichern der Notizen in der Datenbank
+  const saveNotes = useCallback(async (content: string) => {
+    setIsSaving(true);
+    setError(null);
+    
+    try {
+      const now = new Date();
       
-      if (success) {
-        lastSavedContentRef.current = content;
-        toast.success('Notizen gespeichert');
-      } else {
-        toast.error('Fehler beim Speichern');
-      }
+      // Definiere eine eindeutige ID für die Notizen
+      const notesId = `${interviewId}_${userId}`;
+      
+      // Aktualisiere oder füge die Notizen in Supabase ein
+      const { error: upsertError } = await supabase
+        .from('interview_notes')
+        .upsert({
+          id: notesId,
+          interview_id: interviewId,
+          user_id: userId,
+          content: content,
+          updated_at: now.toISOString()
+        }, {
+          onConflict: 'id'
+        });
+      
+      if (upsertError) throw upsertError;
+      
+      setLastSavedAt(now);
+      return true;
+    } catch (err) {
+      console.error('Fehler beim Speichern der Notizen:', err);
+      setError('Die Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es später erneut.');
+      return false;
     } finally {
       setIsSaving(false);
     }
+  }, [interviewId, userId]);
+
+  // Editor-Änderungen behandeln
+  const handleEditorChange = (html: string) => {
+    setNotes(html);
   };
 
-  // Keep contentRef in sync with state for use in setTimeout functions
+  // Echtzeit-Updates über Supabase Realtime abonnieren
   useEffect(() => {
-    contentRef.current = content;
-  }, [content]);
-
-  // Intelligent auto-save handler
-  const handleContentChange = (newContent: string) => {
-    setContent(newContent);
-    lastTypingTimeRef.current = Date.now();
-
-    // Clear any existing timeout
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-
-    // Set a new timeout - only save after the user has stopped typing for 2 seconds
-    autoSaveTimeoutRef.current = setTimeout(() => {
-      // Only auto-save if:
-      // 1. The content has changed since the last save
-      // 2. The user hasn't typed for at least 2 seconds
-      if (
-        contentRef.current !== lastSavedContentRef.current && 
-        Date.now() - lastTypingTimeRef.current >= 1900 // slightly less than timeout to ensure timing is correct
-      ) {
-        handleSave();
-      }
-    }, 2000);
-  };
-
-  // Clean up timeout on unmount
-  useEffect(() => {
+    // Definiere eine eindeutige ID für die Notizen
+    const notesId = `${interviewId}_${userId}`;
+    
+    // Supabase Realtime Kanal einrichten
+    const channel = supabase
+      .channel(`interview_notes_${notesId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'interview_notes',
+        filter: `id=eq.${notesId}`
+      }, (payload) => {
+        if (payload.new) {
+          // Nur aktualisieren, wenn die Daten von einem anderen Client stammen
+          // und sich unterscheiden (um Zyklen zu vermeiden)
+          const remoteContent = payload.new.content || '';
+          const remoteUpdatedAt = payload.new.updated_at ? new Date(payload.new.updated_at) : null;
+          
+          if (
+            remoteContent !== notes && 
+            (!lastSavedAt || (remoteUpdatedAt && remoteUpdatedAt > lastSavedAt))
+          ) {
+            setNotes(remoteContent);
+            setLastSavedAt(remoteUpdatedAt);
+          }
+        }
+      })
+      .subscribe((status) => {
+        if (status !== 'SUBSCRIBED') {
+          console.error('Fehler bei Echtzeit-Updates:', status);
+          setError('Die Live-Synchronisation ist derzeit nicht verfügbar.');
+        }
+      });
+    
+    // Abonnement beenden beim Unmount
     return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
+      channel.unsubscribe();
     };
-  }, []);
+  }, [interviewId, userId, notes, lastSavedAt]);
+
+  // Optional: Polling als Fallback für Echtzeit-Updates
+  useInterval(() => {
+    // Notizen regelmäßig neu laden, falls Echtzeit-Updates fehlschlagen
+    if (error) {
+      // Definiere eine eindeutige ID für die Notizen
+      const notesId = `${interviewId}_${userId}`;
+      
+      supabase
+        .from('interview_notes')
+        .select('content, updated_at')
+        .eq('id', notesId)
+        .single()
+        .then(({ data, error: fetchError }) => {
+          if (fetchError) {
+            console.error('Fehler beim Polling:', fetchError);
+            return;
+          }
+          
+          if (data) {
+            const remoteContent = data.content || '';
+            const remoteUpdatedAt = data.updated_at ? new Date(data.updated_at) : null;
+            
+            if (
+              remoteContent !== notes && 
+              (!lastSavedAt || (remoteUpdatedAt && remoteUpdatedAt > lastSavedAt))
+            ) {
+              setNotes(remoteContent);
+              setLastSavedAt(remoteUpdatedAt);
+              setError(null); // Fehler zurücksetzen
+            }
+          }
+        })
+        .catch((err) => {
+          console.error('Fehler beim Polling:', err);
+        });
+    }
+  }, error ? 10000 : null); // Nur Polling aktivieren, wenn ein Fehler aufgetreten ist
 
   if (isLoading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <p className="text-[#7A9992] dark:text-[#CCCCCC]">Laden...</p>
-      </div>
-    );
+    return <div className="flex justify-center p-8">Notizen werden geladen...</div>;
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <ScrollArea className="flex-1">
-        <div className="h-full">
-          <TiptapEditor
-            content={content}
-            onChange={handleContentChange}
-            autofocus={false}
-          />
-        </div>
-      </ScrollArea>
+    <div className="p-4">
+      <h2 className="text-xl font-semibold mb-4">Interview-Notizen</h2>
       
-      <div className="flex justify-end mt-4">
-        <Button
-          onClick={handleSave}
-          disabled={isSaving || content === lastSavedContentRef.current}
-          className="bg-[#14A090] text-white hover:bg-[#14A090]/90"
-        >
-          {isSaving ? 'Speichern...' : 'Speichern'}
-        </Button>
-      </div>
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <p>{error}</p>
+        </div>
+      )}
+      
+      <TiptapEditor
+        content={notes}
+        onChange={handleEditorChange}
+        onSave={saveNotes}
+        syncId={`interview-notes-${interviewId}-${userId}`}
+        autofocus={false}
+      />
+      
+      {lastSavedAt && (
+        <div className="text-sm text-gray-500 mt-2">
+          Zuletzt gespeichert: {lastSavedAt.toLocaleString('de-DE')}
+        </div>
+      )}
     </div>
   );
 };
