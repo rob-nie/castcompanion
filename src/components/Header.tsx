@@ -76,8 +76,7 @@ export function Header({ currentPage, project }: HeaderProps) {
           {user ? (
             <div className="flex items-center gap-4">
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-2 text-sm cursor-pointer">
-                  <UserRound className="h-4 w-4 text-[#0A1915] dark:text-white" />
+                <DropdownMenuTrigger className="flex items-center text-sm cursor-pointer">
                   <span className="hidden md:block font-medium text-[#0A1915] dark:text-white">
                     {user.user_metadata.full_name || user.email}
                   </span>
