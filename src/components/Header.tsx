@@ -43,7 +43,8 @@ export function Header({ currentPage, project }: HeaderProps) {
           className="font-inter font-bold text-xl md:text-2xl cursor-pointer text-[#0A1915] dark:text-white"
           onClick={handleLogoClick}
         >
-          <span className="font-bold">Cast</span>Companion
+          <span className="font-bold">Cast</span>
+          <span className="font-regular">Companion</span>
         </div>
           
         {user && (
