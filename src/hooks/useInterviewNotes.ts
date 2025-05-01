@@ -104,23 +104,20 @@ export const useInterviewNotes = (projectId: string) => {
       fetchInterviewNotes();
     }
     
-    // Set up realtime subscription
+    // Set up realtime subscription with improved event handling
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel('interview-notes-changes')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'interview_notes',
-          filter: `project_id=eq.${projectId}`
+          filter: `project_id=eq.${projectId} AND user_id=eq.${user?.id}`
         },
         (payload) => {
-          // Only refresh if the change was for the current user
-          const payloadData = payload.new as Record<string, any> | null;
-          if (payloadData && typeof payloadData === 'object' && 'user_id' in payloadData && payloadData.user_id === user?.id) {
-            fetchInterviewNotes();
-          }
+          console.log('Realtime update received:', payload);
+          fetchInterviewNotes();
         }
       )
       .subscribe();

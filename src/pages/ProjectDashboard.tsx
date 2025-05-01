@@ -13,11 +13,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const ProjectDashboard = () => {
   const { projectId } = useParams();
   const [project, setProject] = useState<Tables<"projects"> | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchProject = async () => {
       if (!projectId) return;
+      
+      setIsLoading(true);
       
       const { data, error } = await supabase
         .from("projects")
@@ -27,17 +30,31 @@ const ProjectDashboard = () => {
 
       if (error) {
         console.error("Error fetching project:", error);
+        setIsLoading(false);
         return;
       }
 
       setProject(data);
+      setIsLoading(false);
     };
 
     fetchProject();
   }, [projectId]);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-[#7A9992] dark:text-[#CCCCCC]">Laden...</div>
+      </div>
+    );
+  }
+
   if (!project) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-[#7A9992] dark:text-[#CCCCCC]">Projekt nicht gefunden</div>
+      </div>
+    );
   }
 
   return (

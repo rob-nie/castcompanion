@@ -32,7 +32,18 @@ export const handleAddLink = (editor: Editor | null) => {
 export const getEditorConfig = (content: string, onChange: (html: string) => void, autofocus: boolean) => {
   return {
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        bulletList: {
+          HTMLAttributes: {
+            class: 'list-disc pl-4 text-[#0A1915] dark:text-[#FFFFFF]',
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: 'list-decimal pl-4 text-[#0A1915] dark:text-[#FFFFFF]',
+          },
+        },
+      }),
       Underline,
       Link.configure({
         openOnClick: true, // Make links clickable

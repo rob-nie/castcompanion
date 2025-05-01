@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { TiptapEditor } from './TiptapEditor';
@@ -18,13 +19,20 @@ export const InterviewNotesTab: React.FC<InterviewNotesTabProps> = ({ projectId 
   const contentRef = useRef(content);
   const lastSavedContentRef = useRef('');
   const lastTypingTimeRef = useRef(0);
+  const initialLoadCompleted = useRef(false);
   
   // Load existing note when data is available
   useEffect(() => {
     if (!isLoading && interviewNotes.length > 0) {
-      setContent(interviewNotes[0].content);
-      setNoteId(interviewNotes[0].id);
-      lastSavedContentRef.current = interviewNotes[0].content;
+      // Only update content from database if it hasn't been modified locally
+      // or during initial load
+      if (!initialLoadCompleted.current || content === lastSavedContentRef.current) {
+        setContent(interviewNotes[0].content);
+        setNoteId(interviewNotes[0].id);
+        lastSavedContentRef.current = interviewNotes[0].content;
+        initialLoadCompleted.current = true;
+        console.log('Editor content updated from database:', interviewNotes[0].content);
+      }
     }
   }, [isLoading, interviewNotes]);
 
