@@ -20,9 +20,9 @@ export const MembersList = ({ members, isOwner, onDeleteMember }: MembersListPro
       {members.map((member) => (
         <div
           key={member.id}
-          className="flex items-center justify-between p-2"
+          className="flex items-center justify-between"
         >
-          <span>{member.email || 'Unbekannt'}</span>
+          <span className="text-sm">{member.email || 'Unbekannt'}</span>
           <div className="flex items-center gap-2">
             <span className="text-sm text-[#7A9992] dark:text-[#CCCCCC]">{member.role}</span>
             {isOwner && onDeleteMember && member.role !== "owner" && (
