@@ -1,23 +1,26 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { TiptapEditor } from './TiptapEditor';
-import { supabase } from '../lib/supabase';
-import useInterval from '../hooks/useInterval'; // Hilfs-Hook für Polling (optional)
+import { supabase } from '@/integrations/supabase/client'; // Updated import path
+import useInterval from '@/hooks/useInterviewNotes'; // Fixed import path for useInterval hook
 
 interface InterviewNotesTabProps {
-  interviewId: string;
-  userId: string;
+  projectId: string;
 }
 
-export const InterviewNotesTab = ({ interviewId, userId }: InterviewNotesTabProps) => {
+export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
   const [notes, setNotes] = useState('');
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const userId = user?.id;
 
   // Lade die Notizen beim ersten Laden
   useEffect(() => {
+    if (!projectId || !userId) return;
+    
     const loadNotes = async () => {
       setIsLoading(true);
       setError(null);
@@ -27,11 +30,11 @@ export const InterviewNotesTab = ({ interviewId, userId }: InterviewNotesTabProp
         const { data: notesData, error: fetchError } = await supabase
           .from('interview_notes')
           .select('content, updated_at')
-          .eq('interview_id', interviewId)
+          .eq('project_id', projectId)
           .eq('user_id', userId)
-          .single();
+          .maybeSingle();
         
-        if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = not found
+        if (fetchError) {
           throw fetchError;
         }
         
@@ -51,25 +54,24 @@ export const InterviewNotesTab = ({ interviewId, userId }: InterviewNotesTabProp
     };
 
     loadNotes();
-  }, [interviewId, userId]);
+  }, [projectId, userId]);
 
   // Speichern der Notizen in der Datenbank
   const saveNotes = useCallback(async (content: string) => {
+    if (!projectId || !userId) return false;
+    
     setIsSaving(true);
     setError(null);
     
     try {
       const now = new Date();
       
-      // Definiere eine eindeutige ID für die Notizen
-      const notesId = `${interviewId}_${userId}`;
-      
       // Aktualisiere oder füge die Notizen in Supabase ein
       const { error: upsertError } = await supabase
         .from('interview_notes')
         .upsert({
-          id: notesId,
-          interview_id: interviewId,
+          id: `${projectId}_${userId}`,
+          project_id: projectId,
           user_id: userId,
           content: content,
           updated_at: now.toISOString()
@@ -88,7 +90,7 @@ export const InterviewNotesTab = ({ interviewId, userId }: InterviewNotesTabProp
     } finally {
       setIsSaving(false);
     }
-  }, [interviewId, userId]);
+  }, [projectId, userId]);
 
   // Editor-Änderungen behandeln
   const handleEditorChange = (html: string) => {
@@ -97,8 +99,10 @@ export const InterviewNotesTab = ({ interviewId, userId }: InterviewNotesTabProp
 
   // Echtzeit-Updates über Supabase Realtime abonnieren
   useEffect(() => {
+    if (!projectId || !userId) return;
+    
     // Definiere eine eindeutige ID für die Notizen
-    const notesId = `${interviewId}_${userId}`;
+    const notesId = `${projectId}_${userId}`;
     
     // Supabase Realtime Kanal einrichten
     const channel = supabase
@@ -135,45 +139,7 @@ export const InterviewNotesTab = ({ interviewId, userId }: InterviewNotesTabProp
     return () => {
       channel.unsubscribe();
     };
-  }, [interviewId, userId, notes, lastSavedAt]);
-
-  // Optional: Polling als Fallback für Echtzeit-Updates
-  useInterval(() => {
-    // Notizen regelmäßig neu laden, falls Echtzeit-Updates fehlschlagen
-    if (error) {
-      // Definiere eine eindeutige ID für die Notizen
-      const notesId = `${interviewId}_${userId}`;
-      
-      supabase
-        .from('interview_notes')
-        .select('content, updated_at')
-        .eq('id', notesId)
-        .single()
-        .then(({ data, error: fetchError }) => {
-          if (fetchError) {
-            console.error('Fehler beim Polling:', fetchError);
-            return;
-          }
-          
-          if (data) {
-            const remoteContent = data.content || '';
-            const remoteUpdatedAt = data.updated_at ? new Date(data.updated_at) : null;
-            
-            if (
-              remoteContent !== notes && 
-              (!lastSavedAt || (remoteUpdatedAt && remoteUpdatedAt > lastSavedAt))
-            ) {
-              setNotes(remoteContent);
-              setLastSavedAt(remoteUpdatedAt);
-              setError(null); // Fehler zurücksetzen
-            }
-          }
-        })
-        .catch((err) => {
-          console.error('Fehler beim Polling:', err);
-        });
-    }
-  }, error ? 10000 : null); // Nur Polling aktivieren, wenn ein Fehler aufgetreten ist
+  }, [projectId, userId, notes, lastSavedAt]);
 
   if (isLoading) {
     return <div className="flex justify-center p-8">Notizen werden geladen...</div>;
@@ -193,7 +159,7 @@ export const InterviewNotesTab = ({ interviewId, userId }: InterviewNotesTabProp
         content={notes}
         onChange={handleEditorChange}
         onSave={saveNotes}
-        syncId={`interview-notes-${interviewId}-${userId}`}
+        syncId={`interview-notes-${projectId}-${userId}`}
         autofocus={false}
       />
       
@@ -205,3 +171,5 @@ export const InterviewNotesTab = ({ interviewId, userId }: InterviewNotesTabProp
     </div>
   );
 };
+
+import { useAuth } from "@/context/AuthProvider";

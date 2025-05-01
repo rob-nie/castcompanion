@@ -7,6 +7,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { EditorToolbar } from './EditorToolbar';
 import { injectEditorStyles } from './editorStyles';
 import { handleAddLink } from './editorUtils';
+import { supabase } from '@/integrations/supabase/client'; // Correct import path
 
 // Zeit in Millisekunden, nach der eine Änderung gespeichert wird
 const AUTOSAVE_DELAY = 500;
@@ -100,6 +101,31 @@ export const TiptapEditor = ({
     }
   }, [editor, saveContent]);
 
+  // Hilfsfunktion für die Synchronisation mit Supabase
+  const setupSyncListener = useCallback((syncId: string | undefined, onUpdate: (content: string) => void) => {
+    if (!syncId) return () => {};
+    
+    // Supabase Realtime Kanal für Dokumentänderungen einrichten
+    const channel = supabase
+      .channel(`document-${syncId}`)
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'interview_notes', 
+        filter: `id=eq.${syncId}` 
+      }, payload => {
+        // Nur aktualisieren, wenn die Änderung von einem anderen Client stammt
+        if (payload.new && payload.new.content) {
+          onUpdate(payload.new.content);
+        }
+      })
+      .subscribe();
+      
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
+
   // Einrichten einer Echtzeit-Synchronisation für Updates von anderen Clients
   useEffect(() => {
     setIsMounted(true);
@@ -108,10 +134,10 @@ export const TiptapEditor = ({
     const cleanup = injectEditorStyles();
     
     // Implementieren Sie hier die WebSocket- oder SSE-Verbindung für Remote-Updates
-    // Beispiel mit einer fiktiven Synchronisations-Funktion:
     const syncCleanup = setupSyncListener(syncId, (newContent) => {
       // Nur aktualisieren, wenn der Editor nicht aktiv bearbeitet wird
       if (editor && !editor.isFocused && newContent !== editor.getHTML()) {
+        console.log('Editor content updated from database:', newContent);
         editor.commands.setContent(newContent);
         setLastSavedContent(newContent);
       }
@@ -144,7 +170,7 @@ export const TiptapEditor = ({
         saveContent(editor.getHTML());
       }
     };
-  }, [editor, hasUnsavedChanges, syncId, forceSave, saveContent]);
+  }, [editor, hasUnsavedChanges, syncId, forceSave, saveContent, setupSyncListener]);
 
   // Wenn sich der Inhalt von außen ändert, aktualisieren Sie den Editor
   useEffect(() => {
@@ -192,34 +218,6 @@ export const TiptapEditor = ({
     </div>
   );
 };
-
-// Hilfsfunktion für die Synchronisation mit Supabase
-function setupSyncListener(syncId: string | undefined, onUpdate: (content: string) => void) {
-  if (!syncId) return () => {};
-  
-  // Supabase Client sollte global importiert oder durch Kontext bereitgestellt sein
-  import { supabase } from '../lib/supabase'; // Importiere den Supabase Client
-  
-  // Supabase Realtime Kanal für Dokumentänderungen einrichten
-  const channel = supabase
-    .channel(`document-${syncId}`)
-    .on('postgres_changes', { 
-      event: 'UPDATE', 
-      schema: 'public', 
-      table: 'interview_notes', 
-      filter: `id=eq.${syncId}` 
-    }, payload => {
-      // Nur aktualisieren, wenn die Änderung von einem anderen Client stammt
-      if (payload.new && payload.new.content) {
-        onUpdate(payload.new.content);
-      }
-    })
-    .subscribe();
-    
-  return () => {
-    channel.unsubscribe();
-  };
-}
 
 // Einfaches Speicher-Icon
 const SavingIcon = ({ className }: { className?: string }) => (
