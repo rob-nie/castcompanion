@@ -143,35 +143,42 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
     if (!projectId || !userId) return;
     
     // Periodische Abfrage als Fallback
-    const fetchPromise = supabase
-      .from('interview_notes')
-      .select('content, updated_at')
-      .eq('project_id', projectId)
-      .eq('user_id', userId)
-      .maybeSingle();
-      
-    fetchPromise.then(({ data, error: fetchError }) => {
-      if (fetchError) {
-        console.error('Fehler beim Polling:', fetchError);
-        return;
-      }
-      
-      if (data) {
-        const remoteContent = data.content || '';
-        const remoteUpdatedAt = data.updated_at ? new Date(data.updated_at) : null;
-        
-        if (
-          remoteContent !== notes && 
-          (!lastSavedAt || (remoteUpdatedAt && remoteUpdatedAt > lastSavedAt))
-        ) {
-          console.log('Updating content from polling');
-          setNotes(remoteContent);
-          setLastSavedAt(remoteUpdatedAt);
+    try {
+      // Convert to a standard Promise using Promise.resolve to ensure .catch is available
+      Promise.resolve(
+        supabase
+          .from('interview_notes')
+          .select('content, updated_at')
+          .eq('project_id', projectId)
+          .eq('user_id', userId)
+          .maybeSingle()
+      )
+      .then(({ data, error: fetchError }) => {
+        if (fetchError) {
+          console.error('Fehler beim Polling:', fetchError);
+          return;
         }
-      }
-    }).catch(err => { // This is properly handled now
-      console.error('Exception beim Polling:', err);
-    });
+        
+        if (data) {
+          const remoteContent = data.content || '';
+          const remoteUpdatedAt = data.updated_at ? new Date(data.updated_at) : null;
+          
+          if (
+            remoteContent !== notes && 
+            (!lastSavedAt || (remoteUpdatedAt && remoteUpdatedAt > lastSavedAt))
+          ) {
+            console.log('Updating content from polling');
+            setNotes(remoteContent);
+            setLastSavedAt(remoteUpdatedAt);
+          }
+        }
+      })
+      .catch(err => {
+        console.error('Exception beim Polling:', err);
+      });
+    } catch (outerErr) {
+      console.error('Outer exception in polling:', outerErr);
+    }
   }, 10000); // Aktiviere Polling alle 10 Sekunden als Backup
 
   if (isLoading) {
