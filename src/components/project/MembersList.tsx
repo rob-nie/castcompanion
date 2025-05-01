@@ -22,7 +22,7 @@ export const MembersList = ({ members, isOwner, onDeleteMember }: MembersListPro
           key={member.id}
           className="flex items-center justify-between p-2 rounded-[10px] border border-[#7A9992]"
         >
-          <span>{member.email || 'Unbekannt'}</span>
+          <span className="text-sm">{member.email || 'Unbekannt'}</span>
           <div className="flex items-center gap-2">
             <span className="text-sm text-[#7A9992] dark:text-[#CCCCCC]">{member.role}</span>
             {isOwner && onDeleteMember && member.role !== "owner" && (
