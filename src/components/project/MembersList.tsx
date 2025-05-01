@@ -31,8 +31,8 @@ export const MembersList = ({ members, isOwner, onDeleteMember }: MembersListPro
                 onClick={() => onDeleteMember(member.id)}
                 className="p-0 h-auto w-auto text-[#7A9992] hover:text-red-500 hover:bg-transparent"
               >
-                <UserX className="h-4 w-4" />
-                <span className="sr-only">Mitglied entfernen</span>
+            <UserX className="h-4 w-4" />
+            <span className="sr-only">Mitglied entfernen</span>
               </Button>
             )}
           </div>
