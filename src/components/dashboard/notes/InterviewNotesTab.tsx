@@ -143,35 +143,35 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
     if (!projectId || !userId) return;
     
     // Periodische Abfrage als Fallback
-    supabase
+    const fetchPromise = supabase
       .from('interview_notes')
       .select('content, updated_at')
       .eq('project_id', projectId)
       .eq('user_id', userId)
-      .maybeSingle()
-      .then(({ data, error: fetchError }) => {
-        if (fetchError) {
-          console.error('Fehler beim Polling:', fetchError);
-          return;
-        }
+      .maybeSingle();
+      
+    fetchPromise.then(({ data, error: fetchError }) => {
+      if (fetchError) {
+        console.error('Fehler beim Polling:', fetchError);
+        return;
+      }
+      
+      if (data) {
+        const remoteContent = data.content || '';
+        const remoteUpdatedAt = data.updated_at ? new Date(data.updated_at) : null;
         
-        if (data) {
-          const remoteContent = data.content || '';
-          const remoteUpdatedAt = data.updated_at ? new Date(data.updated_at) : null;
-          
-          if (
-            remoteContent !== notes && 
-            (!lastSavedAt || (remoteUpdatedAt && remoteUpdatedAt > lastSavedAt))
-          ) {
-            console.log('Updating content from polling');
-            setNotes(remoteContent);
-            setLastSavedAt(remoteUpdatedAt);
-          }
+        if (
+          remoteContent !== notes && 
+          (!lastSavedAt || (remoteUpdatedAt && remoteUpdatedAt > lastSavedAt))
+        ) {
+          console.log('Updating content from polling');
+          setNotes(remoteContent);
+          setLastSavedAt(remoteUpdatedAt);
         }
-      })
-      .catch(err => {
-        console.error('Exception beim Polling:', err);
-      });
+      }
+    }).catch(err => { // This is properly handled now
+      console.error('Exception beim Polling:', err);
+    });
   }, 10000); // Aktiviere Polling alle 10 Sekunden als Backup
 
   if (isLoading) {
