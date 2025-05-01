@@ -112,14 +112,20 @@ export const TiptapEditor = ({
         event: 'UPDATE', 
         schema: 'public', 
         table: 'interview_notes', 
-        filter: `id=eq.${syncId}` 
+        filter: `project_id=eq.${syncId.split('-')[2]}` // Extrahiere project_id aus syncId
       }, payload => {
         // Nur aktualisieren, wenn die Änderung von einem anderen Client stammt
         if (payload.new && payload.new.content) {
           onUpdate(payload.new.content);
         }
       })
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR') {
+          console.error('Fehler bei der Kanal-Verbindung:', status);
+        } else if (status === 'SUBSCRIBED') {
+          console.log('Erfolgreich mit Realtime verbunden');
+        }
+      });
       
     return () => {
       channel.unsubscribe();
@@ -133,15 +139,19 @@ export const TiptapEditor = ({
     // Inject editor styles and get cleanup function
     const cleanup = injectEditorStyles();
     
-    // Implementieren Sie hier die WebSocket- oder SSE-Verbindung für Remote-Updates
-    const syncCleanup = setupSyncListener(syncId, (newContent) => {
-      // Nur aktualisieren, wenn der Editor nicht aktiv bearbeitet wird
-      if (editor && !editor.isFocused && newContent !== editor.getHTML()) {
-        console.log('Editor content updated from database:', newContent);
-        editor.commands.setContent(newContent);
-        setLastSavedContent(newContent);
-      }
-    });
+    let syncCleanup: (() => void) | undefined;
+    
+    // Implementiere die Echtzeit-Synchronisation nur wenn syncId vorhanden ist
+    if (syncId) {
+      syncCleanup = setupSyncListener(syncId, (newContent) => {
+        // Nur aktualisieren, wenn der Editor nicht aktiv bearbeitet wird
+        if (editor && !editor.isFocused && newContent !== editor.getHTML()) {
+          console.log('Editor content updated from database:', newContent);
+          editor.commands.setContent(newContent);
+          setLastSavedContent(newContent);
+        }
+      });
+    }
 
     // Auto-Speichern, wenn der Benutzer die Seite verlässt
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {

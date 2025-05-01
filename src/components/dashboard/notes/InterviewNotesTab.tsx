@@ -71,13 +71,10 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
       const { error: upsertError } = await supabase
         .from('interview_notes')
         .upsert({
-          id: `${projectId}_${userId}`,
           project_id: projectId,
           user_id: userId,
           content: content,
           updated_at: now.toISOString()
-        }, {
-          onConflict: 'id'
         });
       
       if (upsertError) throw upsertError;
@@ -96,25 +93,23 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
     setNotes(html);
   };
 
-  // Echtzeit-Updates über Supabase Realtime abonnieren
+  // Robust implementierte Echtzeit-Updates-Funktion
   useEffect(() => {
     if (!projectId || !userId) return;
     
-    // Definiere eine eindeutige ID für die Notizen
-    const notesId = `${projectId}_${userId}`;
+    console.log('Setting up realtime listener for project:', projectId);
     
-    // Supabase Realtime Kanal einrichten
+    // Supabase Realtime Kanal einrichten mit besserer Fehlerbehandlung
     const channel = supabase
-      .channel(`interview_notes_${notesId}`)
+      .channel(`interview-notes-${projectId}`)
       .on('postgres_changes', {
-        event: 'UPDATE',
+        event: '*',
         schema: 'public',
         table: 'interview_notes',
-        filter: `id=eq.${notesId}`
+        filter: `project_id=eq.${projectId} AND user_id=eq.${userId}`
       }, (payload) => {
-        if (payload.new) {
-          // Nur aktualisieren, wenn die Daten von einem anderen Client stammen
-          // und sich unterscheiden (um Zyklen zu vermeiden)
+        console.log('Realtime update received:', payload);
+        if (payload.new && payload.eventType === 'UPDATE') {
           const remoteContent = payload.new.content || '';
           const remoteUpdatedAt = payload.new.updated_at ? new Date(payload.new.updated_at) : null;
           
@@ -122,23 +117,62 @@ export const InterviewNotesTab = ({ projectId }: InterviewNotesTabProps) => {
             remoteContent !== notes && 
             (!lastSavedAt || (remoteUpdatedAt && remoteUpdatedAt > lastSavedAt))
           ) {
+            console.log('Updating editor content from remote');
             setNotes(remoteContent);
             setLastSavedAt(remoteUpdatedAt);
           }
         }
       })
       .subscribe((status) => {
+        console.log('Subscription status:', status);
         if (status !== 'SUBSCRIBED') {
-          console.error('Fehler bei Echtzeit-Updates:', status);
-          setError('Die Live-Synchronisation ist derzeit nicht verfügbar.');
+          console.warn('Nicht mit Echtzeit-Updates verbunden:', status);
+          // Wir setzen hier keinen Fehler mehr, da das Polling als Fallback dient
         }
       });
     
     // Abonnement beenden beim Unmount
     return () => {
-      channel.unsubscribe();
+      console.log('Cleaning up realtime subscription');
+      supabase.removeChannel(channel);
     };
-  }, [projectId, userId, notes, lastSavedAt]);
+  }, [projectId, userId]);
+
+  // Immer aktives Polling als Fallback für Echtzeit-Updates
+  useInterval(() => {
+    if (!projectId || !userId) return;
+    
+    // Periodische Abfrage als Fallback
+    supabase
+      .from('interview_notes')
+      .select('content, updated_at')
+      .eq('project_id', projectId)
+      .eq('user_id', userId)
+      .maybeSingle()
+      .then(({ data, error: fetchError }) => {
+        if (fetchError) {
+          console.error('Fehler beim Polling:', fetchError);
+          return;
+        }
+        
+        if (data) {
+          const remoteContent = data.content || '';
+          const remoteUpdatedAt = data.updated_at ? new Date(data.updated_at) : null;
+          
+          if (
+            remoteContent !== notes && 
+            (!lastSavedAt || (remoteUpdatedAt && remoteUpdatedAt > lastSavedAt))
+          ) {
+            console.log('Updating content from polling');
+            setNotes(remoteContent);
+            setLastSavedAt(remoteUpdatedAt);
+          }
+        }
+      })
+      .catch(err => {
+        console.error('Exception beim Polling:', err);
+      });
+  }, 10000); // Aktiviere Polling alle 10 Sekunden als Backup
 
   if (isLoading) {
     return <div className="flex justify-center p-8">Notizen werden geladen...</div>;
