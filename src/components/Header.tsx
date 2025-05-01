@@ -47,27 +47,28 @@ export function Header({ currentPage, project }: HeaderProps) {
           <span className="font-extralight">Companion</span>
         </div>
           
-        {user && (
+        {user && ( 
           <nav className="absolute left-1/2 transform -translate-x-1/2 flex items-end">
             <a 
               href="/projects"
-              className={`relative text-sm mx-3 py-2 ${currentPage === "projects" && !project ? 
+              className={`relative text-sm mx-3 py-0 pb-1 ${currentPage === "projects" && !project ? 
                 "text-[#14A090] font-medium" : 
                 "text-[#7A9992] dark:text-[#CCCCCC] font-normal"} relative
                 ${currentPage === "projects" && !project ? "after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full" : ""}
-              `}
-            >
-              Meine Projekte
-            </a>
-            {project && (
-              <a 
-                href={`/projects/${project.id}`}
-                className="relative text-sm mx-3 py-2 text-[#14A090] font-medium relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full"
-              >
-                {project.title}
-              </a>
-            )}
-          </nav>
+              shadow-none !shadow-none [--tw-shadow:none]
+        `}
+        >
+    Meine Projekte
+  </a>
+  {project && (
+    <a 
+      href={`/projects/${project.id}`}
+      className="relative text-sm mx-3 py-0 pb-1 text-[#14A090] font-medium relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full shadow-none !shadow-none [--tw-shadow:none]"
+    >
+      {project.title}
+    </a>
+  )}
+</nav>
         )}
         
         <div className="flex items-center gap-2 md:gap-4">
