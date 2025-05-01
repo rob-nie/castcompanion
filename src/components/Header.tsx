@@ -47,19 +47,21 @@ export function Header({ currentPage, project }: HeaderProps) {
         </div>
           
         {user && (
-          <nav className="absolute left-1/2 transform -translate-x-1/2 flex items-baseline">
+          <nav className="absolute left-1/2 transform -translate-x-1/2 flex items-end">
             <a 
               href="/projects"
               className={`relative text-sm mx-3 py-2 ${currentPage === "projects" && !project ? 
-                "text-[#14A090] font-medium border-b-[3px] border-[#14A090] rounded-sm pb-[calc(0.5rem-3px)]" : 
-                "text-[#7A9992] dark:text-[#CCCCCC] font-normal"}`}
+                "text-[#14A090] font-medium" : 
+                "text-[#7A9992] dark:text-[#CCCCCC] font-normal"} relative
+                ${currentPage === "projects" && !project ? "after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full" : ""}
+              `}
             >
               Meine Projekte
             </a>
             {project && (
               <a 
                 href={`/projects/${project.id}`}
-                className="relative text-sm mx-3 py-2 text-[#14A090] font-medium border-b-[3px] border-[#14A090] rounded-sm pb-[calc(0.5rem-3px)]"
+                className="relative text-sm mx-3 py-2 text-[#14A090] font-medium relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full"
               >
                 {project.title}
               </a>
