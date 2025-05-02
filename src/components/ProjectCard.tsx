@@ -96,39 +96,39 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
 
   return (
     <>
-   <div 
-  className="h-[170px] max-w-[414px] p-6 rounded-[20px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] relative"
-  onClick={handleCardClick}
-  style={{
-    background: isDarkMode 
-      ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
-      : 'linear-gradient(135deg, #14A090, #0A2550)',
-    boxShadow: boxShadow,
-  }}
->
-  <div className="text-white h-full flex flex-col">
-    <h3 className="text-xl font-medium mb-2 pr-10 line-clamp-2">{project.title}</h3>
-    {project.description && (
-      <p className="text-sm opacity-90 line-clamp-2">{project.description}</p>
-    )}
-    {formattedDate && (
-      <p className="text-xs mt-auto pt-2 opacity-80">
-        Zuletzt bearbeitet: {formattedDate}
-      </p>
-    )}
-    <div className="absolute top-4 right-4 flex gap-2">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsSettingsModalOpen(true);
+      <div 
+        className="h-[180px] max-w-[414px] p-6 rounded-[20px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] relative"
+        onClick={handleCardClick}
+        style={{
+          background: isDarkMode 
+            ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
+            : 'linear-gradient(135deg, #14A090, #0A2550)',
+          boxShadow: boxShadow,
         }}
-        className="p-2 rounded-full hover:bg-white/10 transition-colors"
       >
-        <Settings className="w-5 h-5 text-white" />
-      </button>
-    </div>
-  </div>
-</div>
+        <div className="text-white h-full flex flex-col">
+          <h3 className="text-xl font-medium mb-2">{project.title}</h3>
+          {project.description && (
+            <p className="text-sm opacity-90 line-clamp-2">{project.description}</p>
+          )}
+          {formattedDate && (
+            <p className="text-xs mt-auto pt-2 opacity-80">
+              Zuletzt bearbeitet: {formattedDate}
+            </p>
+          )}
+          <div className="absolute top-4 right-4 flex gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsSettingsModalOpen(true);
+              }}
+              className="p-2 rounded-full hover:bg-white/10 transition-colors"
+            >
+              <Settings className="w-5 h-5 text-white" />
+            </button>
+          </div>
+        </div>
+      </div>
 
       <ProjectSettingsModal
         project={project}
