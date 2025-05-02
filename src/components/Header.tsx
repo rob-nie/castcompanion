@@ -54,7 +54,7 @@ export function Header({ currentPage, project }: HeaderProps) {
   };
 
   return (
-    <header className="w-full px-4 sm:px-6 md:px-12 lg:px-24 py-3 sm:py-5">
+    <header className="w-full px-6 xl:px-24 py-3 sm:py-5">
       <div className="mx-auto max-w-[1288px] flex flex-col gap-2">
         {/* First row: Logo, Theme Toggle, User Menu */}
         <div className="w-full flex items-center justify-between">
