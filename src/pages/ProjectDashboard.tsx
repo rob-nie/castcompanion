@@ -59,37 +59,37 @@ const ProjectDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-  <Header currentPage="projects" project={project} />
-  
-  <main className="flex-grow px-6 md:px-12 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-hidden">
-    <div className="mx-auto max-w-[1288px] h-full">
-      {isMobile ? (
-        // Mobile layout - tiles stacked vertically in specific order
-        <div className="flex flex-col gap-[23px] h-full overflow-auto">
-          <WatchTile project={project} />
-          <NotesTile project={project} />
-          <MessengerTile project={project} />
+      <Header currentPage="projects" project={project} />
+      
+      <main className="flex-grow px-6 md:px-12 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-hidden">
+        <div className="mx-auto max-w-[1288px] h-full">
+          {isMobile ? (
+            // Mobile layout - tiles stacked vertically in specific order
+            <div className="flex flex-col gap-[23px] h-full overflow-auto">
+              <WatchTile project={project} />
+              <NotesTile project={project} />
+              <MessengerTile project={project} />
+            </div>
+          ) : (
+            // Desktop layout - grid layout with minimum width for right column
+            <div className="grid grid-cols-[1fr_min(350px,_35%)] gap-[23px] h-full">
+              {/* Notes Tile - Left Column */}
+              <div className="h-full">
+                <NotesTile project={project} />
+              </div>
+              
+              {/* Right Column - Watch and Messenger - minimum width of 350px */}
+              <div className="flex flex-col gap-[23px] min-w-[350px]">
+                <WatchTile project={project} />
+                <MessengerTile project={project} />
+              </div>
+            </div>
+          )}
         </div>
-      ) : (
-        // Desktop layout - grid layout with minimum width for right column
-        <div className="grid grid-cols-[1fr_min(350px,_35%)] gap-[23px] h-full">
-          {/* Notes Tile - Left Column */}
-          <div className="h-full">
-            <NotesTile project={project} />
-          </div>
-          
-          {/* Right Column - Watch and Messenger - minimum width of 350px */}
-          <div className="flex flex-col gap-[23px] min-w-[350px]">
-            <WatchTile project={project} />
-            <MessengerTile project={project} />
-          </div>
-        </div>
-      )}
+      </main>
+      <Footer />
     </div>
-  </main>
-  <Footer />
-</div>
-);
+  );
 };
 
 export default ProjectDashboard;
