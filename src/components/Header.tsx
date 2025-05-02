@@ -63,9 +63,10 @@ export function Header({ currentPage, project }: HeaderProps) {
   {project && (
     <a 
       href={`/projects/${project.id}`}
-      className="relative text-sm mx-3 py-0 pb-1 text-[#14A090] font-medium relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full shadow-none !shadow-none [--tw-shadow:none]"
+      className="relative text-sm mx-3 py-0 pb-1 text-[#14A090] font-medium relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full shadow-none !shadow-none [--tw-shadow:none] max-w-[40ch] truncate"
+      title={project.title} // Tooltip mit vollem Titel bei Hover
     >
-      {project.title}
+      {project.title.length > 40 ? `${project.title.substring(0, 40)}...` : project.title}
     </a>
   )}
 </nav>
