@@ -54,7 +54,7 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
           <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Notizen vorhanden.</div>
         ) : (
           <div className="mr-0">
-            {liveNotes.map(note => (
+            {sortedLiveNotes.map(note => (
               <LiveNoteItem
                 key={note.id}
                 note={note}
