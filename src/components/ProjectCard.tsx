@@ -96,7 +96,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
 
   return (
     <>
-      <div 
+   <div 
   className="h-[170px] max-w-[414px] p-6 rounded-[20px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] relative"
   onClick={handleCardClick}
   style={{
@@ -107,7 +107,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
   }}
 >
   <div className="text-white h-full flex flex-col">
-    <h3 className="text-xl font-medium mb-2 pr-10 truncate">{project.title}</h3>
+    <h3 className="text-xl font-medium mb-2 pr-10 line-clamp-2">{project.title}</h3>
     {project.description && (
       <p className="text-sm opacity-90 line-clamp-2">{project.description}</p>
     )}
