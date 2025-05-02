@@ -24,6 +24,22 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
     exportLiveNotesAsCSV(liveNotes);
   };
 
+  useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    // Nur auslösen, wenn kein Input- oder Textfeld aktiv ist
+    const tag = (e.target as HTMLElement)?.tagName;
+    const isTyping = tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable;
+
+    if (!isTyping && e.key === 'n') {
+      e.preventDefault();
+      handleCreateNote();
+    }
+  };
+
+  window.addEventListener('keydown', handleKeyDown);
+  return () => window.removeEventListener('keydown', handleKeyDown);
+}, [handleCreateNote]);
+
   return (
     <div className="h-full flex flex-col">
       {/* Scrollbarer Bereich */}
