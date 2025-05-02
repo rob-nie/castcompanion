@@ -199,7 +199,7 @@ export const TiptapEditor = ({
   }
 
   return (
-    <div className="border rounded-md border-[#7A9992] dark:border-[#CCCCCC] overflow-hidden">
+    <div className="border rounded-[10px] border-[#7A9992] dark:border-[#CCCCCC] overflow-hidden">
       <EditorToolbar 
         editor={editor} 
         addLink={addLink} 
