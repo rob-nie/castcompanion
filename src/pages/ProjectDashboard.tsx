@@ -71,16 +71,18 @@ const ProjectDashboard = () => {
               <MessengerTile project={project} />
             </div>
           ) : (
-            // Desktop layout - grid layout with minimum width for right column
-            <div className="grid grid-cols-[1fr_min(350px,_35%)] gap-[23px] h-full">
+            // Desktop layout - grid layout with right column constraints
+            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
               {/* Notes Tile - Left Column */}
               <div className="h-full">
                 <NotesTile project={project} />
               </div>
               
-              {/* Right Column - Watch and Messenger - minimum width of 350px */}
-              <div className="flex flex-col gap-[23px] min-w-[350px]">
-                <WatchTile project={project} />
+              {/* Right Column - Watch and Messenger with min-width 350px and max-width 414px */}
+              <div className="flex flex-col gap-[23px]">
+                <div className="mb-[23px]">
+                  <WatchTile project={project} />
+                </div>
                 <MessengerTile project={project} />
               </div>
             </div>
