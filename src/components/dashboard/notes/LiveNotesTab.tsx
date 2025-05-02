@@ -40,6 +40,11 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
   return () => window.removeEventListener('keydown', handleKeyDown);
 }, [handleCreateNote]);
 
+    // Sortiere nach Erstellungsdatum (älteste zuerst)
+  const sortedLiveNotes = [...liveNotes].sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+
   return (
     <div className="h-full flex flex-col">
       {/* Scrollbarer Bereich */}
