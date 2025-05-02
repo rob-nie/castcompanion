@@ -115,7 +115,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
         Zuletzt bearbeitet: {formattedDate}
       </p>
     )}
-    <div className="absolute top-4 right-4 flex gap-2">
+    <div className="absolute top-4 right-4 flex gap-2 z-10">
       <button
         onClick={(e) => {
           e.stopPropagation();
