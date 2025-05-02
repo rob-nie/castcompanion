@@ -16,7 +16,7 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
   const { liveNotes, isLoading, createLiveNote, updateLiveNote, deleteLiveNote } = useLiveNotes(projectId);
 
   const handleCreateNote = async () => {
-    const newNote = await createLiveNote(displayTime);
+    await createLiveNote(displayTime);
   };
 
   const handleExportCSV = () => {
@@ -25,7 +25,29 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
+      {/* Scrollbarer Bereich für Notizen */}
+      <ScrollArea className="flex-1 overflow-y-auto mb-20">
+        {isLoading ? (
+          <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">Laden...</div>
+        ) : liveNotes.length === 0 ? (
+          <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Notizen vorhanden.</div>
+        ) : (
+          <div className="mr-0">
+            {liveNotes.map(note => (
+              <LiveNoteItem
+                key={note.id}
+                note={note}
+                onUpdate={updateLiveNote}
+                onDelete={deleteLiveNote}
+                autoFocus={note.content === '' && note.created_at === note.updated_at}
+              />
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+
+      {/* Fixierte Button-Leiste unten */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-black p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <Button
           onClick={handleCreateNote}
           className="bg-[#14A090] text-white hover:bg-[#14A090]/90 h-10 rounded-[10px]"
@@ -44,30 +66,6 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
           Export CSV
         </Button>
       </div>
-
-      <ScrollArea className="flex-1">
-        {isLoading ? (
-          <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">
-            Laden...
-          </div>
-        ) : liveNotes.length === 0 ? (
-          <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">
-            Noch keine Notizen vorhanden.
-          </div>
-        ) : (
-          <div className="mr-0">
-            {liveNotes.map(note => (
-              <LiveNoteItem
-                key={note.id}
-                note={note}
-                onUpdate={updateLiveNote}
-                onDelete={deleteLiveNote}
-                autoFocus={note.content === '' && note.created_at === note.updated_at}
-              />
-            ))}
-          </div>
-        )}
-      </ScrollArea>
     </div>
   );
 };
