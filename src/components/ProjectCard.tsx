@@ -97,7 +97,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
   return (
     <>
       <div 
-        className="h-[150px] max-w-[414px] p-6 rounded-[20px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] relative"
+        className="h-[170px] max-w-[414px] p-6 rounded-[20px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] relative"
         onClick={handleCardClick}
         style={{
           background: isDarkMode 
