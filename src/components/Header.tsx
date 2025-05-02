@@ -72,7 +72,7 @@ export function Header({ currentPage, project }: HeaderProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center text-sm cursor-pointer">
                   {isMobile ? (
-                    <Avatar className="h-8 w-8 bg-[#14A090] text-white">
+                    <Avatar className="h-9 w-9 bg-[#14A090] text-white">
                       <AvatarFallback>{getUserInitials()}</AvatarFallback>
                     </Avatar>
                   ) : (
