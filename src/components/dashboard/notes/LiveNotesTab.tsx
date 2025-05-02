@@ -28,7 +28,7 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
       <div className="flex justify-between items-center mb-4">
         <Button
           onClick={handleCreateNote}
-          className="bg-[#14A090] text-white hover:bg-[#14A090]/90 h-[40px] rounded-[10px] px-[10px] py-[10px]"
+          className="bg-[#14A090] text-white hover:bg-[#14A090]/90 h-[40px] rounded-[10px] px-[15px] py-[10px]"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Live Note
@@ -37,7 +37,7 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
         <Button
           onClick={handleExportCSV}
           variant="outline"
-          className="text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] h-[40px] rounded-[10px] px-[10px] py-[10px]"
+          className="text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] h-[40px] rounded-[10px] px-[15px] py-[10px]"
           disabled={liveNotes.length === 0}
         >
           <Download className="h-4 w-4 mr-2" />
