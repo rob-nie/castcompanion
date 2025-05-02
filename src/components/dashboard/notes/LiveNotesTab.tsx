@@ -47,7 +47,7 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
       </ScrollArea>
 
       {/* Immer sichtbare Button-Leiste unten */}
-      <div className="mt-4 flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="mt-4 flex justify-between items-center">
         <Button
           onClick={handleCreateNote}
           className="bg-[#14A090] text-white hover:bg-[#14A090]/90 h-10 rounded-[10px]"
