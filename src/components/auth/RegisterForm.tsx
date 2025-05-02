@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface RegisterFormProps {
   onSubmit: (email: string, password: string, name: string) => void;
@@ -77,13 +78,13 @@ export const RegisterForm = ({ onSubmit, isLoading }: RegisterFormProps) => {
           </div>
         </div>
 
-        <button
+        <Button
           type="submit"
-          className="btn-primary w-full"
           disabled={isLoading}
+          className="bg-[#14A090] hover:bg-[#14A090]/90 w-full rounded-[10px]"
         >
           {isLoading ? "Laden..." : "Registrieren"}
-        </button>
+        </Button>
 
         <div className="text-center text-sm">
           <span className="text-secondary">Bereits ein Konto? </span>

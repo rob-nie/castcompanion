@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
@@ -50,13 +51,13 @@ export const LoginForm = ({ onSubmit, isLoading }: LoginFormProps) => {
           </div>
         </div>
 
-        <button
+        <Button
           type="submit"
-          className="btn-primary w-full"
           disabled={isLoading}
+          className="bg-[#14A090] hover:bg-[#14A090]/90 w-full rounded-[10px]"
         >
           {isLoading ? "Laden..." : "Anmelden"}
-        </button>
+        </Button>
 
         <div className="text-center text-sm">
           <span className="text-secondary">Noch kein Konto? </span>

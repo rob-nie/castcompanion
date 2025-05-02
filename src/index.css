@@ -111,11 +111,11 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-cast-sea-green text-white h-10 px-5 py-2.5 rounded-[10px] font-medium text-sm flex items-center justify-center;
+    @apply bg-cast-sea-green text-white h-10 px-[15px] py-[10px] rounded-[10px] font-medium text-sm flex items-center justify-center;
   }
   
   .btn-secondary {
-    @apply bg-transparent border border-current text-secondary h-10 px-5 py-2.5 rounded-[10px] font-medium text-sm flex items-center justify-center;
+    @apply bg-transparent border border-current text-secondary h-10 px-[15px] py-[10px] rounded-[10px] font-medium text-sm flex items-center justify-center;
   }
   
   .metadata {
