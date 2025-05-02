@@ -90,7 +90,6 @@ const ProjectDashboard = () => {
   <Footer />
 </div>
 );
-  );
 };
 
 export default ProjectDashboard;
