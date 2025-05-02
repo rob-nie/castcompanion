@@ -61,10 +61,10 @@ export function Header({ currentPage, project }: HeaderProps) {
           Meine Projekte
         </a>
         {project && (
-          <div className="relative text-sm mx-3 py-0 pb-1">
+          <div className="relative mx-3 flex items-end">
             <a 
               href={`/projects/${project.id}`}
-              className="text-[#14A090] font-medium max-w-[40ch] truncate inline-block"
+              className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1"
               title={project.title}
             >
               {project.title.length > 40 ? `${project.title.substring(0, 40)}...` : project.title}
