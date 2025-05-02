@@ -80,9 +80,7 @@ const ProjectDashboard = () => {
               
               {/* Right Column - Watch and Messenger with min-width 350px and max-width 414px */}
               <div className="flex flex-col gap-[23px]">
-                <div className="mb-[23px]">
-                  <WatchTile project={project} />
-                </div>
+                <WatchTile project={project} />
                 <MessengerTile project={project} />
               </div>
             </div>
