@@ -7,9 +7,22 @@ interface TimerControlsProps {
   displayTime: number;
   onToggle: () => void;
   onReset: () => void;
+  isMobile?: boolean;
 }
 
-export const TimerControls = ({ isRunning, displayTime, onToggle, onReset }: TimerControlsProps) => {
+export const TimerControls = ({ isRunning, displayTime, onToggle, onReset, isMobile = false }: TimerControlsProps) => {
+  // Wenn im mobilen Layout und innerhalb der Tile, zeige nur die Zeit an
+  if (isMobile) {
+    return (
+      <div
+        className="font-inter font-bold text-[20px] text-white text-center"
+        style={{ fontVariantNumeric: "tabular-nums" }}
+      >
+        {formatTime(displayTime)}
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-between w-full">
       <div className="flex-1 flex justify-end pr-6">
