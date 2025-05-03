@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { TimerControls } from "./watch/TimerControls";
@@ -12,7 +13,7 @@ interface WatchTileProps {
 export const WatchTile = ({ project }: WatchTileProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const { isRunning, displayTime, toggleTimer, resetTimer } = useTimer(project.id);
+  const { isRunning, displayTime, toggleTimer, resetTimer, isSyncing } = useTimer(project.id);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -55,13 +56,21 @@ export const WatchTile = ({ project }: WatchTileProps) => {
         {/* Play/Pause Button */}
         <button
           onClick={toggleTimer}
-          className="h-10 w-10 flex items-center justify-center rounded-full bg-[#14A090] hover:bg-[#14A090]/90 transition-colors text-white"
+          disabled={isSyncing}
+          className={`h-10 w-10 flex items-center justify-center rounded-full ${
+            isSyncing ? 'bg-[#14A090]/70' : 'bg-[#14A090] active:bg-[#118174]'
+          } text-white transition-colors`}
           style={{ WebkitTapHighlightColor: 'transparent' }}
           aria-label={isRunning ? "Pause" : "Play"}
           type="button"
           tabIndex={0}
         >
-          {isRunning ? (
+          {isSyncing ? (
+            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : isRunning ? (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
               <path d="M10 4H6v16h4V4z"/><path d="M18 4h-4v16h4V4z"/>
             </svg>
@@ -88,7 +97,8 @@ export const WatchTile = ({ project }: WatchTileProps) => {
               displayTime, 
               onToggle: toggleTimer, 
               onReset: resetTimer,
-              isMobile: true
+              isMobile: true,
+              isSyncing: isSyncing
             })}
           </div>
         </div>
@@ -96,16 +106,26 @@ export const WatchTile = ({ project }: WatchTileProps) => {
         {/* Reset Button */}
         <button
           onClick={resetTimer}
-          className="h-10 w-10 flex items-center justify-center rounded-full bg-[#14A090] hover:bg-[#14A090]/90 transition-colors text-white"
+          disabled={isSyncing}
+          className={`h-10 w-10 flex items-center justify-center rounded-full ${
+            isSyncing ? 'bg-[#14A090]/70' : 'bg-[#14A090] active:bg-[#118174]'
+          } text-white transition-colors`}
           style={{ WebkitTapHighlightColor: 'transparent' }}
           aria-label="Reset"
           type="button"
           tabIndex={0}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <path d="M3 3v5h5"/>
-          </svg>
+          {isSyncing ? (
+            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+            </svg>
+          )}
         </button>
       </div>
     );
@@ -129,6 +149,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
             onToggle={toggleTimer} 
             onReset={resetTimer}
             isMobile={false}
+            isSyncing={isSyncing}
           />
         </div>
         <TimeDisplay currentTime={currentTime} />
