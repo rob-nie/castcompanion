@@ -72,7 +72,7 @@ export function Header({ currentPage, project }: HeaderProps) {
                     className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1"
                     title={project.title}
                   >
-                    {project.title.length > 40 ? `${project.title.substring(0, 40)}...` : project.title}
+                    {project.title.length > 40 ? `${project.title.substring(0, 35)}...` : project.title}
                   </a>
                   <div className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></div>
                 </div>
