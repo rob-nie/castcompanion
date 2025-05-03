@@ -90,14 +90,12 @@ export const WatchTile = ({ project }: WatchTileProps) => {
             boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)'
           }}
         >
-          <TimerControls
-            isRunning={isRunning}
-            displayTime={displayTime}
-            onToggle={toggleTimer}
-            onReset={resetTimer}
-            isMobile={true}
-            isSyncing={isSyncing}
-          />
+          <div
+            className="font-inter font-bold text-[20px] text-white text-center"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            {formatTime(displayTime)}
+          </div>
         </div>
         
         {/* Reset Button */}
@@ -153,4 +151,14 @@ export const WatchTile = ({ project }: WatchTileProps) => {
       </div>
     </div>
   );
+};
+
+// Formatierungsfunktion direkt in die Datei importieren
+const formatTime = (time: number): string => {
+  const totalSeconds = Math.floor(time / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
