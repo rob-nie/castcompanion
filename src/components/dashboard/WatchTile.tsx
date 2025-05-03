@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { TimerControls } from "./watch/TimerControls";
 import { TimeDisplay } from "./watch/TimeDisplay";
 import { useTimer } from "./watch/useTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { formatTime } from "./watch/utils"; // Importiere die formatTime Funktion direkt
+import { formatTime } from "./watch/utils";
 
 interface WatchTileProps {
   project: Tables<"projects">;
@@ -13,6 +13,7 @@ interface WatchTileProps {
 export const WatchTile = ({ project }: WatchTileProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(false);
+  // Erhöhe das Update-Intervall für bessere Synchronisation
   const { isRunning, displayTime, toggleTimer, resetTimer, isSyncing } = useTimer(project.id);
   const isMobile = useIsMobile();
 
@@ -50,36 +51,56 @@ export const WatchTile = ({ project }: WatchTileProps) => {
     };
   }, []);
 
-  // Handler für Touch und Klick-Events
-  const handleToggleClick = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
+  // Memoized event handler für bessere Performance
+  const handleToggle = useCallback((e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (!isSyncing) {
       toggleTimer();
     }
-  };
+  }, [toggleTimer, isSyncing]);
 
-  const handleResetClick = (e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
+  const handleReset = useCallback((e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (!isSyncing) {
       resetTimer();
     }
-  };
+  }, [resetTimer, isSyncing]);
+
+  // Keyboard handlers für bessere Zugänglichkeit
+  const handleKeyDown = useCallback((handler: Function) => (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handler(e);
+    }
+  }, []);
 
   if (isMobile) {
     return (
       <div className="flex items-center h-10">
-        {/* Play/Pause Button */}
-        <button
-          onClick={handleToggleClick}
-          onTouchStart={handleToggleClick}
-          disabled={isSyncing}
-          className={`h-10 w-10 flex items-center justify-center rounded-full ${
-            isSyncing ? 'bg-[#14A090]/70' : 'bg-[#14A090] active:bg-[#118174]'
-          } text-white transition-colors`}
-          style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
-          aria-label={isRunning ? "Pause" : "Play"}
-          type="button"
+        {/* Play/Pause Button - mit verbesserten Touch-Handlern */}
+        <div 
+          role="button"
           tabIndex={0}
+          aria-label={isRunning ? "Pause" : "Play"}
+          onClick={handleToggle}
+          onTouchEnd={handleToggle} 
+          onKeyDown={handleKeyDown(handleToggle)}
+          className={`h-10 w-10 flex items-center justify-center rounded-full 
+            ${isSyncing ? 'bg-[#14A090]/70 cursor-not-allowed' : 'bg-[#14A090] cursor-pointer active:bg-[#118174]'}
+            text-white transition-colors`}
+          style={{ 
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation',
+            WebkitUserSelect: 'none',
+            userSelect: 'none'
+          }}
         >
           {isSyncing ? (
             <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -95,11 +116,11 @@ export const WatchTile = ({ project }: WatchTileProps) => {
               <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
           )}
-        </button>
+        </div>
         
         {/* Timer Tile */}
         <div 
-          className="h-10 flex-1 mx-[23px] flex items-center justify-center rounded-[20px] overflow-hidden"
+          className="h-10 flex-1 mx-[23px] flex items-center justify-center rounded-[20px] overflow-hidden select-none"
           style={{
             background: isDarkMode 
               ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
@@ -115,18 +136,23 @@ export const WatchTile = ({ project }: WatchTileProps) => {
           </div>
         </div>
         
-        {/* Reset Button */}
-        <button
-          onClick={handleResetClick}
-          onTouchStart={handleResetClick}
-          disabled={isSyncing}
-          className={`h-10 w-10 flex items-center justify-center rounded-full ${
-            isSyncing ? 'bg-[#14A090]/70' : 'bg-[#14A090] active:bg-[#118174]'
-          } text-white transition-colors`}
-          style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
-          aria-label="Reset"
-          type="button"
+        {/* Reset Button - mit verbesserten Touch-Handlern */}
+        <div
+          role="button"
           tabIndex={0}
+          aria-label="Reset"
+          onClick={handleReset}
+          onTouchEnd={handleReset}
+          onKeyDown={handleKeyDown(handleReset)}
+          className={`h-10 w-10 flex items-center justify-center rounded-full 
+            ${isSyncing ? 'bg-[#14A090]/70 cursor-not-allowed' : 'bg-[#14A090] cursor-pointer active:bg-[#118174]'}
+            text-white transition-colors`}
+          style={{ 
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation',
+            WebkitUserSelect: 'none',
+            userSelect: 'none'
+          }}
         >
           {isSyncing ? (
             <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -139,14 +165,14 @@ export const WatchTile = ({ project }: WatchTileProps) => {
               <path d="M3 3v5h5"/>
             </svg>
           )}
-        </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div 
-      className="h-[136px] max-w-[414px] p-6 rounded-[20px] overflow-hidden relative"
+      className="h-[136px] max-w-[414px] p-6 rounded-[20px] overflow-hidden relative select-none"
       style={{
         background: isDarkMode 
           ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
@@ -159,8 +185,8 @@ export const WatchTile = ({ project }: WatchTileProps) => {
           <TimerControls 
             isRunning={isRunning} 
             displayTime={displayTime}
-            onToggle={toggleTimer} 
-            onReset={resetTimer}
+            onToggle={handleToggle} 
+            onReset={handleReset}
             isMobile={false}
             isSyncing={isSyncing}
           />
