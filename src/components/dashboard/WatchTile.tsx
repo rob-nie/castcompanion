@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { TimerControls } from "./watch/TimerControls";
@@ -52,9 +51,30 @@ export const WatchTile = ({ project }: WatchTileProps) => {
 
   if (isMobile) {
     return (
-      <div className="relative">
+      <div className="flex items-center">
+        {/* Play/Pause Button */}
+        <button
+          onClick={toggleTimer}
+          className="h-10 w-10 flex items-center justify-center rounded-full bg-[#14A090] hover:bg-[#14A090]/90 transition-colors text-white"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
+          aria-label={isRunning ? "Pause" : "Play"}
+          type="button"
+          tabIndex={0}
+        >
+          {isRunning ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <path d="M10 4H6v16h4V4z"/><path d="M18 4h-4v16h4V4z"/>
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+          )}
+        </button>
+        
+        {/* Timer Tile */}
         <div 
-          className="h-[40px] max-w-[414px] flex items-center justify-center rounded-[20px] overflow-hidden"
+          className="h-10 flex-1 mx-[23px] flex items-center justify-center rounded-[20px] overflow-hidden"
           style={{
             background: isDarkMode 
               ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
@@ -63,7 +83,6 @@ export const WatchTile = ({ project }: WatchTileProps) => {
           }}
         >
           <div className="text-white font-inter font-bold text-[20px]" style={{ fontVariantNumeric: "tabular-nums" }}>
-            {/* Timer display only */}
             {TimerControls({ 
               isRunning, 
               displayTime, 
@@ -74,41 +93,20 @@ export const WatchTile = ({ project }: WatchTileProps) => {
           </div>
         </div>
         
-        {/* Controls outside of the tile */}
-        <div className="flex justify-between mt-[23px]">
-          <button
-            onClick={toggleTimer}
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-[#14A090] hover:bg-[#14A090]/90 transition-colors text-white"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-            aria-label={isRunning ? "Pause" : "Play"}
-            type="button"
-            tabIndex={0}
-          >
-            {isRunning ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-                <path d="M10 4H6v16h4V4z"/><path d="M18 4h-4v16h4V4z"/>
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-                <polygon points="5 3 19 12 5 21 5 3"/>
-              </svg>
-            )}
-          </button>
-          
-          <button
-            onClick={resetTimer}
-            className="w-12 h-12 flex items-center justify-center rounded-full bg-[#14A090] hover:bg-[#14A090]/90 transition-colors text-white"
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-            aria-label="Reset"
-            type="button"
-            tabIndex={0}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-              <path d="M3 3v5h5"/>
-            </svg>
-          </button>
-        </div>
+        {/* Reset Button */}
+        <button
+          onClick={resetTimer}
+          className="h-10 w-10 flex items-center justify-center rounded-full bg-[#14A090] hover:bg-[#14A090]/90 transition-colors text-white"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
+          aria-label="Reset"
+          type="button"
+          tabIndex={0}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+        </button>
       </div>
     );
   }

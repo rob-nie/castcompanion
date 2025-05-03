@@ -66,7 +66,7 @@ const ProjectDashboard = () => {
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
             <div className="flex flex-col gap-[23px] h-full overflow-auto">
-              <div className="mb-[46px]"> {/* Extra margin to account for controls below */}
+              <div> {/* Removed extra margin since buttons are now inline */}
                 <WatchTile project={project} />
               </div>
               <NotesTile project={project} />
