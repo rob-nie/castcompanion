@@ -80,11 +80,10 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
         <Button
           onClick={handleExportCSV}
           variant="outline"
-          className="text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] h-10 rounded-[10px]"
+          className="text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] w-10 h-10 rounded-[10px]"
           disabled={liveNotes.length === 0}
         >
-          <Download className="h-4 w-4 mr-2" />
-          Export CSV
+          <Download className="h-4 w-4" />
         </Button>
       </div>
     </div>
