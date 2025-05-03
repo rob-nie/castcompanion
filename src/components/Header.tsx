@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,7 +13,6 @@ import {
 import { Settings, LogOut, UserIcon } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface HeaderProps {
   currentPage?: string;
@@ -37,20 +35,6 @@ export function Header({ currentPage, project }: HeaderProps) {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
-  };
-
-  const getUserInitials = () => {
-    if (!user) return "";
-    
-    if (user.user_metadata.full_name) {
-      const nameParts = user.user_metadata.full_name.split(" ");
-      if (nameParts.length > 1) {
-        return `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase();
-      }
-      return nameParts[0][0].toUpperCase();
-    }
-    
-    return user.email ? user.email[0].toUpperCase() : "";
   };
 
   return (
@@ -103,9 +87,7 @@ export function Header({ currentPage, project }: HeaderProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center text-sm cursor-pointer">
                   {isMobile ? (
-                    <Avatar className="h-9 w-9 bg-[#14A090] text-white">
-                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
-                    </Avatar>
+                    <UserIcon className="h-6 w-6 text-[#14A090]" />
                   ) : (
                     <span className="font-medium text-[#0A1915] dark:text-white">
                       {user.user_metadata.full_name || user.email}
