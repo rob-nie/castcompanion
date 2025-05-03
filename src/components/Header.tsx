@@ -87,7 +87,7 @@ export function Header({ currentPage, project }: HeaderProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center text-sm cursor-pointer">
                   {isMobile ? (
-                    <UserIcon className="h-6 w-6 text-[#14A090]" />
+                    <UserIcon className="h-6 w-6 text-[#0A1915] dark:text-white" />
                   ) : (
                     <span className="font-medium text-[#0A1915] dark:text-white">
                       {user.user_metadata.full_name || user.email}
