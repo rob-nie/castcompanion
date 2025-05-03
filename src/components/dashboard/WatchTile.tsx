@@ -50,17 +50,33 @@ export const WatchTile = ({ project }: WatchTileProps) => {
     };
   }, []);
 
+  // Handler für Touch und Klick-Events
+  const handleToggleClick = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    if (!isSyncing) {
+      toggleTimer();
+    }
+  };
+
+  const handleResetClick = (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    if (!isSyncing) {
+      resetTimer();
+    }
+  };
+
   if (isMobile) {
     return (
       <div className="flex items-center h-10">
         {/* Play/Pause Button */}
         <button
-          onClick={toggleTimer}
+          onClick={handleToggleClick}
+          onTouchStart={handleToggleClick}
           disabled={isSyncing}
           className={`h-10 w-10 flex items-center justify-center rounded-full ${
             isSyncing ? 'bg-[#14A090]/70' : 'bg-[#14A090] active:bg-[#118174]'
           } text-white transition-colors`}
-          style={{ WebkitTapHighlightColor: 'transparent' }}
+          style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
           aria-label={isRunning ? "Pause" : "Play"}
           type="button"
           tabIndex={0}
@@ -101,12 +117,13 @@ export const WatchTile = ({ project }: WatchTileProps) => {
         
         {/* Reset Button */}
         <button
-          onClick={resetTimer}
+          onClick={handleResetClick}
+          onTouchStart={handleResetClick}
           disabled={isSyncing}
           className={`h-10 w-10 flex items-center justify-center rounded-full ${
             isSyncing ? 'bg-[#14A090]/70' : 'bg-[#14A090] active:bg-[#118174]'
           } text-white transition-colors`}
-          style={{ WebkitTapHighlightColor: 'transparent' }}
+          style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
           aria-label="Reset"
           type="button"
           tabIndex={0}
