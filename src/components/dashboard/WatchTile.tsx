@@ -4,6 +4,7 @@ import { TimerControls } from "./watch/TimerControls";
 import { TimeDisplay } from "./watch/TimeDisplay";
 import { useTimer } from "./watch/useTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { formatTime } from "./watch/utils"; // Importiere die formatTime Funktion direkt
 
 interface WatchTileProps {
   project: Tables<"projects">;
@@ -151,14 +152,4 @@ export const WatchTile = ({ project }: WatchTileProps) => {
       </div>
     </div>
   );
-};
-
-// Formatierungsfunktion direkt in die Datei importieren
-const formatTime = (time: number): string => {
-  const totalSeconds = Math.floor(time / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
