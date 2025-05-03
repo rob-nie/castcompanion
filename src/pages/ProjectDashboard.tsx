@@ -66,11 +66,13 @@ const ProjectDashboard = () => {
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
             <div className="flex flex-col gap-[23px] h-full overflow-auto">
-              <div> {/* Removed extra margin since buttons are now inline */}
+              <div> 
                 <WatchTile project={project} />
               </div>
               <NotesTile project={project} />
-              <MessengerTile project={project} />
+              <div className="w-full">
+                <MessengerTile project={project} />
+              </div>
             </div>
           ) : (
             // Desktop layout - grid layout with right column constraints

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { TimerControls } from "./watch/TimerControls";
@@ -52,7 +51,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
 
   if (isMobile) {
     return (
-      <div className="flex items-center">
+      <div className="flex items-center h-10">
         {/* Play/Pause Button */}
         <button
           onClick={toggleTimer}
@@ -91,16 +90,14 @@ export const WatchTile = ({ project }: WatchTileProps) => {
             boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)'
           }}
         >
-          <div className="text-white font-inter font-bold text-[20px]" style={{ fontVariantNumeric: "tabular-nums" }}>
-            {TimerControls({ 
-              isRunning, 
-              displayTime, 
-              onToggle: toggleTimer, 
-              onReset: resetTimer,
-              isMobile: true,
-              isSyncing: isSyncing
-            })}
-          </div>
+          <TimerControls
+            isRunning={isRunning}
+            displayTime={displayTime}
+            onToggle={toggleTimer}
+            onReset={resetTimer}
+            isMobile={true}
+            isSyncing={isSyncing}
+          />
         </div>
         
         {/* Reset Button */}
