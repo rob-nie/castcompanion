@@ -27,14 +27,17 @@ const ProjectDashboard = () => {
         .select("*")
         .eq("id", projectId)
         .maybeSingle();
+
       if (error) {
         console.error("Error fetching project:", error);
         setIsLoading(false);
         return;
       }
+
       setProject(data);
       setIsLoading(false);
     };
+
     fetchProject();
   }, [projectId]);
 
@@ -58,8 +61,7 @@ const ProjectDashboard = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header currentPage="projects" project={project} />
       
-      {/* Allow overflow-visible to prevent shadow clipping */}
-      <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-visible">
+      <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-hidden">
         <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full`}>
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
@@ -74,7 +76,7 @@ const ProjectDashboard = () => {
             </div>
           ) : (
             // Desktop layout - grid layout with right column constraints
-            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full overflow-auto">
+            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
               {/* Notes Tile - Left Column */}
               <div className="h-full">
                 <NotesTile project={project} />
@@ -94,5 +96,4 @@ const ProjectDashboard = () => {
   );
 };
 
-export default ProjectDashboard;};
 export default ProjectDashboard;
