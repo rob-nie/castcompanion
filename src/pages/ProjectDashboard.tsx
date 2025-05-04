@@ -9,19 +9,17 @@ import { MessengerTile } from "@/components/dashboard/MessengerTile";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
-
 const ProjectDashboard = () => {
   const { projectId } = useParams();
   const [project, setProject] = useState<Tables<"projects"> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
-
   useEffect(() => {
     const fetchProject = async () => {
       if (!projectId) return;
-      
+
       setIsLoading(true);
-      
+
       const { data, error } = await supabase
         .from("projects")
         .select("*")
@@ -37,33 +35,33 @@ const ProjectDashboard = () => {
     };
     fetchProject();
   }, [projectId]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-[#7A9992] dark:text-[#CCCCCC]">Laden...</div>
+        <div className="text-[
+#7A9992] dark:text-[
+#CCCCCC]">Laden...</div>
       </div>
     );
   }
-
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-[#7A9992] dark:text-[#CCCCCC]">Projekt nicht gefunden</div>
+        <div className="text-[
+#7A9992] dark:text-[
+#CCCCCC]">Projekt nicht gefunden</div>
       </div>
     );
   }
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header currentPage="projects" project={project} />
-      
-      {/* Added padding to prevent shadow clipping */}
-      <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-auto pb-24">
-        <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full`}>
+
+      <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-hidden">
+        <div className={mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full}>
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
-            <div className="flex flex-col gap-[23px] h-full pb-20">
+            <div className="flex flex-col gap-[23px] h-full overflow-auto">
               <div> 
                 <WatchTile project={project} />
               </div>
@@ -74,12 +72,12 @@ const ProjectDashboard = () => {
             </div>
           ) : (
             // Desktop layout - grid layout with right column constraints
-            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full pb-20">
+            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
               {/* Notes Tile - Left Column */}
               <div className="h-full">
                 <NotesTile project={project} />
               </div>
-              
+
               {/* Right Column - Watch and Messenger with min-width 350px and max-width 414px */}
               <div className="flex flex-col gap-[23px]">
                 <WatchTile project={project} />
@@ -87,6 +85,13 @@ const ProjectDashboard = () => {
               </div>
             </div>
           )}
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+export default ProjectDashboard;          )}
         </div>
       </main>
       <Footer />
