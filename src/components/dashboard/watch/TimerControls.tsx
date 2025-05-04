@@ -5,8 +5,8 @@ import { formatTime } from "./utils";
 interface TimerControlsProps {
   isRunning: boolean;
   displayTime: number;
-  onToggle: () => void;
-  onReset: () => void;
+  onToggle: (e?: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => void;
+  onReset: (e?: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => void;
   isMobile?: boolean;
   isSyncing?: boolean;
 }
