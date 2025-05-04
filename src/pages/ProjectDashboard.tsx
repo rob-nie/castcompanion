@@ -58,7 +58,7 @@ const ProjectDashboard = () => {
       <Header currentPage="projects" project={project} />
 
       <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-hidden">
-        <div className={mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full}>
+        <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full`}>
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
             <div className="flex flex-col gap-[23px] h-full overflow-auto">
@@ -98,15 +98,3 @@ export default ProjectDashboard;          )}
     </div>
   );
 };
-
-export default ProjectDashboard;              </div>
-            </div>
-          )}
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
-};
-
-export default ProjectDashboard;
