@@ -1,7 +1,6 @@
-
 export function Footer() {
   return (
-    <footer className="w-full px-6 xl:px-24 py-5 relative z-10 bg-background">
+    <footer className="w-full px-6 xl:px-24 py-5">
       <div className="mx-auto max-w-[1288px] flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
         <div className="metadata text-[10px] order-1 md:order-none">
           © CastCompanion by Robert Niemeyer

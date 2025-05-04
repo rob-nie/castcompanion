@@ -58,15 +58,14 @@ const ProjectDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header currentPage="projects" project={project} />
       
-      {/* Main container with increased space for shadows and z-index */}
-      <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-visible relative z-0">
+      <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-hidden">
         <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full`}>
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
-            <div className="flex flex-col gap-[23px] h-full overflow-auto pb-12">
+            <div className="flex flex-col gap-[23px] h-full overflow-auto">
               <div> 
                 <WatchTile project={project} />
               </div>
@@ -77,7 +76,7 @@ const ProjectDashboard = () => {
             </div>
           ) : (
             // Desktop layout - grid layout with right column constraints
-            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full overflow-auto pb-12">
+            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
               {/* Notes Tile - Left Column */}
               <div className="h-full">
                 <NotesTile project={project} />
