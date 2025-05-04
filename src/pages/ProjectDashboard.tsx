@@ -38,18 +38,14 @@ const ProjectDashboard = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-[
-#7A9992] dark:text-[
-#CCCCCC]">Laden...</div>
+        <div className="text-[#7A9992] dark:text-[#CCCCCC]">Laden...</div>
       </div>
     );
   }
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-[
-#7A9992] dark:text-[
-#CCCCCC]">Projekt nicht gefunden</div>
+        <div className="text-[#7A9992] dark:text-[#CCCCCC]">Projekt nicht gefunden</div>
       </div>
     );
   }
@@ -58,7 +54,7 @@ const ProjectDashboard = () => {
       <Header currentPage="projects" project={project} />
 
       <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-hidden">
-        <div className={mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full}>
+        <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full`}>
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
             <div className="flex flex-col gap-[23px] h-full overflow-auto">
