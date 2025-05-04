@@ -9,17 +9,19 @@ import { MessengerTile } from "@/components/dashboard/MessengerTile";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
+
 const ProjectDashboard = () => {
   const { projectId } = useParams();
   const [project, setProject] = useState<Tables<"projects"> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
+
   useEffect(() => {
     const fetchProject = async () => {
       if (!projectId) return;
-
+      
       setIsLoading(true);
-
+      
       const { data, error } = await supabase
         .from("projects")
         .select("*")
@@ -35,6 +37,7 @@ const ProjectDashboard = () => {
     };
     fetchProject();
   }, [projectId]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -42,6 +45,7 @@ const ProjectDashboard = () => {
       </div>
     );
   }
+
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -49,11 +53,13 @@ const ProjectDashboard = () => {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header currentPage="projects" project={project} />
-
-      <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-hidden">
+      
+      {/* Allow overflow-visible to prevent shadow clipping */}
+      <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 h-[calc(100vh-theme(spacing.32))] overflow-visible">
         <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full`}>
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
@@ -68,12 +74,12 @@ const ProjectDashboard = () => {
             </div>
           ) : (
             // Desktop layout - grid layout with right column constraints
-            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
+            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full overflow-auto">
               {/* Notes Tile - Left Column */}
               <div className="h-full">
                 <NotesTile project={project} />
               </div>
-
+              
               {/* Right Column - Watch and Messenger with min-width 350px and max-width 414px */}
               <div className="flex flex-col gap-[23px]">
                 <WatchTile project={project} />
@@ -87,4 +93,6 @@ const ProjectDashboard = () => {
     </div>
   );
 };
+
+export default ProjectDashboard;};
 export default ProjectDashboard;

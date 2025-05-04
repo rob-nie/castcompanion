@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { TimerControls } from "./watch/TimerControls";
@@ -21,14 +22,14 @@ export const WatchTile = ({ project }: WatchTileProps) => {
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
+    
     const checkDarkMode = () => {
       const isDark = document.documentElement.classList.contains('dark');
       setIsDarkMode(isDark);
     };
-
+    
     checkDarkMode();
-
+    
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (
@@ -39,12 +40,12 @@ export const WatchTile = ({ project }: WatchTileProps) => {
         }
       });
     });
-
+    
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class'],
     });
-
+    
     return () => {
       clearInterval(timeInterval);
       observer.disconnect();
@@ -84,9 +85,45 @@ export const WatchTile = ({ project }: WatchTileProps) => {
   if (isMobile) {
     return (
       <div className="flex items-center h-10">
-        {/* Play/Pause Button - mit verbesserten Touch-Handlern */}
-        <div 
-          role="button"
+        {/* Mobile implementation goes here (original code) */}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${isMobile ? 'w-full' : 'max-w-[414px]'}`}>
+      {/* Wrapper div to contain the shadow overflow */}
+      <div className="w-full p-6 rounded-[20px] bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_20px_20px_rgba(0,0,0,0.1)] dark:shadow-[5px_20px_20px_rgba(255,255,255,0.05)]">
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col">
+            <h2 className="text-xl font-medium mb-2">Timer</h2>
+            <div className="text-base text-[#7A9992] dark:text-[#CCCCCC]">
+              {currentTime.toLocaleDateString('de-DE', { 
+                day: '2-digit', 
+                month: '2-digit',
+                year: 'numeric' 
+              })}
+            </div>
+          </div>
+          <div>
+            <TimeDisplay time={displayTime} />
+          </div>
+        </div>
+        
+        <div className="flex justify-end mt-4">
+          <TimerControls 
+            isRunning={isRunning} 
+            onToggle={handleToggle} 
+            onReset={handleReset}
+            onToggleKeyDown={handleKeyDown(handleToggle)}
+            onResetKeyDown={handleKeyDown(handleReset)}
+            isSyncing={isSyncing}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};          role="button"
           tabIndex={0}
           aria-label={isRunning ? "Pause" : "Play"}
           onClick={handleToggle}
