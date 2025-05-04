@@ -6,30 +6,24 @@ import { TimeDisplay } from "./watch/TimeDisplay";
 import { useTimer } from "./watch/useTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatTime } from "./watch/utils";
-
 interface WatchTileProps {
   project: Tables<"projects">;
 }
-
 export const WatchTile = ({ project }: WatchTileProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(false);
   // Erhöhe das Update-Intervall für bessere Synchronisation
   const { isRunning, displayTime, toggleTimer, resetTimer, isSyncing } = useTimer(project.id);
   const isMobile = useIsMobile();
-
   useEffect(() => {
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-    
     const checkDarkMode = () => {
       const isDark = document.documentElement.classList.contains('dark');
       setIsDarkMode(isDark);
     };
-    
     checkDarkMode();
-    
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (
@@ -40,53 +34,47 @@ export const WatchTile = ({ project }: WatchTileProps) => {
         }
       });
     });
-    
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class'],
     });
-    
     return () => {
       clearInterval(timeInterval);
       observer.disconnect();
     };
   }, []);
-
   // Memoized event handler für bessere Performance
   const handleToggle = useCallback((e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    
+
     if (!isSyncing) {
       toggleTimer();
     }
   }, [toggleTimer, isSyncing]);
-
   const handleReset = useCallback((e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    
+
     if (!isSyncing) {
       resetTimer();
     }
   }, [resetTimer, isSyncing]);
-
   // Keyboard handlers für bessere Zugänglichkeit
   const handleKeyDown = useCallback((handler: Function) => (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       handler(e);
     }
   }, []);
-
   if (isMobile) {
     return (
       <div className="flex items-center h-10">
         {/* Play/Pause Button - mit verbesserten Touch-Handlern */}
-        <div
+        <div        <div
           role="button"
           tabIndex={0}
           aria-label={isRunning ? "Pause" : "Play"}
