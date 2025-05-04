@@ -30,7 +30,7 @@ export const MembersList = ({ members, isOwner, onDeleteMember }: MembersListPro
       {/* E-Mail und Lösch-Icon in einer Zeile */}
       <div className="flex justify-between items-center">
         <span className="text-sm">
-          {member.email || 'Unbekannt'}
+          {member.username || 'Unbekannt'}
         </span>
 
         {/* Lösch-Button, nur wenn der Benutzer nicht "owner" ist */}
