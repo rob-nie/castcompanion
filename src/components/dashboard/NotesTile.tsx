@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { Tables } from "@/integrations/supabase/types";
 import { LiveNotesTab } from "./notes/LiveNotesTab";
@@ -10,15 +10,33 @@ interface NotesTileProps {
   project: Tables<"projects">;
 }
 
+const TABS_STORAGE_KEY = "cast-companion-last-notes-tab";
+
 export const NotesTile = ({ project }: NotesTileProps) => {
-  const [activeTab, setActiveTab] = useState("live-notes");
   const { displayTime } = useTimer(project.id);
+
+  // Set default to "interview-notes"
+  const [activeTab, setActiveTab] = useState("interview-notes");
+
+  // On mount: read from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(TABS_STORAGE_KEY);
+    if (stored === "live-notes" || stored === "interview-notes") {
+      setActiveTab(stored);
+    }
+  }, []);
+
+  // On tab change: store new value
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    localStorage.setItem(TABS_STORAGE_KEY, value);
+  };
 
   return (
     <div className="h-full max-w-[851px] p-6 rounded-[20px] overflow-auto bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_20px_20px_rgba(0,0,0,0.1)] dark:shadow-[5px_20px_20px_rgba(255,255,255,0.05)] flex flex-col">
-      <Tabs 
-        value={activeTab} 
-        onValueChange={setActiveTab}
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
         className="flex-1 flex flex-col h-full"
       >
         <TabsList className="flex w-full mb-4 bg-transparent p-0 justify-start items-start gap-6 !shadow-none">
