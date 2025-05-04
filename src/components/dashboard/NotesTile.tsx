@@ -15,7 +15,7 @@ export const NotesTile = ({ project }: NotesTileProps) => {
   const { displayTime } = useTimer(project.id);
 
   return (
-    <div className="h-full max-w-[851px] p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_20px_20px_rgba(0,0,0,0.1)] dark:shadow-[5px_20px_20px_rgba(255,255,255,0.05)] flex flex-col">
+    <div className="h-full max-w-[851px] p-6 rounded-[20px] overflow-auto bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_20px_20px_rgba(0,0,0,0.1)] dark:shadow-[5px_20px_20px_rgba(255,255,255,0.05)] flex flex-col">
       <Tabs 
         value={activeTab} 
         onValueChange={setActiveTab}
@@ -35,7 +35,7 @@ export const NotesTile = ({ project }: NotesTileProps) => {
             Live Notes
           </TabsTrigger>
         </TabsList>
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-auto">
           <TabsContent value="live-notes" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
             <LiveNotesTab projectId={project.id} displayTime={displayTime} />
           </TabsContent>
