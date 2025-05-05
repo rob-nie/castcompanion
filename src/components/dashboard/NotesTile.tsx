@@ -33,7 +33,7 @@ export const NotesTile = ({ project }: NotesTileProps) => {
   };
 
   return (
-    <div className="h-full p-6 rounded-[20px] bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_20px_20px_rgba(0,0,0,0.1)] dark:shadow-[5px_20px_20px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden">
+    <div className="h-full p-6 rounded-[20px] bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden">
       <Tabs
         value={activeTab}
         onValueChange={handleTabChange}
