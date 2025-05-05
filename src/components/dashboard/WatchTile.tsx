@@ -119,9 +119,6 @@ export const WatchTile = ({ project }: WatchTileProps) => {
             boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)'
           }}
         >
-          {!isConnected && (
-            <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 animate-pulse"></div>
-          )}
           <div
             className="font-inter font-bold text-[20px] text-white text-center"
             style={{ fontVariantNumeric: "tabular-nums" }}
