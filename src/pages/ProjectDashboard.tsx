@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -64,7 +63,7 @@ const ProjectDashboard = () => {
       <main className="flex-1 px-6 md:px-6 lg:px-6 xl:px-24 py-6 overflow-hidden">
         <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full`}>
           {isMobile ? (
-            // Mobile layout - tiles stacked vertically in specific order
+            // Mobile layout - tiles stacked vertically without Messenger (now a tab in NotesTile)
             <div className="flex flex-col gap-[23px] h-full overflow-hidden">
               <div> 
                 <WatchTile project={project} />
@@ -72,12 +71,9 @@ const ProjectDashboard = () => {
               <div className="flex-1 min-h-0">
                 <NotesTile project={project} />
               </div>
-              <div className="w-full">
-                <MessengerTile project={project} />
-              </div>
             </div>
           ) : (
-            // Desktop layout - grid layout with right column constraints
+            // Desktop layout - grid layout with right column constraints (unchanged)
             <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
               {/* Notes Tile - Left Column - Set to full height of available space */}
               <div className="h-full min-h-0">
