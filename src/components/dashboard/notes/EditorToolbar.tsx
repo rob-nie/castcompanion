@@ -7,13 +7,14 @@ import {
   List, ListOrdered, Link as LinkIcon, Save 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useScreenWidth } from '@/hooks/useScreenWidth';
 
 interface EditorToolbarProps {
   editor: Editor | null;
   addLink: () => void;
-  isSaving?: boolean; // Added this
-  hasUnsavedChanges?: boolean; // Added this
-  onSave?: () => void; // Added this
+  isSaving?: boolean; 
+  hasUnsavedChanges?: boolean;
+  onSave?: () => void;
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({ 
@@ -23,13 +24,17 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   hasUnsavedChanges = false, 
   onSave 
 }) => {
+  const screenWidth = useScreenWidth();
+  const isTwoRows = screenWidth < 930;
+  
   if (!editor) {
     return null;
   }
 
   return (
-    <div className="flex bg-background p-2 border-b border-[#7A9992] dark:border-[#CCCCCC]">
-      <div className="flex items-center space-x-1">
+    <div className="flex flex-wrap bg-background p-2 border-b border-[#7A9992] dark:border-[#CCCCCC]">
+      {/* First row - always visible */}
+      <div className="flex items-center space-x-1 mb-1 sm:mb-0">
         <Button
           type="button"
           size="icon"
@@ -87,9 +92,12 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         >
           <Heading3 className="h-4 w-4" />
         </Button>
+        
+        {!isTwoRows && <span className="mx-1 text-[#7A9992] dark:text-[#CCCCCC]">|</span>}
+      </div>
 
-        <span className="mx-1 text-[#7A9992] dark:text-[#CCCCCC]">|</span>
-
+      {/* Second row - always starts with List button */}
+      <div className={`flex items-center space-x-1 ${isTwoRows ? 'w-full' : 'ml-2'}`}>
         <Button
           type="button"
           size="icon"
