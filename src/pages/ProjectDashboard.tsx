@@ -69,7 +69,9 @@ const ProjectDashboard = () => {
               <div> 
                 <WatchTile project={project} />
               </div>
-              <NotesTile project={project} />
+              <div className="h-[calc(100vh-200px)]">
+                <NotesTile project={project} />
+              </div>
               <div className="w-full">
                 <MessengerTile project={project} />
               </div>
@@ -77,8 +79,8 @@ const ProjectDashboard = () => {
           ) : (
             // Desktop layout - grid layout with right column constraints
             <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
-              {/* Notes Tile - Left Column */}
-              <div className="h-full">
+              {/* Notes Tile - Left Column - Set to full viewport height */}
+              <div className="h-[calc(100vh-140px)]">
                 <NotesTile project={project} />
               </div>
               

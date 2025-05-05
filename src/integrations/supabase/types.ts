@@ -88,21 +88,18 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
-          username: string | null
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           email?: string | null
           id: string
-          username?: string | null
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           email?: string | null
           id?: string
-          username?: string | null
         }
         Relationships: []
       }
@@ -113,6 +110,7 @@ export type Database = {
           project_id: string | null
           role: string
           user_id: string | null
+          Username: string | null
         }
         Insert: {
           created_at?: string | null
@@ -120,6 +118,7 @@ export type Database = {
           project_id?: string | null
           role: string
           user_id?: string | null
+          Username?: string | null
         }
         Update: {
           created_at?: string | null
@@ -127,6 +126,7 @@ export type Database = {
           project_id?: string | null
           role?: string
           user_id?: string | null
+          Username?: string | null
         }
         Relationships: [
           {

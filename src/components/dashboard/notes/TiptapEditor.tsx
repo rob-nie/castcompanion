@@ -199,7 +199,7 @@ export const TiptapEditor = ({
   }
 
   return (
-<div className="rounded-[10px] overflow-hidden">
+    <div className="rounded-[10px] overflow-hidden h-full flex flex-col">
       <EditorToolbar 
         editor={editor} 
         addLink={addLink} 
@@ -207,8 +207,8 @@ export const TiptapEditor = ({
         hasUnsavedChanges={hasUnsavedChanges}
         onSave={forceSave}
       />
-      <div className="h-[calc(100%-40px)] overflow-auto">
-        <EditorContent editor={editor} className="h-full min-h-[300px]" />
+      <div className="flex-1 overflow-auto">
+        <EditorContent editor={editor} className="h-full" />
       </div>
     </div>
   );
