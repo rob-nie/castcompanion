@@ -58,18 +58,18 @@ const ProjectDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
       <Header currentPage="projects" project={project} />
       
-      <main className="flex-grow px-6 md:px-6 lg:px-6 xl:px-24 py-6 overflow-auto">
+      <main className="flex-1 px-6 md:px-6 lg:px-6 xl:px-24 py-6 overflow-hidden">
         <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full`}>
           {isMobile ? (
             // Mobile layout - tiles stacked vertically in specific order
-            <div className="flex flex-col gap-[23px] h-full overflow-auto">
+            <div className="flex flex-col gap-[23px] h-full overflow-hidden">
               <div> 
                 <WatchTile project={project} />
               </div>
-              <div className="h-[calc(100vh-200px)]">
+              <div className="flex-1 min-h-0">
                 <NotesTile project={project} />
               </div>
               <div className="w-full">
@@ -79,15 +79,17 @@ const ProjectDashboard = () => {
           ) : (
             // Desktop layout - grid layout with right column constraints
             <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
-              {/* Notes Tile - Left Column - Set to full viewport height */}
-              <div className="h-[calc(100vh-140px)]">
+              {/* Notes Tile - Left Column - Set to full height of available space */}
+              <div className="h-full min-h-0">
                 <NotesTile project={project} />
               </div>
               
               {/* Right Column - Watch and Messenger with min-width 350px and max-width 414px */}
-              <div className="flex flex-col gap-[23px]">
+              <div className="flex flex-col gap-[23px] h-full">
                 <WatchTile project={project} />
-                <MessengerTile project={project} />
+                <div className="flex-1 min-h-0">
+                  <MessengerTile project={project} />
+                </div>
               </div>
             </div>
           )}

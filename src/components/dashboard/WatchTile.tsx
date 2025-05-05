@@ -52,23 +52,13 @@ export const WatchTile = ({ project }: WatchTileProps) => {
   }, []);
 
   // Memoized event handler für bessere Performance
-  const handleToggle = useCallback((e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
+  const handleToggle = useCallback(() => {
     if (!isSyncing) {
       toggleTimer();
     }
   }, [toggleTimer, isSyncing]);
 
-  const handleReset = useCallback((e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
+  const handleReset = useCallback(() => {
     if (!isSyncing) {
       resetTimer();
     }

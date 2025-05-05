@@ -45,9 +45,9 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
   );
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Scrollbarer Bereich - mache ihn größer */}
-      <div className="flex-1 overflow-auto">
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Scrollbarer Bereich */}
+      <div className="flex-1 overflow-auto min-h-0">
         {isLoading ? (
           <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">Laden...</div>
         ) : liveNotes.length === 0 ? (
@@ -68,7 +68,7 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
       </div>
 
       {/* Immer sichtbare Button-Leiste unten */}
-      <div className="mt-4 flex justify-between items-center">
+      <div className="mt-4 flex justify-between items-center shrink-0">
         <Button
           onClick={handleCreateNote}
           className="bg-[#14A090] text-white hover:bg-[#14A090]/90 h-10 rounded-[10px]"
