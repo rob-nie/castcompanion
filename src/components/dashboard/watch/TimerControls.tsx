@@ -35,10 +35,10 @@ export const TimerControls = ({
     <div className="flex items-center justify-between w-full">
       <div className="flex-1 flex justify-end pr-6">
         <button
-          onClick={onToggle}
+          onClick={isSyncing ? undefined : onToggle}
           disabled={isSyncing}
           className={`w-10 h-10 flex items-center justify-center rounded-full ${
-            isSyncing ? 'bg-white/10' : 'bg-white/20 active:bg-white/30'
+            isSyncing ? 'bg-white/10 cursor-not-allowed' : 'bg-white/20 active:bg-white/30 cursor-pointer'
           } transition-colors text-white border border-white/50`}
           style={{ WebkitTapHighlightColor: 'transparent' }}
           aria-label={isRunning ? "Pause" : "Play"}
@@ -68,10 +68,10 @@ export const TimerControls = ({
 
       <div className="flex-1 flex justify-start pl-6">
         <button
-          onClick={onReset}
+          onClick={isSyncing ? undefined : onReset}
           disabled={isSyncing}
           className={`w-10 h-10 flex items-center justify-center rounded-full ${
-            isSyncing ? 'bg-white/10' : 'bg-white/20 active:bg-white/30'
+            isSyncing ? 'bg-white/10 cursor-not-allowed' : 'bg-white/20 active:bg-white/30 cursor-pointer'
           } transition-colors text-white border border-white/50`}
           style={{ WebkitTapHighlightColor: 'transparent' }}
           aria-label="Reset"

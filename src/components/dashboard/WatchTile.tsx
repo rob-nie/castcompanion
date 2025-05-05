@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { TimerControls } from "./watch/TimerControls";
@@ -13,8 +14,8 @@ interface WatchTileProps {
 export const WatchTile = ({ project }: WatchTileProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(false);
-  // Erhöhe das Update-Intervall für bessere Synchronisation
-  const { isRunning, displayTime, toggleTimer, resetTimer, isSyncing } = useTimer(project.id);
+  // Nutze den verbesserten Timer-Hook mit Verbindungsstatus
+  const { isRunning, displayTime, toggleTimer, resetTimer, isSyncing, isConnected } = useTimer(project.id);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -110,7 +111,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
         
         {/* Timer Tile */}
         <div 
-          className="h-10 flex-1 mx-[23px] flex items-center justify-center rounded-[20px] overflow-hidden select-none"
+          className={`h-10 flex-1 mx-[23px] flex items-center justify-center rounded-[20px] overflow-hidden select-none ${!isConnected ? 'relative' : ''}`}
           style={{
             background: isDarkMode 
               ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
@@ -118,6 +119,9 @@ export const WatchTile = ({ project }: WatchTileProps) => {
             boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)'
           }}
         >
+          {!isConnected && (
+            <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 animate-pulse"></div>
+          )}
           <div
             className="font-inter font-bold text-[20px] text-white text-center"
             style={{ fontVariantNumeric: "tabular-nums" }}
@@ -162,7 +166,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
 
   return (
     <div 
-      className="h-[136px] max-w-[414px] p-6 rounded-[20px] overflow-hidden relative select-none"
+      className={`h-[136px] max-w-[414px] p-6 rounded-[20px] overflow-hidden relative select-none ${!isConnected ? 'relative' : ''}`}
       style={{
         background: isDarkMode 
           ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
@@ -170,6 +174,9 @@ export const WatchTile = ({ project }: WatchTileProps) => {
         boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)'
       }}
     >
+      {!isConnected && (
+        <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 animate-pulse"></div>
+      )}
       <div className="text-white h-full flex flex-col items-center justify-between">
         <div className="w-full px-3">
           <TimerControls 

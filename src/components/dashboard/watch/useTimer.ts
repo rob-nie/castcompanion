@@ -1,28 +1,54 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useInterval } from "@/hooks/useInterval";
+import { toast } from "@/components/ui/use-toast";
 
 export const useTimer = (projectId: string) => {
+  // Core state
   const [isRunning, setIsRunning] = useState(false);
   const [startTime, setStartTime] = useState<string | null>(null);
   const [accumulatedTime, setAccumulatedTime] = useState(0);
   const [displayTime, setDisplayTime] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [subscriptionReady, setSubscriptionReady] = useState(false);
   
-  // Refs für bessere Synchronisation
-  const lastSyncTime = useRef<number>(Date.now());
-  const lastKnownState = useRef({
-    isRunning: false,
-    startTime: null as string | null,
-    accumulatedTime: 0
+  // Connection state
+  const [isConnected, setIsConnected] = useState(false);
+  
+  // References for consistent state handling across renders
+  const stateRef = useRef({
+    isRunning,
+    startTime,
+    accumulatedTime,
+    displayTime,
+    isSyncing,
+    lastSyncTime: Date.now(),
+    syncInProgress: false,
+    pendingChanges: false
   });
-
-  // Fetch initial timer state
+  
+  // Update reference whenever state changes
   useEffect(() => {
-    const fetchTimer = async () => {
+    stateRef.current = {
+      ...stateRef.current,
+      isRunning,
+      startTime,
+      accumulatedTime,
+      displayTime,
+      isSyncing
+    };
+  }, [isRunning, startTime, accumulatedTime, displayTime, isSyncing]);
+
+  // Setup channel and initial data fetch
+  useEffect(() => {
+    let channel: any;
+    let mounted = true;
+    
+    const initializeTimer = async () => {
       try {
         setIsSyncing(true);
+        stateRef.current.syncInProgress = true;
+        
+        // Fetch current timer state
         const { data, error } = await supabase
           .from("project_timers")
           .select("*")
@@ -30,149 +56,249 @@ export const useTimer = (projectId: string) => {
           .maybeSingle();
 
         if (error) {
-          console.error("Error fetching timer:", error);
-          setIsSyncing(false);
+          console.error("Error fetching timer data:", error);
+          if (mounted) {
+            toast({
+              title: "Synchronisierungsfehler",
+              description: "Timer-Daten konnten nicht geladen werden. Bitte versuche es später erneut.",
+              variant: "destructive"
+            });
+            setIsSyncing(false);
+            stateRef.current.syncInProgress = false;
+          }
           return;
         }
 
-        if (data) {
-          setIsRunning(data.is_running);
-          setStartTime(data.start_time);
-          setAccumulatedTime(data.accumulated_time);
-          
-          // Aktualisiere das letzte bekannte State
-          lastKnownState.current = {
-            isRunning: data.is_running,
-            startTime: data.start_time,
-            accumulatedTime: data.accumulated_time
-          };
-          
-          // Aktualisiere die Synchronisationszeit
-          lastSyncTime.current = Date.now();
-          
-          // Calculate current display time
-          if (data.is_running && data.start_time) {
-            const currentTime = new Date().getTime();
-            const start = new Date(data.start_time).getTime();
-            setDisplayTime(data.accumulated_time + (currentTime - start));
-          } else {
-            setDisplayTime(data.accumulated_time);
-          }
-        } else {
+        // Initialize timer if it doesn't exist
+        if (!data) {
           try {
             await supabase
               .from("project_timers")
-              .insert([{ project_id: projectId }]);
+              .insert([{ 
+                project_id: projectId,
+                is_running: false,
+                start_time: null,
+                accumulated_time: 0 
+              }]);
+            
+            // Set initial state
+            if (mounted) {
+              setIsRunning(false);
+              setStartTime(null);
+              setAccumulatedTime(0);
+              setDisplayTime(0);
+            }
           } catch (insertError) {
             console.error("Error creating timer:", insertError);
+            if (mounted) {
+              toast({
+                title: "Fehler beim Erstellen",
+                description: "Timer konnte nicht initialisiert werden.",
+                variant: "destructive"
+              });
+            }
+          }
+        } else {
+          // Set state from fetched data
+          if (mounted) {
+            const newIsRunning = data.is_running || false;
+            const newStartTime = data.start_time;
+            const newAccumulatedTime = data.accumulated_time || 0;
+            
+            setIsRunning(newIsRunning);
+            setStartTime(newStartTime);
+            setAccumulatedTime(newAccumulatedTime);
+            
+            // Calculate current display time
+            if (newIsRunning && newStartTime) {
+              const currentTime = new Date().getTime();
+              const start = new Date(newStartTime).getTime();
+              setDisplayTime(newAccumulatedTime + (currentTime - start));
+            } else {
+              setDisplayTime(newAccumulatedTime);
+            }
+            
+            stateRef.current.lastSyncTime = Date.now();
           }
         }
-        setIsSyncing(false);
+        
+        if (mounted) {
+          setIsSyncing(false);
+          stateRef.current.syncInProgress = false;
+        }
       } catch (e) {
-        console.error("Unexpected error in fetchTimer:", e);
-        setIsSyncing(false);
+        console.error("Unexpected error initializing timer:", e);
+        if (mounted) {
+          setIsSyncing(false);
+          stateRef.current.syncInProgress = false;
+          toast({
+            title: "Unerwarteter Fehler",
+            description: "Bei der Timer-Initialisierung ist ein Fehler aufgetreten.",
+            variant: "destructive"
+          });
+        }
       }
     };
-
-    fetchTimer();
     
-    // Periodische Neusynchronisierung, falls nötig
+    // Initialize timer data
+    initializeTimer();
+    
+    // Set up realtime subscription with robust error handling
+    const setupRealtimeSubscription = () => {
+      try {
+        channel = supabase
+          .channel(`timer-${projectId}`)
+          .on(
+            'postgres_changes',
+            {
+              event: '*',
+              schema: 'public',
+              table: 'project_timers',
+              filter: `project_id=eq.${projectId}`
+            },
+            (payload) => {
+              if (!mounted) return;
+              
+              try {
+                const newData = payload.new as any;
+                
+                // Ignore our own updates
+                if (stateRef.current.pendingChanges) {
+                  stateRef.current.pendingChanges = false;
+                  return;
+                }
+                
+                console.info("Received realtime update:", newData);
+                
+                // Update local state with remote changes
+                const newIsRunning = newData.is_running || false;
+                const newStartTime = newData.start_time;
+                const newAccumulatedTime = newData.accumulated_time || 0;
+                
+                setIsRunning(newIsRunning);
+                setStartTime(newStartTime);
+                setAccumulatedTime(newAccumulatedTime);
+                
+                // Calculate current display time based on new state
+                if (newIsRunning && newStartTime) {
+                  const currentTime = new Date().getTime();
+                  const start = new Date(newStartTime).getTime();
+                  setDisplayTime(newAccumulatedTime + (currentTime - start));
+                } else {
+                  setDisplayTime(newAccumulatedTime);
+                }
+                
+                stateRef.current.lastSyncTime = Date.now();
+                setIsSyncing(false);
+              } catch (error) {
+                console.error("Error processing realtime update:", error);
+                setIsSyncing(false);
+              }
+            }
+          )
+          .subscribe((status) => {
+            if (!mounted) return;
+            
+            console.info("Subscription status:", status);
+            
+            if (status === 'SUBSCRIBED') {
+              setIsConnected(true);
+              console.info("Erfolgreich mit Realtime verbunden");
+            } else if (status === 'CHANNEL_ERROR') {
+              setIsConnected(false);
+              console.error("Nicht mit Echtzeit-Updates verbunden:", status);
+              
+              // Retry connection after delay
+              setTimeout(() => {
+                if (mounted) {
+                  setupRealtimeSubscription();
+                }
+              }, 5000);
+            } else if (status === 'TIMED_OUT') {
+              setIsConnected(false);
+              console.error("Verbindung zur Echtzeit-Aktualisierung zeitüberschreitung:", status);
+              
+              // Retry connection after delay
+              setTimeout(() => {
+                if (mounted) {
+                  setupRealtimeSubscription();
+                }
+              }, 5000);
+            }
+          });
+      } catch (err) {
+        console.error("Error setting up realtime subscription:", err);
+        setIsConnected(false);
+        
+        // Retry subscription setup
+        setTimeout(() => {
+          if (mounted) {
+            setupRealtimeSubscription();
+          }
+        }, 5000);
+      }
+    };
+    
+    // Set up realtime subscription
+    setupRealtimeSubscription();
+    
+    // Periodic re-sync for safety
     const syncInterval = setInterval(() => {
-      // Wenn die letzte Synchronisierung mehr als 30 Sekunden her ist und der Timer läuft
-      if (Date.now() - lastSyncTime.current > 30000 && isRunning) {
-        fetchTimer();
+      // If timer is running and last sync was more than 30 seconds ago, re-sync
+      if (stateRef.current.isRunning && 
+          Date.now() - stateRef.current.lastSyncTime > 30000 && 
+          !stateRef.current.syncInProgress) {
+        syncWithServer();
+      }
+      
+      // If connection is lost, attempt to reconnect
+      if (!isConnected && channel) {
+        setupRealtimeSubscription();
       }
     }, 30000);
     
-    return () => clearInterval(syncInterval);
-  }, [projectId]);
-
-  // Set up realtime subscription mit verbesserten Error-Handling
-  useEffect(() => {
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'project_timers',
-          filter: `project_id=eq.${projectId}`
-        },
-        (payload) => {
-          try {
-            const newData = payload.new as any;
-            
-            // Update local state with remote changes
-            setIsRunning(newData.is_running);
-            setStartTime(newData.start_time);
-            setAccumulatedTime(newData.accumulated_time);
-            
-            // Aktualisiere das letzte bekannte State
-            lastKnownState.current = {
-              isRunning: newData.is_running,
-              startTime: newData.start_time,
-              accumulatedTime: newData.accumulated_time
-            };
-            
-            // Aktualisiere die Synchronisationszeit
-            lastSyncTime.current = Date.now();
-            
-            // Calculate current display time based on new state
-            if (newData.is_running && newData.start_time) {
-              const currentTime = new Date().getTime();
-              const start = new Date(newData.start_time).getTime();
-              setDisplayTime(newData.accumulated_time + (currentTime - start));
-            } else {
-              setDisplayTime(newData.accumulated_time);
-            }
-            
-            // When we receive a change from server, turn off syncing state
-            setIsSyncing(false);
-          } catch (error) {
-            console.error("Error processing realtime update:", error);
-            setIsSyncing(false);
-          }
-        }
-      )
-      .subscribe((status) => {
-        if (status === 'SUBSCRIBED') {
-          setSubscriptionReady(true);
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error("Channel subscription error");
-          // Versuche nach Fehler erneut zu verbinden
-          setTimeout(() => {
-            setSubscriptionReady(false);
-          }, 5000);
-        }
-      });
-
+    // Cleanup
     return () => {
-      supabase.removeChannel(channel);
+      mounted = false;
+      clearInterval(syncInterval);
+      
+      if (channel) {
+        console.info("Cleaning up realtime subscription");
+        supabase.removeChannel(channel);
+      }
     };
   }, [projectId]);
 
-  // Update the display time continuously while running - höhere Frequenz für Flüssigkeit
+  // Update the display time continuously while running
   useInterval(() => {
-    if (isRunning && startTime) {
+    if (stateRef.current.isRunning && stateRef.current.startTime) {
       const currentTime = new Date().getTime();
-      const start = new Date(startTime).getTime();
-      setDisplayTime(accumulatedTime + (currentTime - start));
+      const start = new Date(stateRef.current.startTime).getTime();
+      setDisplayTime(stateRef.current.accumulatedTime + (currentTime - start));
     }
-  }, isRunning ? 10 : null); // Aktualisiert alle 10ms für flüssigere Anzeige
+  }, stateRef.current.isRunning ? 50 : null); // More responsive updates
 
-  // Funktion, um den Server-Zustand aus dem aktuellen lokalen Zustand zu aktualisieren
+  // Function to update server state with robust error handling
   const updateServerState = async (newState: {
     is_running?: boolean;
     start_time?: string | null;
     accumulated_time?: number;
-  }) => {
-    if (!subscriptionReady) return false;
+  }): Promise<boolean> => {
+    if (stateRef.current.syncInProgress) {
+      console.warn("Sync already in progress, deferring update");
+      return false;
+    }
     
+    // Mark update as pending to avoid processing our own realtime update
+    stateRef.current.pendingChanges = true;
+    stateRef.current.syncInProgress = true;
     setIsSyncing(true);
-    const currentTime = new Date().toISOString();
     
     try {
+      const currentTime = new Date().toISOString();
+      
+      console.info("Updating server state:", newState);
+      
       const { error } = await supabase
         .from("project_timers")
         .update({
@@ -183,38 +309,71 @@ export const useTimer = (projectId: string) => {
         
       if (error) {
         console.error("Error updating timer:", error);
+        stateRef.current.pendingChanges = false;
+        stateRef.current.syncInProgress = false;
         setIsSyncing(false);
+        
+        toast({
+          title: "Synchronisierungsfehler",
+          description: "Timer-Änderungen konnten nicht gespeichert werden.",
+          variant: "destructive"
+        });
+        
         return false;
       }
       
-      // Behalt den syncing-Status bis zum Realtime-Update
+      // Update last sync time
+      stateRef.current.lastSyncTime = Date.now();
+      
+      // Keep syncing state until we receive real-time update or timeout
+      setTimeout(() => {
+        if (stateRef.current.syncInProgress) {
+          stateRef.current.syncInProgress = false;
+          stateRef.current.pendingChanges = false;
+          setIsSyncing(false);
+        }
+      }, 3000); // Timeout safety
+      
       return true;
     } catch (error) {
       console.error("Unexpected error updating timer:", error);
+      stateRef.current.pendingChanges = false;
+      stateRef.current.syncInProgress = false;
       setIsSyncing(false);
+      
+      toast({
+        title: "Unerwarteter Fehler",
+        description: "Bei der Timer-Aktualisierung ist ein Fehler aufgetreten.",
+        variant: "destructive"
+      });
+      
       return false;
     }
   };
 
+  // Toggle timer state with optimistic UI update
   const toggleTimer = async () => {
-    if (!subscriptionReady || isSyncing) return;
+    if (stateRef.current.syncInProgress) {
+      console.warn("Sync in progress, cannot toggle timer");
+      return;
+    }
     
     const currentTime = new Date();
     
-    if (isRunning) {
-      // Berechne die aktuelle verstrichene Zeit
-      const elapsedTime = startTime 
-        ? accumulatedTime + (currentTime.getTime() - new Date(startTime).getTime())
-        : accumulatedTime;
+    if (stateRef.current.isRunning) {
+      // Calculate current elapsed time
+      const elapsedTime = stateRef.current.startTime 
+        ? stateRef.current.accumulatedTime + (currentTime.getTime() - new Date(stateRef.current.startTime).getTime())
+        : stateRef.current.accumulatedTime;
       
-      // Optimistische UI-Aktualisierung
+      // Optimistic UI update
       setIsRunning(false);
       setStartTime(null);
       setAccumulatedTime(elapsedTime);
       setDisplayTime(elapsedTime);
       
-      // Server-Aktualisierung
-      await updateServerState({
+      // Server update
+      updateServerState({
         is_running: false,
         start_time: null,
         accumulated_time: elapsedTime
@@ -222,41 +381,53 @@ export const useTimer = (projectId: string) => {
     } else {
       const newStartTime = currentTime.toISOString();
       
-      // Optimistische UI-Aktualisierung
+      // Optimistic UI update
       setIsRunning(true);
       setStartTime(newStartTime);
       
-      // Server-Aktualisierung
-      await updateServerState({
+      // Server update
+      updateServerState({
         is_running: true,
-        start_time: newStartTime
+        start_time: newStartTime,
+        accumulated_time: stateRef.current.accumulatedTime
       });
     }
   };
 
+  // Reset timer with optimistic UI update
   const resetTimer = async () => {
-    if (!subscriptionReady || isSyncing) return;
+    if (stateRef.current.syncInProgress) {
+      console.warn("Sync in progress, cannot reset timer");
+      return;
+    }
     
-    // Optimistische UI-Aktualisierung
+    // Optimistic UI update
     setIsRunning(false);
     setStartTime(null);
     setAccumulatedTime(0);
     setDisplayTime(0);
     
-    // Server-Aktualisierung
-    await updateServerState({
+    // Server update
+    updateServerState({
       is_running: false,
       start_time: null,
       accumulated_time: 0
     });
   };
 
-  // Manuelle Synchronisationsfunktion für Benutzerinitiierten Sync
+  // Manual synchronization function
   const syncWithServer = async () => {
-    if (isSyncing) return;
+    if (stateRef.current.syncInProgress) {
+      console.warn("Sync already in progress");
+      return;
+    }
     
+    stateRef.current.syncInProgress = true;
     setIsSyncing(true);
+    
     try {
+      console.info("Manual sync with server initiated");
+      
       const { data, error } = await supabase
         .from("project_timers")
         .select("*")
@@ -265,39 +436,51 @@ export const useTimer = (projectId: string) => {
         
       if (error) {
         console.error("Error syncing timer:", error);
+        stateRef.current.syncInProgress = false;
         setIsSyncing(false);
+        
+        toast({
+          title: "Synchronisierungsfehler",
+          description: "Timer-Daten konnten nicht aktualisiert werden.",
+          variant: "destructive"
+        });
+        
         return;
       }
       
       if (data) {
-        setIsRunning(data.is_running);
-        setStartTime(data.start_time);
-        setAccumulatedTime(data.accumulated_time);
+        const newIsRunning = data.is_running || false;
+        const newStartTime = data.start_time;
+        const newAccumulatedTime = data.accumulated_time || 0;
         
-        // Aktualisiere das letzte bekannte State
-        lastKnownState.current = {
-          isRunning: data.is_running,
-          startTime: data.start_time,
-          accumulatedTime: data.accumulated_time
-        };
+        setIsRunning(newIsRunning);
+        setStartTime(newStartTime);
+        setAccumulatedTime(newAccumulatedTime);
         
-        // Aktualisiere die Synchronisationszeit
-        lastSyncTime.current = Date.now();
-        
-        // Aktualisiere die Anzeige
-        if (data.is_running && data.start_time) {
+        // Update display time
+        if (newIsRunning && newStartTime) {
           const currentTime = new Date().getTime();
-          const start = new Date(data.start_time).getTime();
-          setDisplayTime(data.accumulated_time + (currentTime - start));
+          const start = new Date(newStartTime).getTime();
+          setDisplayTime(newAccumulatedTime + (currentTime - start));
         } else {
-          setDisplayTime(data.accumulated_time);
+          setDisplayTime(newAccumulatedTime);
         }
+        
+        stateRef.current.lastSyncTime = Date.now();
       }
       
+      stateRef.current.syncInProgress = false;
       setIsSyncing(false);
     } catch (error) {
       console.error("Unexpected error during sync:", error);
+      stateRef.current.syncInProgress = false;
       setIsSyncing(false);
+      
+      toast({
+        title: "Synchronisierungsfehler",
+        description: "Bei der Timer-Synchronisierung ist ein Fehler aufgetreten.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -307,6 +490,7 @@ export const useTimer = (projectId: string) => {
     toggleTimer,
     resetTimer,
     isSyncing,
+    isConnected,
     syncWithServer
   };
 };
