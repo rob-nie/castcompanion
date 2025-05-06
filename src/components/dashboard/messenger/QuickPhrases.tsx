@@ -20,9 +20,6 @@ export const QuickPhrases = ({ onSelect }: QuickPhrasesProps) => {
   return (
     <div className="mt-2 space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-200">
       <div className="flex items-center justify-between">
-        <div className="text-xs text-[#7A9992] dark:text-[#CCCCCC]">
-          Quick Phrases ausblenden ▼
-        </div>
       </div>
       <div className="space-y-2">
         {phrases.map((phrase, index) => (
