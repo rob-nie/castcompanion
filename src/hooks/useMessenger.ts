@@ -49,9 +49,19 @@ export const useMessenger = (projectId: string) => {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.info("Subscription status:", status);
+        if (status === "SUBSCRIBED") {
+          console.info("Erfolgreich mit Realtime verbunden");
+        } else {
+          console.warn("Nicht mit Echtzeit-Updates verbunden:", status);
+        }
+      });
+    
+    console.info("Setting up realtime listener for project:", projectId);
     
     return () => {
+      console.info("Cleaning up realtime subscription");
       supabase.removeChannel(channel);
     };
   }, [projectId]);
@@ -106,6 +116,30 @@ export const useMessenger = (projectId: string) => {
     }
   };
 
+  // Check if user is a project member
+  const checkProjectMembership = async (): Promise<boolean> => {
+    if (!user?.id) return false;
+    
+    try {
+      const { data, error } = await supabase
+        .from('project_members')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking project membership:', error);
+        return false;
+      }
+      
+      return !!data;
+    } catch (error) {
+      console.error('Error checking project membership:', error);
+      return false;
+    }
+  };
+
   // Send a new message
   const sendMessage = async (content: string) => {
     if (!user?.id) {
@@ -116,6 +150,13 @@ export const useMessenger = (projectId: string) => {
     try {
       setIsLoading(true);
       
+      // Check project membership first
+      const isMember = await checkProjectMembership();
+      if (!isMember) {
+        toast.error('Du bist kein Mitglied dieses Projekts und kannst keine Nachrichten senden');
+        return;
+      }
+      
       const { error } = await supabase
         .from('messages')
         .insert({
@@ -124,7 +165,19 @@ export const useMessenger = (projectId: string) => {
           project_id: projectId
         }) as any;
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error sending message:', error);
+        
+        if (error.code === '42501') {
+          toast.error('Du hast keine Berechtigung, Nachrichten zu senden');
+        } else {
+          toast.error('Fehler beim Senden der Nachricht');
+        }
+        
+        return;
+      }
+      
+      // No need to manually add the message to state since the realtime subscription will handle it
       
     } catch (error) {
       console.error('Error sending message:', error);
