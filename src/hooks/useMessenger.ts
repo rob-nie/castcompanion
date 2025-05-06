@@ -34,18 +34,18 @@ export const useMessenger = (projectId: string) => {
           filter: `project_id=eq.${projectId}`
         },
         (payload) => {
-          const newMessage = payload.new as Message;
+          const newMessage = payload.new as any;
           
           // Add sender name to the message
           if (newMessage.sender_id) {
             fetchSenderName(newMessage.sender_id).then(name => {
               setMessages(prevMessages => [
                 ...prevMessages, 
-                { ...newMessage, sender_name: name }
+                { ...newMessage, sender_name: name } as Message
               ]);
             });
           } else {
-            setMessages(prevMessages => [...prevMessages, newMessage]);
+            setMessages(prevMessages => [...prevMessages, newMessage as Message]);
           }
         }
       )
@@ -65,15 +65,15 @@ export const useMessenger = (projectId: string) => {
         .from('messages')
         .select('*')
         .eq('project_id', projectId)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true }) as any;
       
       if (error) throw error;
       
       // Fetch sender names for each message
       const messagesWithNames = await Promise.all(
-        (data || []).map(async (message) => {
+        (data || []).map(async (message: any) => {
           const senderName = await fetchSenderName(message.sender_id);
-          return { ...message, sender_name: senderName };
+          return { ...message, sender_name: senderName } as Message;
         })
       );
       
@@ -122,7 +122,7 @@ export const useMessenger = (projectId: string) => {
           content,
           sender_id: user.id,
           project_id: projectId
-        });
+        }) as any;
       
       if (error) throw error;
       
