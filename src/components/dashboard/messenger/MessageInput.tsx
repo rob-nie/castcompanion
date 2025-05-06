@@ -43,7 +43,7 @@ export const MessageInput = ({
       
       <button 
         // className="h-10 w-10 flex items-center justify-center rounded-[10px] border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-[#F9F9F9] dark:hover:bg-[#2A2E2D] transition-colors"
-        className="bg-[#14A090] text-white hover:bg-[#14A090]/90 h-10 rounded-[10px]"
+        className="text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] w-10 h-10 rounded-[10px]"
         onClick={onToggleQuickPhrases}
         aria-label={showQuickPhrases ? "Quick Phrases ausblenden" : "Quick Phrases einblenden"}
       >
