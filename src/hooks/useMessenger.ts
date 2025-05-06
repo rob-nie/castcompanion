@@ -71,6 +71,13 @@ export const useMessenger = (projectId: string) => {
     try {
       setIsLoading(true);
       
+      // First check if user is a project member before fetching messages
+      const isMember = await checkProjectMembership();
+      if (!isMember) {
+        console.warn("User is not a project member. Cannot fetch messages.");
+        return;
+      }
+      
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -116,16 +123,16 @@ export const useMessenger = (projectId: string) => {
     }
   };
 
-  // Check if user is a project member - FIXED to handle 406 errors
+  // Check if user is a project member - Improved version to fix the 406 error
   const checkProjectMembership = async (): Promise<boolean> => {
     if (!user?.id) return false;
     
     try {
-      // Instead of using single(), which can cause a 406 error if multiple records exist,
-      // we use a more robust approach by counting matching records
-      const { data, error, count } = await supabase
+      // Use a simpler query that's less prone to errors
+      // Just get the count of matching records directly
+      const { count, error } = await supabase
         .from('project_members')
-        .select('id', { count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('project_id', projectId)
         .eq('user_id', user.id);
       
@@ -133,6 +140,8 @@ export const useMessenger = (projectId: string) => {
         console.error('Error checking project membership:', error);
         return false;
       }
+      
+      console.info(`User membership check: Found ${count} matching records for project ${projectId} and user ${user.id}`);
       
       // If count is greater than 0, user is a project member
       return (count !== null && count > 0);
@@ -154,6 +163,9 @@ export const useMessenger = (projectId: string) => {
       
       // Check project membership first
       const isMember = await checkProjectMembership();
+      
+      console.info(`Membership check result for user ${user.id} in project ${projectId}: ${isMember}`);
+      
       if (!isMember) {
         toast.error('Du bist kein Mitglied dieses Projekts und kannst keine Nachrichten senden');
         return;
