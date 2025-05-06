@@ -116,24 +116,26 @@ export const useMessenger = (projectId: string) => {
     }
   };
 
-  // Check if user is a project member
+  // Check if user is a project member - FIXED to handle 406 errors
   const checkProjectMembership = async (): Promise<boolean> => {
     if (!user?.id) return false;
     
     try {
-      const { data, error } = await supabase
+      // Instead of using single(), which can cause a 406 error if multiple records exist,
+      // we use a more robust approach by counting matching records
+      const { data, error, count } = await supabase
         .from('project_members')
-        .select('id')
+        .select('id', { count: 'exact' })
         .eq('project_id', projectId)
-        .eq('user_id', user.id)
-        .single();
+        .eq('user_id', user.id);
       
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error checking project membership:', error);
         return false;
       }
       
-      return !!data;
+      // If count is greater than 0, user is a project member
+      return (count !== null && count > 0);
     } catch (error) {
       console.error('Error checking project membership:', error);
       return false;
