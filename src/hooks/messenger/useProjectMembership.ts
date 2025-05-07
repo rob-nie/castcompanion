@@ -18,19 +18,20 @@ export const useProjectMembership = (projectId: string, user: User | null) => {
         console.log(`Checking membership for user ${user.id} in project ${projectId}`);
         
         // Check if user is member of this project
-        const { data, error } = await supabase
-          .from('project_members')
-          .select('id, role')
-          .eq('project_id', projectId)
-          .eq('user_id', user.id)
-          .single();
+        const { data, error } = await supabase.rpc('is_project_member', {
+          project_id: projectId,
+          user_id: user.id
+        });
         
-        if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
-          console.error('Error checking project membership:', error);
+        if (error) {
+          console.error('RPC error while checking project membership:', error);
           toast.error('Fehler bei der Überprüfung der Projektmitgliedschaft');
           setIsProjectMember(false);
           return;
         }
+
+console.log(`User membership check result: ${data ? 'true' : 'false'}`);  
+setIsProjectMember(data); // true oder false
         
         const isMember = !!data;
         console.log(`User membership check result: ${isMember ? 'true' : 'false'} (${data ? data.role : 'not a member'})`);
