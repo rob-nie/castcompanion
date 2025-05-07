@@ -30,9 +30,10 @@ export const useMessenger = (projectId: string) => {
       try {
         console.log(`Checking membership for user ${user.id} in project ${projectId}`);
         
-        const { count, error } = await supabase
+        // Fixed query - using two separate parameters for project_id and user_id
+        const { data, error, count } = await supabase
           .from('project_members')
-          .select('*', { count: 'exact', head: true })
+          .select('*', { count: 'exact' })
           .eq('project_id', projectId)
           .eq('user_id', user.id);
         
@@ -42,8 +43,8 @@ export const useMessenger = (projectId: string) => {
           return;
         }
         
-        const isMember = (count !== null && count > 0);
-        console.log(`User membership check result: ${isMember} (found ${count} matching records)`);
+        const isMember = (data && data.length > 0);
+        console.log(`User membership check result: ${isMember} (found ${data?.length} matching records)`);
         setIsProjectMember(isMember);
       } catch (error) {
         console.error('Exception in membership check:', error);
@@ -101,7 +102,6 @@ export const useMessenger = (projectId: string) => {
           console.info("Erfolgreich mit Realtime verbunden");
         } else if (status === "CHANNEL_ERROR") {
           console.error("Fehler bei der Kanal-Verbindung:", status);
-          console.error("Nicht mit Echtzeit-Updates verbunden:", status);
         } else {
           console.warn("Nicht mit Echtzeit-Updates verbunden:", status);
         }
