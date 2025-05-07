@@ -30,21 +30,23 @@ export const useMessenger = (projectId: string) => {
       try {
         console.log(`Checking membership for user ${user.id} in project ${projectId}`);
         
-        // Correctly use separate eq filters
+        // First check - proper query to check if user is member of this project
         const { data, error } = await supabase
           .from('project_members')
-          .select('*')
+          .select('id, role')
           .eq('project_id', projectId)
-          .eq('user_id', user.id);
+          .eq('user_id', user.id)
+          .single();
         
-        if (error) {
+        if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
           console.error('Error checking project membership:', error);
+          toast.error('Fehler bei der Überprüfung der Projektmitgliedschaft');
           setIsProjectMember(false);
           return;
         }
         
-        const isMember = (data && data.length > 0);
-        console.log(`User membership check result: ${isMember} (found ${data?.length} matching records)`);
+        const isMember = !!data;
+        console.log(`User membership check result: ${isMember ? 'true' : 'false'} (${data ? data.role : 'not a member'})`);
         setIsProjectMember(isMember);
       } catch (error) {
         console.error('Exception in membership check:', error);
