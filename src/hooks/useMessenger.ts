@@ -30,10 +30,10 @@ export const useMessenger = (projectId: string) => {
       try {
         console.log(`Checking membership for user ${user.id} in project ${projectId}`);
         
-        // Fixed query - using two separate parameters for project_id and user_id
-        const { data, error, count } = await supabase
+        // Correctly use separate eq filters
+        const { data, error } = await supabase
           .from('project_members')
-          .select('*', { count: 'exact' })
+          .select('*')
           .eq('project_id', projectId)
           .eq('user_id', user.id);
         
