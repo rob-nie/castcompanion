@@ -42,5 +42,5 @@ export const useProjectMembership = (projectId: string, user: User | null) => {
     checkMembership();
   }, [projectId, user?.id]);
 
-  return { isProjectMember: isProjectMembership };
+  return { isProjectMember };
 };
