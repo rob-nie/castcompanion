@@ -16,10 +16,56 @@ export interface Message {
 export const useMessenger = (projectId: string) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isProjectMember, setIsProjectMember] = useState<boolean | null>(null);
   const { user } = useAuth();
 
-  // Fetch messages on component mount
+  // Check if user is a project member
   useEffect(() => {
+    const checkMembership = async () => {
+      if (!user?.id || !projectId) {
+        setIsProjectMember(false);
+        return;
+      }
+
+      try {
+        console.log(`Checking membership for user ${user.id} in project ${projectId}`);
+        
+        const { count, error } = await supabase
+          .from('project_members')
+          .select('*', { count: 'exact', head: true })
+          .eq('project_id', projectId)
+          .eq('user_id', user.id);
+        
+        if (error) {
+          console.error('Error checking project membership:', error);
+          setIsProjectMember(false);
+          return;
+        }
+        
+        const isMember = (count !== null && count > 0);
+        console.log(`User membership check result: ${isMember} (found ${count} matching records)`);
+        setIsProjectMember(isMember);
+      } catch (error) {
+        console.error('Exception in membership check:', error);
+        setIsProjectMember(false);
+      }
+    };
+
+    checkMembership();
+  }, [projectId, user?.id]);
+
+  // Fetch messages and set up real-time subscription
+  useEffect(() => {
+    if (isProjectMember === null) {
+      // Wait until we know the membership status
+      return;
+    }
+    
+    if (!isProjectMember) {
+      console.warn("User is not a project member. Cannot fetch messages.");
+      return;
+    }
+
     fetchMessages();
     
     // Set up real-time subscription
@@ -53,6 +99,9 @@ export const useMessenger = (projectId: string) => {
         console.info("Subscription status:", status);
         if (status === "SUBSCRIBED") {
           console.info("Erfolgreich mit Realtime verbunden");
+        } else if (status === "CHANNEL_ERROR") {
+          console.error("Fehler bei der Kanal-Verbindung:", status);
+          console.error("Nicht mit Echtzeit-Updates verbunden:", status);
         } else {
           console.warn("Nicht mit Echtzeit-Updates verbunden:", status);
         }
@@ -64,27 +113,27 @@ export const useMessenger = (projectId: string) => {
       console.info("Cleaning up realtime subscription");
       supabase.removeChannel(channel);
     };
-  }, [projectId]);
+  }, [projectId, isProjectMember]);
 
   // Fetch all messages for the project
   const fetchMessages = async () => {
+    if (!user?.id) return;
+    
     try {
       setIsLoading(true);
-      
-      // First check if user is a project member before fetching messages
-      const isMember = await checkProjectMembership();
-      if (!isMember) {
-        console.warn("User is not a project member. Cannot fetch messages.");
-        return;
-      }
+      console.log("Fetching messages for project:", projectId);
       
       const { data, error } = await supabase
         .from('messages')
         .select('*')
         .eq('project_id', projectId)
-        .order('created_at', { ascending: true }) as any;
+        .order('created_at', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching messages:', error);
+        toast.error('Fehler beim Laden der Nachrichten');
+        return;
+      }
       
       // Fetch sender names for each message
       const messagesWithNames = await Promise.all(
@@ -94,9 +143,10 @@ export const useMessenger = (projectId: string) => {
         })
       );
       
+      console.log(`Fetched ${messagesWithNames.length} messages`);
       setMessages(messagesWithNames);
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error in fetchMessages:', error);
       toast.error('Fehler beim Laden der Nachrichten');
     } finally {
       setIsLoading(false);
@@ -112,42 +162,17 @@ export const useMessenger = (projectId: string) => {
         .eq('id', senderId)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching sender name:', error);
+        return null;
+      }
       
       // Extract username from email (everything before @)
       const email = data?.email || null;
       return email ? email.split('@')[0] : null;
     } catch (error) {
-      console.error('Error fetching sender name:', error);
+      console.error('Error in fetchSenderName:', error);
       return null;
-    }
-  };
-
-  // Check if user is a project member - Improved version to fix the 406 error
-  const checkProjectMembership = async (): Promise<boolean> => {
-    if (!user?.id) return false;
-    
-    try {
-      // Use a simpler query that's less prone to errors
-      // Just get the count of matching records directly
-      const { count, error } = await supabase
-        .from('project_members')
-        .select('*', { count: 'exact', head: true })
-        .eq('project_id', projectId)
-        .eq('user_id', user.id);
-      
-      if (error) {
-        console.error('Error checking project membership:', error);
-        return false;
-      }
-      
-      console.info(`User membership check: Found ${count} matching records for project ${projectId} and user ${user.id}`);
-      
-      // If count is greater than 0, user is a project member
-      return (count !== null && count > 0);
-    } catch (error) {
-      console.error('Error checking project membership:', error);
-      return false;
     }
   };
 
@@ -158,18 +183,14 @@ export const useMessenger = (projectId: string) => {
       return;
     }
     
+    if (!isProjectMember) {
+      toast.error('Du bist kein Mitglied dieses Projekts und kannst keine Nachrichten senden');
+      return;
+    }
+    
     try {
       setIsLoading(true);
-      
-      // Check project membership first
-      const isMember = await checkProjectMembership();
-      
-      console.info(`Membership check result for user ${user.id} in project ${projectId}: ${isMember}`);
-      
-      if (!isMember) {
-        toast.error('Du bist kein Mitglied dieses Projekts und kannst keine Nachrichten senden');
-        return;
-      }
+      console.log(`Sending message as user ${user.id} to project ${projectId}`);
       
       const { error } = await supabase
         .from('messages')
@@ -177,24 +198,17 @@ export const useMessenger = (projectId: string) => {
           content,
           sender_id: user.id,
           project_id: projectId
-        }) as any;
+        });
       
       if (error) {
         console.error('Error sending message:', error);
-        
-        if (error.code === '42501') {
-          toast.error('Du hast keine Berechtigung, Nachrichten zu senden');
-        } else {
-          toast.error('Fehler beim Senden der Nachricht');
-        }
-        
+        toast.error('Fehler beim Senden der Nachricht');
         return;
       }
       
-      // No need to manually add the message to state since the realtime subscription will handle it
-      
+      // The message will be added through the realtime subscription
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('Exception in sendMessage:', error);
       toast.error('Fehler beim Senden der Nachricht');
     } finally {
       setIsLoading(false);
@@ -205,6 +219,7 @@ export const useMessenger = (projectId: string) => {
     messages,
     sendMessage,
     isLoading,
-    user
+    user,
+    isProjectMember
   };
 };

@@ -6,15 +6,44 @@ import type { Message } from "@/hooks/useMessenger";
 interface MessageListProps {
   messages: Message[];
   currentUserId: string | undefined;
+  isProjectMember: boolean | null;
 }
 
-export const MessageList = ({ messages, currentUserId }: MessageListProps) => {
+export const MessageList = ({ messages, currentUserId, isProjectMember }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to the bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  if (isProjectMember === null) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-[#7A9992] dark:text-[#CCCCCC] animate-pulse">Laden...</div>
+      </div>
+    );
+  }
+
+  if (isProjectMember === false) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-[#7A9992] dark:text-[#CCCCCC]">
+          Du hast keinen Zugriff auf diesen Chat
+        </div>
+      </div>
+    );
+  }
+
+  if (messages.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-[#7A9992] dark:text-[#CCCCCC]">
+          Noch keine Nachrichten. Starte die Unterhaltung!
+        </div>
+      </div>
+    );
+  }
 
   // Group messages by sender and date
   const groupedMessages = messages.reduce<{

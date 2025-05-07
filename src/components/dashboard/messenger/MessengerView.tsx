@@ -14,7 +14,13 @@ interface MessengerViewProps {
 export const MessengerView = ({ project }: MessengerViewProps) => {
   const [inputValue, setInputValue] = useState("");
   const [showQuickPhrases, setShowQuickPhrases] = useState(false);
-  const { messages, sendMessage, isLoading, user } = useMessenger(project.id);
+  const { 
+    messages, 
+    sendMessage, 
+    isLoading, 
+    user, 
+    isProjectMember 
+  } = useMessenger(project.id);
   
   const handleSendMessage = () => {
     if (inputValue.trim() !== "") {
@@ -30,7 +36,11 @@ export const MessengerView = ({ project }: MessengerViewProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <MessageList messages={messages} currentUserId={user?.id} />
+      <MessageList 
+        messages={messages} 
+        currentUserId={user?.id} 
+        isProjectMember={isProjectMember} 
+      />
       
       <div className="mt-4">
         <MessageInput 
@@ -40,9 +50,10 @@ export const MessengerView = ({ project }: MessengerViewProps) => {
           onToggleQuickPhrases={() => setShowQuickPhrases(!showQuickPhrases)}
           showQuickPhrases={showQuickPhrases}
           isLoading={isLoading}
+          isProjectMember={isProjectMember}
         />
         
-        {showQuickPhrases && (
+        {showQuickPhrases && isProjectMember && (
           <QuickPhrases onSelect={handleQuickPhraseSelect} />
         )}
       </div>
