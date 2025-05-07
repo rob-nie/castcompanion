@@ -5,19 +5,19 @@ import { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 
 export const useProjectMembership = (projectId: string, user: User | null) => {
-  const [isProjectMember, setIsProjectMember] = useState<boolean | null>(null);
+  const [isProjectMember, setIsProjectMembership] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkMembership = async () => {
       if (!user?.id || !projectId) {
-        setIsProjectMember(false);
+        setIsProjectMembership(false);
         return;
       }
 
       try {
         console.log(`Checking membership for user ${user.id} in project ${projectId}`);
         
-        // Check if user is member of this project
+        // Check if user is member of this project using the RPC function
         const { data, error } = await supabase.rpc('is_project_member', {
           project_id: projectId,
           user_id: user.id
@@ -26,24 +26,21 @@ export const useProjectMembership = (projectId: string, user: User | null) => {
         if (error) {
           console.error('RPC error while checking project membership:', error);
           toast.error('Fehler bei der Überprüfung der Projektmitgliedschaft');
-          setIsProjectMember(false);
+          setIsProjectMembership(false);
           return;
         }
 
-console.log(`User membership check result: ${data ? 'true' : 'false'}`);  
-setIsProjectMember(data); // true oder false
+        console.log(`User membership check result: ${data ? 'true' : 'false'}`);
+        setIsProjectMembership(data);
         
-        const isMember = !!data;
-        console.log(`User membership check result: ${isMember ? 'true' : 'false'} (${data ? data.role : 'not a member'})`);
-        setIsProjectMember(isMember);
       } catch (error) {
         console.error('Exception in membership check:', error);
-        setIsProjectMember(false);
+        setIsProjectMembership(false);
       }
     };
 
     checkMembership();
   }, [projectId, user?.id]);
 
-  return { isProjectMember };
+  return { isProjectMember: isProjectMembership };
 };

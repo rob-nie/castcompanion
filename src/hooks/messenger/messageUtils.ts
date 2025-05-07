@@ -62,6 +62,17 @@ export const sendNewMessage = async (content: string, userId: string, projectId:
   try {
     console.log(`Sending message as user ${userId} to project ${projectId}`);
     
+    // First check if user is member of the project
+    const { data: isMember, error: memberError } = await supabase.rpc('is_project_member', {
+      project_id: projectId,
+      user_id: userId
+    });
+    
+    if (memberError || !isMember) {
+      console.error('User is not a member of this project:', memberError || 'Membership check returned false');
+      throw new Error('Du bist kein Mitglied dieses Projekts und kannst keine Nachrichten senden');
+    }
+    
     const { error } = await supabase
       .from('messages')
       .insert({
@@ -74,6 +85,8 @@ export const sendNewMessage = async (content: string, userId: string, projectId:
       console.error('Error sending message:', error);
       throw error;
     }
+    
+    console.log('Message sent successfully');
   } catch (error) {
     console.error('Exception in sendMessage:', error);
     throw error;
