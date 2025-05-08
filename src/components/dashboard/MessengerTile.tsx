@@ -105,7 +105,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
               <div className="flex items-center gap-2">
                 {/* Timestamp for sent messages - on the left */}
                 {message.sender_id === user?.id && (
-                  <span className="text-[10px] text-[#CCCCCC] dark:text-[#CCCCCC] self-center">
+                  <span className="text-[10px] text-[#DAE5E2] dark:text-[#5E6664] self-center">
                     {formatMessageTime(message.created_at)}
                   </span>
                 )}
@@ -125,7 +125,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                 
                 {/* Timestamp for received messages - on the right */}
                 {message.sender_id !== user?.id && (
-                  <span className="text-[10px] text-[#CCCCCC] dark:text-[#CCCCCC] self-center">
+                  <span className="text-[10px] text-[#DAE5E2] dark:text-[#5E6664] self-center">
                     {formatMessageTime(message.created_at)}
                   </span>
                 )}
