@@ -8,14 +8,14 @@ export const useUpdateProfile = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    const updateProfileEmail = async () => {
+    const updateProfileData = async () => {
       if (!user) return;
 
       try {
-        // Check if profile already has an email
+        // Check if profile already exists
         const { data: profile, error: fetchError } = await supabase
           .from('profiles')
-          .select('email')
+          .select('email, full_name')
           .eq('id', user.id)
           .single();
 
@@ -24,11 +24,22 @@ export const useUpdateProfile = () => {
           return;
         }
 
-        // Only update if the email is not set or different
-        if (!profile.email || profile.email !== user.email) {
+        // Get full_name from user metadata
+        const fullName = user.user_metadata?.full_name || null;
+        
+        // Only update if the email or full_name is not set or different
+        const needsUpdate = 
+          !profile.email || 
+          profile.email !== user.email || 
+          profile.full_name !== fullName;
+          
+        if (needsUpdate) {
           const { error: updateError } = await supabase
             .from('profiles')
-            .update({ email: user.email })
+            .update({ 
+              email: user.email,
+              full_name: fullName
+            })
             .eq('id', user.id);
 
           if (updateError) {
@@ -36,15 +47,15 @@ export const useUpdateProfile = () => {
             return;
           }
 
-          console.log('Profile email updated successfully');
+          console.log('Profile data updated successfully');
         }
       } catch (error) {
-        console.error('Exception in updateProfileEmail:', error);
+        console.error('Exception in updateProfileData:', error);
       }
     };
 
     if (user) {
-      updateProfileEmail();
+      updateProfileData();
     }
   }, [user]);
 

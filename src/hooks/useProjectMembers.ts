@@ -6,6 +6,7 @@ import { toast } from "sonner";
 interface Member {
   id: string;
   email: string | null;
+  full_name: string | null;
   role: string;
 }
 
@@ -32,32 +33,34 @@ export const useProjectMembers = (projectId: string) => {
       }
 
       // Create an array to store the members with their emails
-      const membersWithEmails: Member[] = [];
+      const membersWithDetails: Member[] = [];
 
       // For each member, fetch the profile email separately
       for (const member of membersData) {
         if (member.user_id) {
           const { data: profileData, error: profileError } = await supabase
             .from("profiles")
-            .select("email")
+            .select("email, full_name")
             .eq("id", member.user_id)
             .single();
 
-          membersWithEmails.push({
+          membersWithDetails.push({
             id: member.id,
             email: profileError ? null : profileData?.email || null,
+            full_name: profileError ? null : profileData?.full_name || null,
             role: member.role,
           });
         } else {
-          membersWithEmails.push({
+          membersWithDetails.push({
             id: member.id,
             email: null,
+            full_name: null,
             role: member.role,
           });
         }
       }
 
-      setMembers(membersWithEmails);
+      setMembers(membersWithDetails);
     } catch (error) {
       console.error("Error in fetchProjectMembers:", error);
     } finally {
