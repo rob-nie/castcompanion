@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 import { de } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MessengerTileProps {
   project: Tables<"projects">;
@@ -128,22 +129,32 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                 </span>
               )}
               
-              <div 
-                className={`max-w-[80%] p-3 rounded-t-[10px] ${
-                  message.sender_id === user?.id 
-                    ? 'bg-[#14A090] text-white rounded-bl-[10px] rounded-br-0' 
-                    : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-br-[10px] rounded-bl-0'
-                }`}
-              >
-                <p className="text-sm break-words">{message.content}</p>
+              {/* Message with timestamp on the side */}
+              <div className="flex items-center gap-2">
+                {/* For received messages, timestamp goes on the left */}
+                {message.sender_id !== user?.id && (
+                  <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-end">
+                    {formatMessageTime(message.created_at)}
+                  </span>
+                )}
+                
+                <div 
+                  className={`max-w-[80%] p-3 rounded-t-[10px] ${
+                    message.sender_id === user?.id 
+                      ? 'bg-[#14A090] text-white rounded-bl-[10px] rounded-br-0' 
+                      : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-br-[10px] rounded-bl-0'
+                  }`}
+                >
+                  <p className="text-sm break-words">{message.content}</p>
+                </div>
+                
+                {/* For sent messages, timestamp goes on the right */}
+                {message.sender_id === user?.id && (
+                  <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-end">
+                    {formatMessageTime(message.created_at)}
+                  </span>
+                )}
               </div>
-              
-              {/* Zeitangabe außerhalb der Sprechblase */}
-              <span className={`text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-1 ${
-                message.sender_id === user?.id ? 'mr-2' : 'ml-2'
-              }`}>
-                {formatMessageTime(message.created_at)}
-              </span>
             </div>
           ))}
         </div>
@@ -156,7 +167,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Nachricht eingeben..."
-            className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[44px] min-h-[44px] flex items-center py-2"
+            className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[44px] min-h-[44px] py-2 px-4"
             style={{ display: 'flex', alignItems: 'center' }}
             maxLength={500}
             disabled={!isProjectMember || isSending}
