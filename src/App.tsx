@@ -5,6 +5,7 @@ import { useIsMobile } from './hooks/use-mobile';
 import { Toaster } from './components/ui/toaster';
 import { useUpdateProfile } from './hooks/useUpdateProfile';
 import { AuthProvider } from './context/AuthProvider';
+import { AnimatedBackground } from './components/AnimatedBackground';
 
 // Lazy-loaded pages
 const Index = lazy(() => import('./pages/Index'));
@@ -21,7 +22,8 @@ function App() {
 
   return (
     <AuthProvider>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background">Loading...</div>}>
+      <AnimatedBackground />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-transparent">Loading...</div>}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth/*" element={<Auth />} />
