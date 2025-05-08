@@ -44,11 +44,6 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-    
-    /* Gradient animation variables */
-    --size: 750px;
-    --speed: 50s;
-    --easing: cubic-bezier(0.8, 0.2, 0.2, 0.8);
   }
 
   .dark {
@@ -96,15 +91,13 @@
 
   html {
     font-family: 'Inter', sans-serif;
-    height: 100%;
-    box-sizing: border-box;
+    height: 100%; /* Hinzugefügt */
   }
 
   body {
     @apply bg-background text-foreground font-inter;
-    min-height: 100vh;
-    margin: 0;
-    position: relative;
+    min-height: 100vh; /* Hinzugefügt (oder teste height: 100%;) */
+    margin: 0; /* Hinzugefügt */
   }
 
   h1 {
@@ -113,27 +106,6 @@
 
   h2 {
     @apply text-xl font-normal;
-  }
-  
-  /* Keyframes für den animierten Farbverlauf */
-  @keyframes rotate {
-    0% {
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-      transform: translate(-50%, -50%) rotate(360deg);
-    }
-  }
-  
-  @media (min-width: 720px) {
-    :root {
-      --size: 500px;
-    }
-  }
-  
-  /* Transition für Viewportänderungen */
-  * {
-    transition: all 0.5s ease-out;
   }
 }
 
