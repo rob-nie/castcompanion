@@ -74,48 +74,54 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
             </div>
           ) : (
             <div className="space-y-3 pr-2">
-              {messages.map((message) => (
-                <div 
-                  key={message.id}
-                  className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
-                >
-                  {/* Benutzername für empfangene Nachrichten - ohne horizontalen padding */}
-                  {message.sender_id !== user?.id && (
-                    <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
-                      {message.sender_full_name || 'Unbekannt'}
-                    </span>
-                  )}
-                  
-                  <div className="flex items-center gap-2">
-                    {/* Timestamp for sent messages - on the left */}
-                    {message.sender_id === user?.id && (
-                      <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
-                        {formatMessageTime(message.created_at)}
+              {messages.map((message, index) => {
+                // Check if this message is the first from this sender in a sequence
+                const isFirstInSequence = index === 0 || 
+                  messages[index - 1].sender_id !== message.sender_id;
+                
+                return (
+                  <div 
+                    key={message.id}
+                    className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
+                  >
+                    {/* Benutzername nur für die erste Nachricht in einer Sequenz anzeigen */}
+                    {message.sender_id !== user?.id && isFirstInSequence && (
+                      <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
+                        {message.sender_full_name || 'Unbekannt'}
                       </span>
                     )}
                     
-                    {/* Message bubble */}
-                    <div 
-                      className={`p-3 ${
-                        message.sender_id === user?.id 
-                          ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] rounded-br-0' 
-                          : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-0'
-                      }`}
-                    >
-                      <p className="text-sm break-words">
-                        {message.content}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      {/* Timestamp for sent messages - on the left */}
+                      {message.sender_id === user?.id && (
+                        <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
+                          {formatMessageTime(message.created_at)}
+                        </span>
+                      )}
+                      
+                      {/* Message bubble */}
+                      <div 
+                        className={`p-3 ${
+                          message.sender_id === user?.id 
+                            ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] rounded-br-0' 
+                            : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-0'
+                        }`}
+                      >
+                        <p className="text-sm break-words">
+                          {message.content}
+                        </p>
+                      </div>
+                      
+                      {/* Timestamp for received messages - on the right */}
+                      {message.sender_id !== user?.id && (
+                        <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
+                          {formatMessageTime(message.created_at)}
+                        </span>
+                      )}
                     </div>
-                    
-                    {/* Timestamp for received messages - on the right */}
-                    {message.sender_id !== user?.id && (
-                      <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
-                        {formatMessageTime(message.created_at)}
-                      </span>
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
