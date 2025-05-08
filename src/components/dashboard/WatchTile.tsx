@@ -115,8 +115,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
           style={{
             background: isDarkMode 
               ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
-              : 'linear-gradient(135deg, #14A090, #0A2550)',
-            boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)'
+              : 'linear-gradient(135deg, #14A090, #0A2550)'
           }}
         >
           <div
@@ -167,8 +166,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
       style={{
         background: isDarkMode 
           ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
-          : 'linear-gradient(135deg, #14A090, #0A2550)',
-        boxShadow: '0 5px 15px rgba(20, 160, 130, 0.5)'
+          : 'linear-gradient(135deg, #14A090, #0A2550)'
       }}
     >
       {!isConnected && (

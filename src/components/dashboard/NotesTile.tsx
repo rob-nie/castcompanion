@@ -38,7 +38,7 @@ export const NotesTile = ({ project }: NotesTileProps) => {
   // Apply conditional classes for mobile view
   const tileClasses = isMobile
     ? "h-full bg-background flex flex-col overflow-hidden"
-    : "h-full p-6 rounded-[20px] bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden";
+    : "h-full p-6 rounded-[20px] bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] flex flex-col overflow-hidden";
 
   return (
     <div className={tileClasses}>

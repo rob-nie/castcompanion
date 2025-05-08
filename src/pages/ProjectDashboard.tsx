@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -84,7 +85,7 @@ const ProjectDashboard = () => {
                 <div>
                   <WatchTile project={project} />
                 </div>
-                <div className="flex-1 min-h-0 shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)]">
+                <div className="flex-1 min-h-0">
                   <MessengerTile project={project} />
                 </div>
               </div>
