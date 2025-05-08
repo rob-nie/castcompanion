@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { EditProjectForm } from "./EditProjectForm";
 import { ProjectMembers } from "./ProjectMembers";
+import { Separator } from "@/components/ui/separator";
 
 interface ProjectSettingsModalProps {
   project: Tables<"projects">;
@@ -98,9 +99,13 @@ export const ProjectSettingsModal = ({
 
         {isOwner && <EditProjectForm project={project} onSuccess={onSuccess} onClose={onClose} />}
 
+        <Separator className="my-4 bg-cast-moss-gray/50 dark:bg-cast-silver-gray/50" />
+
         <ProjectMembers projectId={project.id} isOwner={isOwner} />
 
-        <div className="flex justify-between pt-4">
+        <Separator className="my-4 bg-cast-moss-gray/50 dark:bg-cast-silver-gray/50" />
+
+        <div className="flex justify-between pt-2">
           {isOwner ? (
             <Button
               type="button"
