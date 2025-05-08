@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -57,7 +58,7 @@ const ProjectDashboard = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="flex flex-col h-screen bg-background">
       <Header currentPage="projects" project={project} />
       
       <main className="flex-1 px-6 md:px-6 lg:px-6 xl:px-24 py-6 overflow-auto">
@@ -94,7 +95,7 @@ const ProjectDashboard = () => {
         </div>
       </main>
       
-      <Footer /> {/* Add the Footer component */}
+      <Footer />
     </div>
   );
 };
