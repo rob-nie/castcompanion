@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react"; // useEffect hinzufügen
-import { useLocation, useNavigate, Navigate, Routes, Route } from "react-router-dom";
+
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { RegisterForm } from "@/components/auth/RegisterForm";
@@ -14,14 +15,17 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [initialRoute, setInitialRoute] = useState("/login");
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
   useEffect(() => {
     if (location.state?.initialMode === "register") {
-      setInitialRoute("/register");
+      setAuthMode("register");
+    } else if (location.pathname.includes("register")) {
+      setAuthMode("register");
     } else {
-      setInitialRoute("/login");
+      setAuthMode("login");
     }
-  }, [location.state]);
+  }, [location.state, location.pathname]);
 
   if (user) {
     return <Navigate to="/projects" replace />;
@@ -61,7 +65,7 @@ const Auth = () => {
         title: "Registration successful",
         description: "Please check your email to verify your account.",
       });
-      navigate("/auth/login");
+      setAuthMode("login");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -77,11 +81,11 @@ const Auth = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-grow flex items-center justify-center px-6 py-16">
-        <Routes>
-          <Route path="/login" element={<LoginForm onSubmit={handleLogin} isLoading={isLoading} />} />
-          <Route path="/register" element={<RegisterForm onSubmit={handleRegister} isLoading={isLoading} />} />
-          <Route path="*" element={<Navigate to={`/auth${initialRoute}`} replace />} /> {/* Dynamische Weiterleitung */}
-        </Routes>
+        {authMode === "login" ? (
+          <LoginForm onSubmit={handleLogin} isLoading={isLoading} />
+        ) : (
+          <RegisterForm onSubmit={handleRegister} isLoading={isLoading} />
+        )}
       </main>
       <Footer />
     </div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { format } from "date-fns";
@@ -91,7 +92,7 @@ export const ProjectCard = ({ project, onUpdate }: ProjectCardProps) => {
     : null;
 
   const handleCardClick = () => {
-    navigate(`/projects/${project.id}`);
+    navigate(`/project/${project.id}`);
   };
 
   return (
