@@ -1,7 +1,7 @@
 
 import type { Tables } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMessages } from "@/hooks/messenger/useMessages";
 import { useProjectMembership } from "@/hooks/messenger/useProjectMembership";
 import { useAuth } from "@/context/AuthProvider";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 import { de } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MessengerTileProps {
   project: Tables<"projects">;
@@ -22,6 +23,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   const { messages, isLoading, error, sendMessage } = useMessages(project.id);
   const { isProjectMember } = useProjectMembership(project.id);
   const [isSending, setIsSending] = useState(false);
+  const [usernames, setUsernames] = useState<Record<string, string>>({});
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !isProjectMember) return;
@@ -58,6 +60,46 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
     }
   };
 
+  // Laden der Benutzernamen für alle Sender
+  useEffect(() => {
+    const loadUsernames = async () => {
+      const senderIds = messages
+        .filter(msg => msg.sender_id !== user?.id)
+        .map(msg => msg.sender_id);
+      
+      const uniqueSenderIds = [...new Set(senderIds)];
+      
+      if (uniqueSenderIds.length === 0) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, email')
+          .in('id', uniqueSenderIds);
+
+        if (error) {
+          console.error('Error fetching profiles:', error);
+          return;
+        }
+
+        const usernamesMap: Record<string, string> = {};
+        data.forEach(profile => {
+          const email = profile.email || '';
+          const username = email.split('@')[0] || 'Unbekannt';
+          usernamesMap[profile.id] = username;
+        });
+
+        setUsernames(usernamesMap);
+      } catch (err) {
+        console.error('Exception in loadUsernames:', err);
+      }
+    };
+
+    if (messages.length > 0 && user) {
+      loadUsernames();
+    }
+  }, [messages, user]);
+
   return (
     <div className="h-full p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)] flex flex-col">
             
@@ -82,38 +124,36 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
             >
               {/* Benutzername für empfangene Nachrichten */}
               {message.sender_id !== user?.id && (
-                <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1 pl-2">
-                  {message.sender_full_name || 'Unbekannt'}
+                <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
+                  {usernames[message.sender_id] || 'Unbekannt'}
                 </span>
               )}
               
-              {/* Message with timestamp inside the bubble */}
-              <div 
-                className={`max-w-[80%] p-3 rounded-t-[10px] ${
-                  message.sender_id === user?.id 
-                    ? 'bg-[#14A090] text-white rounded-bl-[10px] rounded-br-0' 
-                    : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-br-[10px] rounded-bl-0'
-                } relative`}
-              >
-                <div className="flex justify-between items-center gap-2">
-                  {/* For sent messages, timestamp goes on the left */}
-                  {message.sender_id === user?.id && (
-                    <span className="text-[10px] text-white self-center min-w-[40px] mr-1">
-                      {formatMessageTime(message.created_at)}
-                    </span>
-                  )}
-                  
-                  <p className="text-sm break-words flex-1">
-                    {message.content}
-                  </p>
-                  
-                  {/* For received messages, timestamp goes on the right */}
-                  {message.sender_id !== user?.id && (
-                    <span className="text-[10px] text-[#0A1915] dark:text-white self-center min-w-[40px] ml-1">
-                      {formatMessageTime(message.created_at)}
-                    </span>
-                  )}
+              {/* Message with timestamp on the side */}
+              <div className="flex items-center gap-2">
+                {/* For received messages, timestamp goes on the left */}
+                {message.sender_id !== user?.id && (
+                  <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-end">
+                    {formatMessageTime(message.created_at)}
+                  </span>
+                )}
+                
+                <div 
+                  className={`max-w-[80%] p-3 rounded-t-[10px] ${
+                    message.sender_id === user?.id 
+                      ? 'bg-[#14A090] text-white rounded-bl-[10px] rounded-br-0' 
+                      : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-br-[10px] rounded-bl-0'
+                  }`}
+                >
+                  <p className="text-sm break-words">{message.content}</p>
                 </div>
+                
+                {/* For sent messages, timestamp goes on the right */}
+                {message.sender_id === user?.id && (
+                  <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-end">
+                    {formatMessageTime(message.created_at)}
+                  </span>
+                )}
               </div>
             </div>
           ))}
