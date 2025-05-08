@@ -88,7 +88,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
             <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten. Sende die erste!</p>
           </div>
         ) : (
-          <div className="space-y-3 px-3">
+          <div className="space-y-3">
             {messages.map((message, index) => {
               // Check if this message is the first from this sender in a sequence
               const isFirstInSequence = index === 0 || 
