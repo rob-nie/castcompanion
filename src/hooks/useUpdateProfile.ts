@@ -29,9 +29,9 @@ export const useUpdateProfile = () => {
         
         // Only update if the email or full_name is not set or different
         const needsUpdate = 
-          !profile.email || 
+          !profile?.email || 
           profile.email !== user.email || 
-          profile.full_name !== fullName;
+          profile?.full_name !== fullName;
           
         if (needsUpdate) {
           const { error: updateError } = await supabase

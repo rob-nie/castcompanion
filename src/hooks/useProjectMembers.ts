@@ -42,7 +42,7 @@ export const useProjectMembers = (projectId: string) => {
             .from("profiles")
             .select("email, full_name")
             .eq("id", member.user_id)
-            .single();
+            .maybeSingle();
 
           membersWithDetails.push({
             id: member.id,
