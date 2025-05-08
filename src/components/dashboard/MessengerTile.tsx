@@ -99,7 +99,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
             >
               {/* Benutzername nur für die erste Nachricht in einer Sequenz anzeigen */}
               {message.sender_id !== user?.id && isFirstInSequence && (
-                <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
+                <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1font-bold">
                   {message.sender_full_name || 'Unbekannt'}
                 </span>
               )}
