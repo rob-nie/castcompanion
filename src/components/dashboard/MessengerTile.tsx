@@ -125,7 +125,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
               {/* Benutzername für empfangene Nachrichten */}
               {message.sender_id !== user?.id && (
                 <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] ml-2 mb-1">
-                  {usernames[message.sender_id] || 'Unbekannt'}
+                  {usernames[message.sender_full_name] || 'Unbekannt'}
                 </span>
               )}
               
