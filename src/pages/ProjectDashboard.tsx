@@ -1,7 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer"; // Import the Footer component
 import { NotesTile } from "@/components/dashboard/NotesTile";
 import { WatchTile } from "@/components/dashboard/WatchTile";
 import { MessengerTile } from "@/components/dashboard/MessengerTile";
@@ -60,11 +60,11 @@ const ProjectDashboard = () => {
     <div className="h-screen flex flex-col bg-background overflow-hidden">
       <Header currentPage="projects" project={project} />
       
-      <main className="flex-1 px-6 md:px-6 lg:px-6 xl:px-24 py-6 overflow-hidden mb-[48px]">
-        <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'} h-full`}>
+      <main className="flex-1 px-6 md:px-6 lg:px-6 xl:px-24 py-6 overflow-auto">
+        <div className={`mx-auto ${isMobile ? 'w-full' : 'max-w-[1288px]'}`}>
           {isMobile ? (
             // Mobile layout - tiles stacked vertically without Messenger (now a tab in NotesTile)
-            <div className="flex flex-col gap-[23px] h-full overflow-hidden">
+            <div className="flex flex-col gap-[23px]">
               <div> 
                 <WatchTile project={project} />
               </div>
@@ -74,14 +74,14 @@ const ProjectDashboard = () => {
             </div>
           ) : (
             // Desktop layout - grid layout with right column constraints (unchanged)
-            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
+            <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px]">
               {/* Notes Tile - Left Column - Set to full height of available space */}
               <div className="h-full min-h-0">
                 <NotesTile project={project} />
               </div>
               
               {/* Right Column - Watch and Messenger with min-width 350px and max-width 414px */}
-              <div className="flex flex-col gap-[23px] h-full overflow-hidden">
+              <div className="flex flex-col gap-[23px]">
                 <div>
                   <WatchTile project={project} />
                 </div>
@@ -93,6 +93,8 @@ const ProjectDashboard = () => {
           )}
         </div>
       </main>
+      
+      <Footer /> {/* Add the Footer component */}
     </div>
   );
 };
