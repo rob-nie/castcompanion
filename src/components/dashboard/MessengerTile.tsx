@@ -157,7 +157,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Nachricht eingeben..."
-              className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[44px] min-h-[44px] py-2 px-4"
+              className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[40px] min-h-[40px] py-2 px-4"
               style={{ display: 'flex', alignItems: 'center' }}
               maxLength={500}
               disabled={!isProjectMember || isSending}
@@ -165,7 +165,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
             <Button 
               onClick={handleSendMessage}
               disabled={!newMessage.trim() || !isProjectMember || isSending}
-              className="bg-[#14A090] hover:bg-[#14A090]/80 h-[44px] w-[44px] min-w-[44px] rounded-[10px] px-0"
+              className="bg-[#14A090] hover:bg-[#14A090]/80 h-[40px] w-[40px] min-w-[40px] rounded-[10px] px-0"
             >
               <Send className="w-5 h-5" />
             </Button>
