@@ -57,102 +57,102 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#F9F9F9] dark:bg-[#222625] rounded-[20px]">    
-      <div className="flex-1 flex flex-col">
-        <div className="flex-1 overflow-auto min-h-0">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
-            </div>
-          ) : error ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-red-500">Fehler: {error}</p>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten. Sende die erste!</p>
-            </div>
-          ) : (
-            <div className="space-y-3 pr-2">
-              {messages.map((message, index) => {
-                // Check if this message is the first from this sender in a sequence
-                const isFirstInSequence = index === 0 || 
-                  messages[index - 1].sender_id !== message.sender_id;
-                
-                return (
-                  <div 
-                    key={message.id}
-                    className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
-                  >
-                    {/* Benutzername nur für die erste Nachricht in einer Sequenz anzeigen */}
-                    {message.sender_id !== user?.id && isFirstInSequence && (
-                      <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
-                        {message.sender_full_name || 'Unbekannt'}
+    <div className="h-full flex flex-col overflow-hidden bg-[#F9F9F9] dark:bg-[#222625] rounded-[20px]">    
+      {/* Scrollbarer Nachrichtenbereich */}
+      <div className="flex-1 overflow-auto min-h-0 pb-4">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-red-500">Fehler: {error}</p>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten. Sende die erste!</p>
+          </div>
+        ) : (
+          <div className="space-y-3 px-3">
+            {messages.map((message, index) => {
+              // Check if this message is the first from this sender in a sequence
+              const isFirstInSequence = index === 0 || 
+                messages[index - 1].sender_id !== message.sender_id;
+              
+              return (
+                <div 
+                  key={message.id}
+                  className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
+                >
+                  {/* Benutzername nur für die erste Nachricht in einer Sequenz anzeigen */}
+                  {message.sender_id !== user?.id && isFirstInSequence && (
+                    <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
+                      {message.sender_full_name || 'Unbekannt'}
+                    </span>
+                  )}
+                  
+                  <div className="flex items-center gap-2">
+                    {/* Timestamp for sent messages - on the left */}
+                    {message.sender_id === user?.id && (
+                      <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
+                        {formatMessageTime(message.created_at)}
                       </span>
                     )}
                     
-                    <div className="flex items-center gap-2">
-                      {/* Timestamp for sent messages - on the left */}
-                      {message.sender_id === user?.id && (
-                        <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
-                          {formatMessageTime(message.created_at)}
-                        </span>
-                      )}
-                      
-                      {/* Message bubble */}
-                      <div 
-                        className={`p-3 ${
-                          message.sender_id === user?.id 
-                            ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] rounded-br-0' 
-                            : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-0'
-                        }`}
-                      >
-                        <p className="text-sm break-words">
-                          {message.content}
-                        </p>
-                      </div>
-                      
-                      {/* Timestamp for received messages - on the right */}
-                      {message.sender_id !== user?.id && (
-                        <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
-                          {formatMessageTime(message.created_at)}
-                        </span>
-                      )}
+                    {/* Message bubble */}
+                    <div 
+                      className={`p-3 ${
+                        message.sender_id === user?.id 
+                          ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] rounded-br-0' 
+                          : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-0'
+                      }`}
+                    >
+                      <p className="text-sm break-words">
+                        {message.content}
+                      </p>
                     </div>
+                    
+                    {/* Timestamp for received messages - on the right */}
+                    {message.sender_id !== user?.id && (
+                      <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
+                        {formatMessageTime(message.created_at)}
+                      </span>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+      
+      {/* Eingabebereich (fixiert am unteren Rand) */}
+      <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 shrink-0 px-3 pb-3">
+        <div className="flex gap-2">
+          <Textarea 
+            value={newMessage} 
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Nachricht schreiben..."
+            className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[44px] min-h-[44px] py-2 px-4"
+            style={{ display: 'flex', alignItems: 'center' }}
+            maxLength={500}
+            disabled={!isProjectMember || isSending}
+          />
+          <Button 
+            onClick={handleSendMessage}
+            disabled={!newMessage.trim() || !isProjectMember || isSending}
+            className="bg-[#14A090] hover:bg-[#14A090]/80 h-[44px] w-[44px] min-w-[44px] rounded-[10px] px-0"
+          >
+            <Send className="w-5 h-5" />
+          </Button>
         </div>
         
-        <div className="mt-4">
-          <div className="flex gap-2">
-            <Textarea 
-              value={newMessage} 
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Nachricht schreiben..."
-              className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[44px] min-h-[44px] py-2 px-4"
-              style={{ display: 'flex', alignItems: 'center' }}
-              maxLength={500}
-              disabled={!isProjectMember || isSending}
-            />
-            <Button 
-              onClick={handleSendMessage}
-              disabled={!newMessage.trim() || !isProjectMember || isSending}
-              className="bg-[#14A090] hover:bg-[#14A090]/80 h-[44px] w-[44px] min-w-[44px] rounded-[10px] px-0"
-            >
-              <Send className="w-5 h-5" />
-            </Button>
-          </div>
-          
-          {!isProjectMember && !isLoading && (
-            <p className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-2">
-              Du musst Mitglied dieses Projekts sein, um Nachrichten senden zu können.
-            </p>
-          )}
-        </div>
+        {!isProjectMember && !isLoading && (
+          <p className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-2">
+            Du musst Mitglied dieses Projekts sein, um Nachrichten senden zu können.
+          </p>
+        )}
       </div>
     </div>
   );
