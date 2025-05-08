@@ -68,7 +68,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
       </div>
       
       {/* Scrollbarer Nachrichtenbereich */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto min-h-0">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
