@@ -58,7 +58,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
 
   return (
     <div className="h-full flex flex-col bg-[#F9F9F9] dark:bg-[#222625] rounded-[20px]">    
-      <div className="flex-1 flex flex-col p-4">
+      <div className="flex-1 flex flex-col">
         <div className="flex-1 overflow-auto min-h-0">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
