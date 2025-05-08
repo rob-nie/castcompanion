@@ -74,7 +74,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
   return (
     <div className="h-full flex flex-col overflow-hidden bg-[#F9F9F9] dark:bg-[#222625] rounded-[20px]">    
       {/* Scrollbarer Nachrichtenbereich */}
-      <div className="flex-1 overflow-auto min-h-0 pb-4">
+      <div className="flex-1 overflow-auto hide-scrollbar min-h-0 pb-4">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
