@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 import { de } from "date-fns/locale";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MessengerTileProps {
   project: Tables<"projects">;
@@ -74,50 +75,52 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
           <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten.</p>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto mb-4 space-y-3">
-          {messages.map((message) => (
-            <div 
-              key={message.id}
-              className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
-            >
-              {/* Benutzername für empfangene Nachrichten - jetzt ohne horizontalen padding */}
-              {message.sender_id !== user?.id && (
-                <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
-                  {message.sender_full_name || 'Unbekannt'}
-                </span>
-              )}
-              
-              <div className="flex items-center gap-2">
-                {/* Timestamp for sent messages - on the left */}
-                {message.sender_id === user?.id && (
-                  <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
-                    {formatMessageTime(message.created_at)}
-                  </span>
-                )}
-                
-                {/* Message bubble */}
-                <div 
-                  className={`p-3 ${
-                    message.sender_id === user?.id 
-                      ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] rounded-br-0' 
-                      : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-0'
-                  }`}
-                >
-                  <p className="text-sm break-words">
-                    {message.content}
-                  </p>
-                </div>
-                
-                {/* Timestamp for received messages - on the right */}
+        <ScrollArea className="flex-1 pr-4 mb-4">
+          <div className="space-y-3">
+            {messages.map((message) => (
+              <div 
+                key={message.id}
+                className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
+              >
+                {/* Benutzername für empfangene Nachrichten - jetzt ohne horizontalen padding */}
                 {message.sender_id !== user?.id && (
-                  <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
-                    {formatMessageTime(message.created_at)}
+                  <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
+                    {message.sender_full_name || 'Unbekannt'}
                   </span>
                 )}
+                
+                <div className="flex items-center gap-2">
+                  {/* Timestamp for sent messages - on the left */}
+                  {message.sender_id === user?.id && (
+                    <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
+                      {formatMessageTime(message.created_at)}
+                    </span>
+                  )}
+                  
+                  {/* Message bubble */}
+                  <div 
+                    className={`p-3 ${
+                      message.sender_id === user?.id 
+                        ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] rounded-br-0' 
+                        : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-0'
+                    }`}
+                  >
+                    <p className="text-sm break-words">
+                      {message.content}
+                    </p>
+                  </div>
+                  
+                  {/* Timestamp for received messages - on the right */}
+                  {message.sender_id !== user?.id && (
+                    <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
+                      {formatMessageTime(message.created_at)}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </ScrollArea>
       )}
 
       <div className="mt-auto">
