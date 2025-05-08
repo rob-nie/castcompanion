@@ -97,7 +97,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
             <Button 
               onClick={handleSendMessage}
               disabled={!newMessage.trim() || !isProjectMember || isSending}
-              className="bg-[#14A090] hover:bg-[#14A090]/80 h-[44px] rounded-[10px] px-3"
+              className="bg-[#14A090] hover:bg-[#14A090]/80 h-[44px] w-[44px] min-w-[44px] rounded-[10px] px-0"
             >
               <Send className="w-5 h-5" />
             </Button>
