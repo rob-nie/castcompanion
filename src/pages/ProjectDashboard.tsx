@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -81,8 +80,10 @@ const ProjectDashboard = () => {
               </div>
               
               {/* Right Column - Watch and Messenger with min-width 350px and max-width 414px */}
-              <div className="flex flex-col gap-[23px] h-full">
-                <WatchTile project={project} />
+              <div className="flex flex-col gap-[23px] h-full overflow-hidden">
+                <div>
+                  <WatchTile project={project} />
+                </div>
                 <div className="flex-1 min-h-0">
                   <MessengerTile project={project} />
                 </div>

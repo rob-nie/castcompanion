@@ -140,15 +140,17 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   };
 
   return (
-    <div className="h-full p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)]">
-      <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full p-6 rounded-[20px] bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)] flex flex-col">
+      <div className="flex-1 min-h-0 flex flex-col">
         {/* Nachrichtenbereich mit ScrollArea */}
-        <ScrollArea className="flex-1 min-h-0 pb-4">
-          {renderMessageContent()}
-        </ScrollArea>
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <ScrollArea className="h-full pr-2">
+            {renderMessageContent()}
+          </ScrollArea>
+        </div>
         
         {/* Eingabebereich */}
-        <div className="mt-4 shrink-0 pt-2 border-t border-gray-100 dark:border-gray-800">
+        <div className="mt-4 pt-2 border-t border-gray-100 dark:border-gray-800">
           <div className="flex gap-2">
             <Textarea 
               value={newMessage} 
