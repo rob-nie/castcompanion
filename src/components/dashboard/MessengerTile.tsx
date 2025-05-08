@@ -57,7 +57,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
         </div>
       ) : messages.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten. Sende die erste!</p>
+          <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten.</p>
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto mb-4 space-y-3">
