@@ -94,7 +94,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
     }
     
     return (
-      <div className="space-y-3 pr-2">
+      <div className="space-y-3">
         {messages.map((message, index) => {
           // Check if this message is the first from this sender in a sequence
           const isFirstInSequence = index === 0 || 
@@ -167,7 +167,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
       <div className="flex-1 min-h-0 flex flex-col">
         {/* Nachrichtenbereich mit ScrollArea */}
         <div className="flex-1 min-h-0 overflow-hidden">
-          <div className="h-full overflow-auto">
+          <div className="h-full pr-2 overflow-auto">
             {renderMessageContent()}
           </div>
         </div>
