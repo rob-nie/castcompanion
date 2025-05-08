@@ -88,6 +88,7 @@ export type Database = {
           created_at: string
           id: string
           project_id: string
+          sender_full_name: string | null
           sender_id: string
         }
         Insert: {
@@ -95,6 +96,7 @@ export type Database = {
           created_at?: string
           id?: string
           project_id: string
+          sender_full_name?: string | null
           sender_id: string
         }
         Update: {
@@ -102,6 +104,7 @@ export type Database = {
           created_at?: string
           id?: string
           project_id?: string
+          sender_full_name?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -141,27 +144,27 @@ export type Database = {
       project_members: {
         Row: {
           created_at: string | null
+          full_name: string | null
           id: string
           project_id: string | null
           role: string
           user_id: string | null
-          Username: string | null
         }
         Insert: {
           created_at?: string | null
+          full_name?: string | null
           id?: string
           project_id?: string | null
           role: string
           user_id?: string | null
-          Username?: string | null
         }
         Update: {
           created_at?: string | null
+          full_name?: string | null
           id?: string
           project_id?: string | null
           role?: string
           user_id?: string | null
-          Username?: string | null
         }
         Relationships: [
           {

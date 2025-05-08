@@ -10,6 +10,7 @@ interface Message {
   project_id: string;
   sender_id: string;
   created_at: string;
+  sender_full_name: string | null;
 }
 
 export const useMessages = (projectId: string) => {
@@ -54,12 +55,20 @@ export const useMessages = (projectId: string) => {
     try {
       console.log(`Sending message as user ${user.id} to project ${projectId}`);
       
+      // Get user's full name from profiles
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+      
       const { error } = await supabase
         .from("messages")
         .insert({
           content: content.trim(),
           project_id: projectId,
-          sender_id: user.id
+          sender_id: user.id,
+          sender_full_name: profileData?.full_name || null
         });
       
       if (error) {
