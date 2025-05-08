@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -73,16 +72,18 @@ const ProjectDashboard = () => {
               </div>
             </div>
           ) : (
-            // Desktop layout with proper padding for shadows
+            // Desktop layout - grid layout with right column constraints (unchanged)
             <div className="grid grid-cols-[1fr_clamp(350px,35%,414px)] gap-[23px] h-full">
-              {/* Notes Tile - Left Column */}
+              {/* Notes Tile - Left Column - Set to full height of available space */}
               <div className="h-full min-h-0">
                 <NotesTile project={project} />
               </div>
               
-              {/* Right Column - Watch and Messenger */}
-              <div className="flex flex-col gap-[23px] h-full">
-                <WatchTile project={project} />
+              {/* Right Column - Watch and Messenger with min-width 350px and max-width 414px */}
+              <div className="flex flex-col gap-[23px] h-full overflow-hidden">
+                <div>
+                  <WatchTile project={project} />
+                </div>
                 <div className="flex-1 min-h-0">
                   <MessengerTile project={project} />
                 </div>
