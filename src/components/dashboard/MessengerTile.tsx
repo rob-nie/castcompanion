@@ -123,18 +123,18 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                 </span>
               )}
               
+              {/* Message row with bubble and timestamp */}
               <div className="flex items-center w-full">
-                {/* Show timestamp on the left for received messages */}
-                {shouldShowTimestamp && !isSentByMe && (
-                  <div className="flex-shrink-0 mr-[10px] text-[10px] text-[#7A9992] dark:text-[#CCCCCC] text-left">
-                    {formatMessageTime(message.created_at)}
-                  </div>
-                )}
-                
-                {/* Message bubble - max width 80% */}
-                <div 
-                  className={`flex ${isSentByMe ? 'justify-end' : 'justify-start'} max-w-[80%] ${isSentByMe ? 'ml-auto' : ''}`}
-                >
+                {/* Message bubble layout with timestamps inside */}
+                <div className={`flex items-center ${isSentByMe ? 'justify-end ml-auto' : 'justify-start'} max-w-[80%]`}>
+                  {/* Show timestamp on the left for sent messages (inside) */}
+                  {shouldShowTimestamp && isSentByMe && (
+                    <div className="flex-shrink-0 mr-[10px] text-[10px] text-[#7A9992] dark:text-[#CCCCCC] text-right">
+                      {formatMessageTime(message.created_at)}
+                    </div>
+                  )}
+                  
+                  {/* Message bubble */}
                   <div 
                     className={`p-3 ${
                       isSentByMe 
@@ -146,14 +146,14 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                       {message.content}
                     </p>
                   </div>
+                  
+                  {/* Show timestamp on the right for received messages (inside) */}
+                  {shouldShowTimestamp && !isSentByMe && (
+                    <div className="flex-shrink-0 ml-[10px] text-[10px] text-[#7A9992] dark:text-[#CCCCCC] text-left">
+                      {formatMessageTime(message.created_at)}
+                    </div>
+                  )}
                 </div>
-                
-                {/* Show timestamp on the right for sent messages */}
-                {shouldShowTimestamp && isSentByMe && (
-                  <div className="flex-shrink-0 ml-[10px] text-[10px] text-[#7A9992] dark:text-[#CCCCCC] text-right">
-                    {formatMessageTime(message.created_at)}
-                  </div>
-                )}
               </div>
             </div>
           );
