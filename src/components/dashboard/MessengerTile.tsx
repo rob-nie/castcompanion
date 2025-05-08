@@ -62,20 +62,21 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   return (
     <div className="h-full p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)] flex flex-col">
             
-      <div className="flex-1 overflow-auto min-h-0">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
-          </div>
-        ) : error ? (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-red-500">Fehler: {error}</p>
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten.</p>
-          </div>
-        ) : (
+      <div className="flex-1 overflow-auto min-h-0 flex flex-col">
+        <div className="flex-1 flex flex-col">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-red-500">Fehler: {error}</p>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten.</p>
+            </div>
+          ) : (
           <div className="space-y-3 pr-2">
             {messages.map((message) => (
               <div 
