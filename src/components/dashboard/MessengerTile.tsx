@@ -123,32 +123,37 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                 </span>
               )}
               
-              <div className="flex flex-col">
-                {/* Timestamp with correct alignment */}
-                {shouldShowTimestamp && (
-                  <div className="flex w-full mb-2">
-                    <span 
-                      className={`text-[10px] text-[#7A9992] dark:text-[#CCCCCC] ${
-                        isSentByMe ? 'ml-auto mr-[10px]' : 'mr-auto ml-[10px]'
-                      }`}
-                    >
-                      {formatMessageTime(message.created_at)}
-                    </span>
+              <div className="flex items-center w-full">
+                {/* Show timestamp on the left for received messages */}
+                {shouldShowTimestamp && !isSentByMe && (
+                  <div className="flex-shrink-0 mr-[10px] text-[10px] text-[#7A9992] dark:text-[#CCCCCC] text-left">
+                    {formatMessageTime(message.created_at)}
                   </div>
                 )}
                 
-                {/* Message bubble */}
+                {/* Message bubble - max width 80% */}
                 <div 
-                  className={`p-3 ${
-                    isSentByMe 
-                      ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[0px] rounded-bl-[10px] rounded-br-[10px]' 
-                      : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[0px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]'
-                  }`}
+                  className={`flex ${isSentByMe ? 'justify-end' : 'justify-start'} max-w-[80%] ${isSentByMe ? 'ml-auto' : ''}`}
                 >
-                  <p className="text-sm break-words">
-                    {message.content}
-                  </p>
+                  <div 
+                    className={`p-3 ${
+                      isSentByMe 
+                        ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[0px] rounded-bl-[10px] rounded-br-[10px]' 
+                        : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[0px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]'
+                    }`}
+                  >
+                    <p className="text-sm break-words">
+                      {message.content}
+                    </p>
+                  </div>
                 </div>
+                
+                {/* Show timestamp on the right for sent messages */}
+                {shouldShowTimestamp && isSentByMe && (
+                  <div className="flex-shrink-0 ml-[10px] text-[10px] text-[#7A9992] dark:text-[#CCCCCC] text-right">
+                    {formatMessageTime(message.created_at)}
+                  </div>
+                )}
               </div>
             </div>
           );
