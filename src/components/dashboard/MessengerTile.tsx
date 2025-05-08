@@ -53,7 +53,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
     if (isToday(date)) {
       return timeString;
     } else {
-      return `${format(date, 'dd.MM.yyyy', { locale: de })}<br>${timeString}`;
+      return `${format(date, 'dd.MM.yyyy', { locale: de })},${timeString}`;
     }
   };
 
