@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +11,7 @@ import Projects from "./pages/Projects";
 import Settings from "./pages/Settings";
 import { useAuth } from "./context/AuthProvider";
 import ProjectDashboard from "./pages/ProjectDashboard";
+import { Footer } from "./components/Footer";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+// Layout component that includes Footer for all pages except Dashboard
+const LayoutWithFooter = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <>
+      {children}
+      <Footer />
+    </>
+  );
+};
+
 const AppRoutes = () => {
   const { user, isLoading } = useAuth();
 
@@ -37,12 +49,32 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to="/projects" replace /> : <Navigate to="/auth" replace />} />
-      <Route path="/auth/*" element={user ? <Navigate to="/projects" replace /> : <Auth />} />
-      <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-      <Route path="/projects/:projectId" element={<ProtectedRoute><ProjectDashboard /></ProtectedRoute>} />
-      <Route path="*" element={<NotFound />} />
+      <Route path="/" element={
+        user ? 
+        <Navigate to="/projects" replace /> : 
+        <LayoutWithFooter><Navigate to="/auth" replace /></LayoutWithFooter>
+      } />
+      <Route path="/auth/*" element={
+        user ? 
+        <Navigate to="/projects" replace /> : 
+        <LayoutWithFooter><Auth /></LayoutWithFooter>
+      } />
+      <Route path="/projects" element={
+        <ProtectedRoute>
+          <LayoutWithFooter><Projects /></LayoutWithFooter>
+        </ProtectedRoute>
+      } />
+      <Route path="/settings" element={
+        <ProtectedRoute>
+          <LayoutWithFooter><Settings /></LayoutWithFooter>
+        </ProtectedRoute>
+      } />
+      <Route path="/projects/:projectId" element={
+        <ProtectedRoute>
+          <ProjectDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="*" element={<LayoutWithFooter><NotFound /></LayoutWithFooter>} />
     </Routes>
   );
 };

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { NotesTile } from "@/components/dashboard/NotesTile";
 import { WatchTile } from "@/components/dashboard/WatchTile";
 import { MessengerTile } from "@/components/dashboard/MessengerTile";
@@ -91,7 +90,6 @@ const ProjectDashboard = () => {
           )}
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
