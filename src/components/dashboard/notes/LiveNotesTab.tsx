@@ -5,7 +5,6 @@ import { Plus, Download } from 'lucide-react';
 import { LiveNoteItem } from './LiveNoteItem';
 import { useLiveNotes } from '@/hooks/useLiveNotes';
 import { exportLiveNotesAsCSV } from '@/utils/exportUtils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface LiveNotesTabProps {
   projectId: string;
