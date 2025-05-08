@@ -49,14 +49,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   const formatMessageTime = (dateStr: string) => {
     const date = new Date(dateStr);
     const timeString = format(date, 'HH:mm');
-    
-    if (isToday(date)) {
       return timeString;
-    } else if (isYesterday(date)) {
-      return `Gestern, ${timeString}`;
-    } else {
-      return `${format(date, 'dd.MM.yyyy', { locale: de })}, ${timeString}`;
-    }
   };
 
   // Render Message Content
