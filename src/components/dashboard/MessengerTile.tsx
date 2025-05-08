@@ -167,7 +167,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
       <div className="flex-1 min-h-0 flex flex-col">
         {/* Nachrichtenbereich mit ScrollArea */}
         <div className="flex-1 min-h-0 overflow-hidden">
-          <div className="h-full pr-2 overflow-auto">
+          <div className="h-full overflow-auto">
             {renderMessageContent()}
           </div>
         </div>
