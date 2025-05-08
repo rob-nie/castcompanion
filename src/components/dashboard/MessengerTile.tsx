@@ -62,27 +62,27 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   return (
     <div className="h-full p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)] flex flex-col">
             
-      {isLoading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
-        </div>
-      ) : error ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-red-500">Fehler: {error}</p>
-        </div>
-      ) : messages.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten.</p>
-        </div>
-      ) : (
-        <ScrollArea className="flex-1 pr-4 mb-4">
-          <div className="space-y-3">
+      <div className="flex-1 overflow-auto min-h-0">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-red-500">Fehler: {error}</p>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten.</p>
+          </div>
+        ) : (
+          <div className="space-y-3 pr-2">
             {messages.map((message) => (
               <div 
                 key={message.id}
                 className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
               >
-                {/* Benutzername für empfangene Nachrichten - jetzt ohne horizontalen padding */}
+                {/* Benutzername für empfangene Nachrichten - ohne horizontalen padding */}
                 {message.sender_id !== user?.id && (
                   <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
                     {message.sender_full_name || 'Unbekannt'}
@@ -120,10 +120,10 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
               </div>
             ))}
           </div>
-        </ScrollArea>
-      )}
+        )}
+      </div>
 
-      <div className="mt-auto">
+      <div className="mt-4">
         <div className="flex gap-2">
           <Textarea 
             value={newMessage} 

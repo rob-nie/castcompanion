@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 import { de } from "date-fns/locale";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MessengerTabProps {
   project: Tables<"projects">;
@@ -62,27 +61,27 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
       <h2 className="text-xl font-medium p-4">Messenger</h2>
       
       <div className="flex-1 flex flex-col p-4">
-        {isLoading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
-          </div>
-        ) : error ? (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-red-500">Fehler: {error}</p>
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten. Sende die erste!</p>
-          </div>
-        ) : (
-          <ScrollArea className="flex-1 pr-4 mb-4">
-            <div className="space-y-3">
+        <div className="flex-1 overflow-auto min-h-0">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
+            </div>
+          ) : error ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-red-500">Fehler: {error}</p>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten. Sende die erste!</p>
+            </div>
+          ) : (
+            <div className="space-y-3 pr-2">
               {messages.map((message) => (
                 <div 
                   key={message.id}
                   className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
                 >
-                  {/* Benutzername für empfangene Nachrichten - jetzt ohne horizontalen padding */}
+                  {/* Benutzername für empfangene Nachrichten - ohne horizontalen padding */}
                   {message.sender_id !== user?.id && (
                     <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
                       {message.sender_full_name || 'Unbekannt'}
@@ -120,10 +119,10 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
                 </div>
               ))}
             </div>
-          </ScrollArea>
-        )}
+          )}
+        </div>
         
-        <div className="mt-auto">
+        <div className="mt-4">
           <div className="flex gap-2">
             <Textarea 
               value={newMessage} 
