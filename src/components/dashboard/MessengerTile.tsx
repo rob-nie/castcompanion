@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 import { de } from "date-fns/locale";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MessengerTileProps {
   project: Tables<"projects">;
@@ -61,8 +60,9 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
 
   return (
     <div className="h-full p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)] flex flex-col">
-            
-      <div className="flex-1 overflow-auto min-h-0">
+      
+      {/* Scrollbarer Nachrichtenbereich */}
+      <div className="flex-1 overflow-auto min-h-0 pb-4">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
@@ -129,7 +129,8 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
         )}
       </div>
 
-      <div className="mt-4">
+      {/* Eingabebereich (fixiert am unteren Rand) */}
+      <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 shrink-0">
         <div className="flex gap-2">
           <Textarea 
             value={newMessage} 
