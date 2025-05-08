@@ -1,7 +1,7 @@
 
 import type { Tables } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMessages } from "@/hooks/messenger/useMessages";
 import { useProjectMembership } from "@/hooks/messenger/useProjectMembership";
 import { useAuth } from "@/context/AuthProvider";
@@ -22,6 +22,14 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   const { messages, isLoading, error, sendMessage } = useMessages(project.id);
   const { isProjectMember } = useProjectMembership(project.id);
   const [isSending, setIsSending] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll zum neusten Nachrichten
+  useEffect(() => {
+    if (messages.length > 0 && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !isProjectMember) return;
@@ -59,10 +67,9 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   };
 
   return (
-    <div className="h-full p-6 rounded-[20px] overflow-hidden bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)] flex flex-col">
-      
-      {/* Scrollbarer Nachrichtenbereich */}
-      <div className="flex-1 overflow-auto min-h-0 pb-4">
+    <div className="h-full flex flex-col p-6 rounded-[20px] bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] shadow-[5px_10px_10px_rgba(0,0,0,0.05)] dark:shadow-[5px_10px_10px_rgba(255,255,255,0.05)]">
+      {/* Nachrichten Container - muss flex-1 und overflow-auto haben */}
+      <div className="flex-1 overflow-auto min-h-0">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
@@ -125,12 +132,14 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                 </div>
               );
             })}
+            {/* Invisibles Element am Ende der Nachrichten für Auto-Scroll */}
+            <div ref={messagesEndRef} />
           </div>
         )}
       </div>
 
-      {/* Eingabebereich (fixiert am unteren Rand) */}
-      <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 shrink-0">
+      {/* Input-Bereich - muss shrink-0 haben */}
+      <div className="mt-4 pt-2 border-t border-gray-100 dark:border-gray-800 shrink-0">
         <div className="flex gap-2">
           <Textarea 
             value={newMessage} 
