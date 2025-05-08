@@ -157,7 +157,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
       </div>
       
       {/* Eingabebereich (fixiert am unteren Rand) */}
-      <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 shrink-0 px-3 pb-3">
+      <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 shrink-0 pb-3">
         <div className="flex gap-2">
           <Textarea 
             value={newMessage} 
