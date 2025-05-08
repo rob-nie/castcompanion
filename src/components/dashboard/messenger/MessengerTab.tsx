@@ -103,35 +103,40 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
                 shouldShowTimestamp = minuteDifference > 2;
               }
               
+              const isSentByMe = message.sender_id === user?.id;
+              
               return (
                 <div 
                   key={message.id}
-                  className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
+                  className={`flex flex-col ${isSentByMe ? 'items-end' : 'items-start'}`}
                 >
                   {/* Benutzername nur für die erste Nachricht in einer Sequenz anzeigen */}
-                  {message.sender_id !== user?.id && isFirstInSequence && (
+                  {!isSentByMe && isFirstInSequence && (
                     <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
                       {message.sender_full_name || 'Unbekannt'}
                     </span>
                   )}
                   
                   <div className="flex flex-col">
+                    {/* Timestamp with correct alignment */}
                     {shouldShowTimestamp && (
-                      <span 
-                        className={`text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mb-2 ${
-                          message.sender_id === user?.id ? 'self-end text-right pr-[10px]' : 'self-start text-left pl-[10px]'
-                        }`}
-                      >
-                        {formatMessageTime(message.created_at)}
-                      </span>
+                      <div className="flex w-full mb-2">
+                        <span 
+                          className={`text-[10px] text-[#7A9992] dark:text-[#CCCCCC] ${
+                            isSentByMe ? 'ml-auto mr-[10px]' : 'mr-auto ml-[10px]'
+                          }`}
+                        >
+                          {formatMessageTime(message.created_at)}
+                        </span>
+                      </div>
                     )}
                     
                     {/* Message bubble */}
                     <div 
                       className={`p-3 ${
-                        message.sender_id === user?.id 
-                          ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] rounded-br-0' 
-                          : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-0'
+                        isSentByMe 
+                          ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[0px] rounded-bl-[10px] rounded-br-[10px]' 
+                          : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[0px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]'
                       }`}
                     >
                       <p className="text-sm break-words">
