@@ -80,33 +80,40 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
               key={message.id}
               className={`flex flex-col ${message.sender_id === user?.id ? 'items-end' : 'items-start'}`}
             >
-              {/* Benutzername für empfangene Nachrichten - jetzt bündig mit der Sprechblase */}
+              {/* Benutzername für empfangene Nachrichten - jetzt ohne horizontalen padding */}
               {message.sender_id !== user?.id && (
-                <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1 pl-3">
+                <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
                   {message.sender_full_name || 'Unbekannt'}
                 </span>
               )}
               
-              <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                {/* Timestamp for sent messages - on the left */}
+                {message.sender_id === user?.id && (
+                  <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
+                    {formatMessageTime(message.created_at)}
+                  </span>
+                )}
+                
                 {/* Message bubble */}
                 <div 
-                  className={`p-3 rounded-t-[10px] ${
+                  className={`p-3 ${
                     message.sender_id === user?.id 
-                      ? 'bg-[#14A090] text-white rounded-bl-[10px] rounded-br-0' 
-                      : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-br-[10px] rounded-bl-0'
+                      ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[10px] rounded-bl-[10px] rounded-br-0' 
+                      : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[10px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-0'
                   }`}
                 >
                   <p className="text-sm break-words">
                     {message.content}
                   </p>
                 </div>
-
-                {/* Timestamp outside of bubble */}
-                <span className={`text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-1 ${
-                  message.sender_id === user?.id ? 'text-right pr-1' : 'text-left pl-1'
-                }`}>
-                  {formatMessageTime(message.created_at)}
-                </span>
+                
+                {/* Timestamp for received messages - on the right */}
+                {message.sender_id !== user?.id && (
+                  <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] self-center">
+                    {formatMessageTime(message.created_at)}
+                  </span>
+                )}
               </div>
             </div>
           ))}
