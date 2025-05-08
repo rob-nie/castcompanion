@@ -42,7 +42,7 @@ const ProjectDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-transparent">
         <div className="text-[#7A9992] dark:text-[#CCCCCC]">Laden...</div>
       </div>
     );
@@ -50,14 +50,14 @@ const ProjectDashboard = () => {
 
   if (!project) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-transparent">
         <div className="text-[#7A9992] dark:text-[#CCCCCC]">Projekt nicht gefunden</div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-transparent overflow-hidden">
       <Header currentPage="projects" project={project} />
       
       <main className="flex-1 px-6 md:px-6 lg:px-6 xl:px-24 py-6 overflow-hidden mb-[48px]">

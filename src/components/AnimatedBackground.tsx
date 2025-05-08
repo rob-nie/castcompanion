@@ -35,7 +35,7 @@ export const AnimatedBackground = () => {
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
-      <div className={`w-full h-full ${isDarkMode ? 'bg-cast-dark-bg' : 'bg-cast-light-bg'}`}>
+      <div className={`w-full h-full ${isDarkMode ? 'bg-cast-dark-bg' : 'bg-transparent'}`}>
         {!isDarkMode && (
           <div 
             className="gradient absolute"
