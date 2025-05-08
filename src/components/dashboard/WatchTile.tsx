@@ -74,7 +74,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
 
   if (isMobile) {
     return (
-      <div className="flex items-center h-10">
+      <div className="flex items-center h-10 m-[5px]">
         {/* Play/Pause Button - mit verbesserten Touch-Handlern */}
         <div 
           role="button"
@@ -163,7 +163,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
 
   return (
     <div 
-      className={`h-[136px] max-w-[414px] p-6 rounded-[20px] overflow-hidden relative select-none ${!isConnected ? 'relative' : ''}`}
+      className="h-[136px] max-w-[414px] rounded-[20px] overflow-hidden relative select-none m-[5px] pb-[5px]"
       style={{
         background: isDarkMode 
           ? 'linear-gradient(135deg, #14A090, #CE9F7C)' 
@@ -174,7 +174,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
       {!isConnected && (
         <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 animate-pulse"></div>
       )}
-      <div className="text-white h-full flex flex-col items-center justify-between">
+      <div className="text-white h-full flex flex-col items-center justify-between p-6">
         <div className="w-full px-3">
           <TimerControls 
             isRunning={isRunning} 
