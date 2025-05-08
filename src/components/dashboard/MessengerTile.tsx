@@ -150,7 +150,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
         </div>
         
         {/* Eingabebereich */}
-        <div className="mt-4 pt-2 border-t border-gray-100 dark:border-gray-800">
+        <div className="mt-4 pt-2">
           <div className="flex gap-2">
             <Textarea 
               value={newMessage} 
