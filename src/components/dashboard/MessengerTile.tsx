@@ -11,6 +11,7 @@ import { Send } from "lucide-react";
 import { format, isToday, isYesterday, differenceInMinutes } from "date-fns";
 import { de } from "date-fns/locale";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { QuickPhrasesDropdown } from "@/components/ui/quick-phrases-dropdown";
 
 interface MessengerTileProps {
   project: Tables<"projects">;
@@ -43,6 +44,10 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
       e.preventDefault();
       handleSendMessage();
     }
+  };
+
+  const handleQuickPhraseSelect = (phrase: string) => {
+    setNewMessage(phrase);
   };
 
   // Funktion zum Formatieren des Datums/Uhrzeit
@@ -127,32 +132,32 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
               <div className="flex items-center w-full">
                 {/* Message bubble layout with timestamps inside */}
                 <div className={`flex items-center ${isSentByMe ? 'justify-end ml-auto' : 'justify-start'} max-w-[80%]`}>
-                  {/* Show timestamp on the left for sent messages (inside) */}
-                  {shouldShowTimestamp && isSentByMe && (
-                    <div className="flex-shrink-0 mr-[10px] text-[10px] text-[#7A9992] dark:text-[#CCCCCC] text-right">
-                      {formatMessageTime(message.created_at)}
-                    </div>
-                  )}
-                  
                   {/* Message bubble */}
                   <div 
-                    className={`p-3 ${
+                    className={`p-3 flex ${
                       isSentByMe 
                         ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[0px] rounded-bl-[10px] rounded-br-[10px]' 
                         : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[0px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]'
                     }`}
                   >
+                    {/* Show timestamp on the left for sent messages (inside) */}
+                    {shouldShowTimestamp && isSentByMe && (
+                      <div className="flex-shrink-0 mr-[10px] text-[10px] text-white text-right">
+                        {formatMessageTime(message.created_at)}
+                      </div>
+                    )}
+                    
                     <p className="text-sm break-words">
                       {message.content}
                     </p>
+                    
+                    {/* Show timestamp on the right for received messages (inside) */}
+                    {shouldShowTimestamp && !isSentByMe && (
+                      <div className="flex-shrink-0 ml-[10px] text-[10px] text-[#0A1915] dark:text-white text-left">
+                        {formatMessageTime(message.created_at)}
+                      </div>
+                    )}
                   </div>
-                  
-                  {/* Show timestamp on the right for received messages (inside) */}
-                  {shouldShowTimestamp && !isSentByMe && (
-                    <div className="flex-shrink-0 ml-[10px] text-[10px] text-[#7A9992] dark:text-[#CCCCCC] text-left">
-                      {formatMessageTime(message.created_at)}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -174,30 +179,37 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
         
         {/* Eingabebereich */}
         <div className="mt-4 pt-2">
-          <div className="flex gap-2">
-            <Textarea 
-              value={newMessage} 
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Nachricht eingeben..."
-              className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[40px] min-h-[40px] py-2 px-4"
-              style={{ display: 'flex', alignItems: 'center' }}
-              maxLength={500}
-              disabled={!isProjectMember || isSending}
-            />
-            <Button 
-              onClick={handleSendMessage}
-              disabled={!newMessage.trim() || !isProjectMember || isSending}
-              className="bg-[#14A090] hover:bg-[#14A090]/80 h-[40px] w-[40px] min-w-[40px] rounded-[10px] px-0"
-            >
-              <Send className="w-5 h-5" />
-            </Button>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Textarea 
+                  value={newMessage} 
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Nachricht eingeben..."
+                  className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[40px] min-h-[40px] py-2 pl-4 pr-10"
+                  style={{ display: 'flex', alignItems: 'center' }}
+                  maxLength={500}
+                  disabled={!isProjectMember || isSending}
+                />
+                <div className="absolute bottom-1 right-3">
+                  <QuickPhrasesDropdown onSelectPhrase={handleQuickPhraseSelect} />
+                </div>
+              </div>
+              <Button 
+                onClick={handleSendMessage}
+                disabled={!newMessage.trim() || !isProjectMember || isSending}
+                className="bg-[#14A090] hover:bg-[#14A090]/80 h-[40px] w-[40px] min-w-[40px] rounded-[10px] px-0"
+              >
+                <Send className="w-5 h-5" />
+              </Button>
+            </div>
+            {!isProjectMember && !isLoading && (
+              <p className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-2">
+                Du musst Mitglied dieses Projekts sein, um Nachrichten senden zu können.
+              </p>
+            )}
           </div>
-          {!isProjectMember && !isLoading && (
-            <p className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-2">
-              Du musst Mitglied dieses Projekts sein, um Nachrichten senden zu können.
-            </p>
-          )}
         </div>
       </div>
     </div>
