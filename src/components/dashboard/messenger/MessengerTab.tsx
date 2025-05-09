@@ -183,7 +183,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
                   Keine Schnellphrasen vorhanden.
                 </p>
               ) : (
-                <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                <div className="space-y-2 max-h-[200px] overflow-y-auto">
                   {phrases.map((phrase) => (
                     <Button
                         key={phrase.id}
