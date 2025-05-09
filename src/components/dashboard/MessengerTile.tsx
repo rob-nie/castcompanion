@@ -187,7 +187,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
             <Collapsible
               open={isOpen}
               onOpenChange={setIsOpen}
-              className="border rounded-[10px] border-[#7A9992] dark:border-[#CCCCCC] overflow-hidden"
+              className="overflow-hidden"
             >
               <CollapsibleTrigger className="w-full p-2 text-left flex items-center justify-between text-sm text-[#7A9992] dark:text-[#CCCCCC]">
                 <span className="font-medium">Schnellphrasen</span>
@@ -208,7 +208,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                       <button 
                         key={phrase.id} 
                         onClick={() => handleQuickPhraseSelect(phrase.content)}
-                        className="w-full text-sm p-2 text-left border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded-[10px]"
+                        className="w-full text-sm p-2 text-left border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] cursor-pointer rounded-[10px]"
                       >
                         {phrase.content}
                       </button>
