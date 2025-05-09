@@ -177,13 +177,13 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
                 <ChevronDown className="h-4 w-4" />
               )}
             </CollapsibleTrigger>
-            <CollapsibleContent className="pb-2">
+            <CollapsibleContent className="py-2">
               {phrases.length === 0 ? (
                 <p className="text-xs text-[#7A9992] dark:text-[#CCCCCC] py-1">
                   Keine Schnellphrasen vorhanden.
                 </p>
               ) : (
-                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                <div className="space-y-1 max-h-[200px] overflow-y-auto">
                   {phrases.map((phrase) => (
                     <Button
                         key={phrase.id}
