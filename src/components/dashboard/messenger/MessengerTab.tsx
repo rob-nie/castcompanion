@@ -167,9 +167,9 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
           <Collapsible
             open={isOpen}
             onOpenChange={setIsOpen}
-            className="border rounded-[10px] border-[#7A9992] dark:border-[#CCCCCC] overflow-hidden"
+            className="overflow-hidden"
           >
-            <CollapsibleTrigger className="w-full p-2 text-left flex items-center justify-between text-sm text-[#7A9992] dark:text-[#CCCCCC]">
+            <CollapsibleTrigger className="w-full py-2 text-left flex items-center justify-between text-[14px] text-[#7A9992] dark:text-[#CCCCCC]">
               <span className="font-medium">Schnellphrasen</span>
               {isOpen ? (
                 <ChevronUp className="h-4 w-4" />
@@ -188,7 +188,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
                     <button 
                       key={phrase.id} 
                       onClick={() => handleQuickPhraseSelect(phrase.content)}
-                      className="w-full text-sm p-2 text-left border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded-[10px]"
+                      className="w-full text-[14px] p-2 text-left text-[#7A9992] dark:text-[#CCCCCC] border border-[#7A9992] dark:border-[#CCCCCC] hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded-[10px] h-[40px] flex items-center"
                     >
                       {phrase.content}
                     </button>

@@ -82,7 +82,7 @@ export const QuickPhrasesSection = () => {
               </>
             ) : (
               <>
-                <p className="flex-1 text-[#0A1915] dark:text-white border border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] p-2 h-[40px] flex items-center">
+                <p className="flex-1 text-[14px] text-[#0A1915] dark:text-white border border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] p-2 h-[40px] flex items-center">
                   {phrase.content}
                 </p>
                 <Button 
@@ -135,7 +135,7 @@ export const QuickPhrasesSection = () => {
             className="flex items-center gap-2 bg-[#14A090] hover:bg-[#14A090]/80 text-white h-[40px] rounded-[10px]"
           >
             <Plus className="w-4 h-4" />
-            <span>Neue Schnellphrase</span>
+            <span className="text-[14px]">Neue Schnellphrase</span>
           </Button>
         )}
       </div>
