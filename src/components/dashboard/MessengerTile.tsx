@@ -197,7 +197,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                   <ChevronDown className="h-4 w-4" />
                 )}
               </CollapsibleTrigger>
-              <CollapsibleContent className="px-2 pb-2">
+              <CollapsibleContent className="pb-2">
                 {phrases.length === 0 ? (
                   <p className="text-xs text-[#7A9992] dark:text-[#CCCCCC] py-1">
                     Keine Schnellphrasen vorhanden.
