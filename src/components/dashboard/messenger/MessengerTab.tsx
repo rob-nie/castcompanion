@@ -140,7 +140,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
       </div>
       
       {/* Eingabebereich (fixiert am unteren Rand) */}
-      <div className="mt-2 pt-2 shrink-0 pb-3">
+      <div className="mt-2 pt-2 shrink-0 pb-3 px-3">
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
             <div className="flex-1">
@@ -167,9 +167,9 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
           <Collapsible
             open={isOpen}
             onOpenChange={setIsOpen}
-            className="border rounded-[10px] border-[#7A9992] dark:border-[#CCCCCC] overflow-hidden"
+            className="overflow-hidden"
           >
-            <CollapsibleTrigger className="w-full p-2 text-left flex items-center justify-between text-sm text-[#7A9992] dark:text-[#CCCCCC]">
+            <CollapsibleTrigger className="w-full text-left flex items-center justify-between text-sm text-[#7A9992] dark:text-[#CCCCCC]">
               <span className="font-medium">Schnellphrasen</span>
               {isOpen ? (
                 <ChevronUp className="h-4 w-4" />
@@ -177,7 +177,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
                 <ChevronDown className="h-4 w-4" />
               )}
             </CollapsibleTrigger>
-            <CollapsibleContent className="px-2 pb-2">
+            <CollapsibleContent className="pb-2">
               {phrases.length === 0 ? (
                 <p className="text-xs text-[#7A9992] dark:text-[#CCCCCC] py-1">
                   Keine Schnellphrasen vorhanden.
