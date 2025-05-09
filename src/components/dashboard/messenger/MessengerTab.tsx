@@ -140,7 +140,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
       </div>
       
       {/* Eingabebereich (fixiert am unteren Rand) */}
-      <div className="mt-2 pt-2 shrink-0 pb-3 px-3">
+      <div className="mt-2 pt-2 shrink-0 pb-3 px-0">
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
             <div className="flex-1">
