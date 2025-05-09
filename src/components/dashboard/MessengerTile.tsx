@@ -209,7 +209,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                         key={phrase.id}
                         onClick={() => handleQuickPhraseSelect(phrase.content)}
                         variant="outline"
-                        className="w-full text-[14px] p-2 text-left text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] hover:bg-slate-100 dark:hover:bg-slate-800 rounded-[10px] h-[40px] flex items-center justify-start"
+                        className="w-full text-[14px] p-2 text-left text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] h-[40px] flex items-center justify-start"
                       >
                         {phrase.content}
                       </Button>
