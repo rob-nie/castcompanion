@@ -185,13 +185,14 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
               ) : (
                 <div className="space-y-1 max-h-[200px] overflow-y-auto">
                   {phrases.map((phrase) => (
-                    <button 
-                      key={phrase.id} 
-                      onClick={() => handleQuickPhraseSelect(phrase.content)}
-                      className="w-full text-sm p-2 text-left border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded-[10px]"
-                    >
-                      {phrase.content}
-                    </button>
+                    <Button
+                        key={phrase.id}
+                        onClick={() => handleQuickPhraseSelect(phrase.content)}
+                        variant="outline"
+                        className="w-full text-[14px] p-2 text-left text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] h-[40px] flex items-center justify-start"
+                      >
+                        {phrase.content}
+                      </Button>
                   ))}
                 </div>
               )}
