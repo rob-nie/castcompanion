@@ -131,7 +131,6 @@ export default function Settings() {
 
             {/* Danger Zone */}
             <div className="space-y-4 border-t pt-6 border-[#CCCCCC] dark:border-[#5E6664]">
-              <h2 className="text-xl font-medium text-[#0A1915] dark:text-white">Gefahrenzone</h2>
               <Button
                 variant="destructive"
                 onClick={() => setShowDeleteConfirm(true)}
