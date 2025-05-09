@@ -62,7 +62,7 @@ export const QuickPhrasesSection = () => {
                 <Input 
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
-                  className="flex-1"
+                  className="flex-1 h-[40px]"
                   maxLength={100}
                 />
                 <Button 
@@ -109,7 +109,7 @@ export const QuickPhrasesSection = () => {
               value={newPhrase}
               onChange={(e) => setNewPhrase(e.target.value)}
               placeholder="Neue Schnellphrase eingeben..."
-              className="flex-1"
+              className="flex-1 h-[40px]"
               maxLength={100}
             />
             <Button 

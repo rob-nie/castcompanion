@@ -7,11 +7,11 @@ import { useProjectMembership } from "@/hooks/messenger/useProjectMembership";
 import { useAuth } from "@/context/AuthProvider";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, ChevronDown, ChevronUp } from "lucide-react";
 import { format, isToday, isYesterday, differenceInMinutes } from "date-fns";
 import { de } from "date-fns/locale";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { QuickPhrasesDropdown } from "@/components/ui/quick-phrases-dropdown";
+import { useQuickPhrases } from "@/hooks/useQuickPhrases";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface MessengerTileProps {
   project: Tables<"projects">;
@@ -24,6 +24,8 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   const { messages, isLoading, error, sendMessage } = useMessages(project.id);
   const { isProjectMember } = useProjectMembership(project.id);
   const [isSending, setIsSending] = useState(false);
+  const { phrases } = useQuickPhrases();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !isProjectMember) return;
@@ -48,6 +50,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
 
   const handleQuickPhraseSelect = (phrase: string) => {
     setNewMessage(phrase);
+    setIsOpen(false);
   };
 
   // Funktion zum Formatieren des Datums/Uhrzeit
@@ -181,20 +184,17 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
         <div className="mt-4 pt-2">
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
-              <div className="relative flex-1">
+              <div className="flex-1">
                 <Textarea 
                   value={newMessage} 
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Nachricht eingeben..."
-                  className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[40px] min-h-[40px] py-2 pl-4 pr-10"
+                  className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[40px] min-h-[40px] py-2 px-4"
                   style={{ display: 'flex', alignItems: 'center' }}
                   maxLength={500}
                   disabled={!isProjectMember || isSending}
                 />
-                <div className="absolute bottom-1 right-3">
-                  <QuickPhrasesDropdown onSelectPhrase={handleQuickPhraseSelect} />
-                </div>
               </div>
               <Button 
                 onClick={handleSendMessage}
@@ -204,6 +204,41 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                 <Send className="w-5 h-5" />
               </Button>
             </div>
+            
+            <Collapsible
+              open={isOpen}
+              onOpenChange={setIsOpen}
+              className="border rounded-[10px] border-[#7A9992] dark:border-[#CCCCCC] overflow-hidden"
+            >
+              <CollapsibleTrigger className="flex items-center justify-between w-full p-2 text-[#7A9992] dark:text-[#CCCCCC] hover:bg-slate-100 dark:hover:bg-slate-800">
+                <span className="text-sm font-medium">Schnellphrasen</span>
+                {isOpen ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="px-2 pb-2">
+                {phrases.length === 0 ? (
+                  <p className="text-xs text-[#7A9992] dark:text-[#CCCCCC] py-1">
+                    Keine Schnellphrasen vorhanden.
+                  </p>
+                ) : (
+                  <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                    {phrases.map((phrase) => (
+                      <div 
+                        key={phrase.id} 
+                        onClick={() => handleQuickPhraseSelect(phrase.content)}
+                        className="text-sm p-2 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded truncate text-[#0A1915] dark:text-white"
+                      >
+                        {phrase.content}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CollapsibleContent>
+            </Collapsible>
+            
             {!isProjectMember && !isLoading && (
               <p className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-2">
                 Du musst Mitglied dieses Projekts sein, um Nachrichten senden zu können.
