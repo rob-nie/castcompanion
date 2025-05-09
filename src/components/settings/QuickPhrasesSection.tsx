@@ -55,7 +55,7 @@ export const QuickPhrasesSection = () => {
         {phrases.map((phrase) => (
           <div 
             key={phrase.id} 
-            className="flex items-center gap-2 border p-2 rounded-[10px] border-[#7A9992] dark:border-[#CCCCCC]"
+            className="flex items-center gap-2"
           >
             {editId === phrase.id ? (
               <>
@@ -68,25 +68,27 @@ export const QuickPhrasesSection = () => {
                 <Button 
                   onClick={saveEdit}
                   size="icon"
-                  className="bg-[#14A090] hover:bg-[#14A090]/80 h-9 w-9 rounded-[10px]"
+                  className="bg-[#14A090] hover:bg-[#14A090]/80 h-[40px] w-[40px] rounded-[10px]"
                 >
                   <Check className="w-5 h-5" />
                 </Button>
                 <Button 
                   onClick={cancelEditing}
                   size="icon"
-                  className="bg-transparent border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-transparent h-9 w-9 rounded-[10px]"
+                  className="bg-transparent border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-transparent h-[40px] w-[40px] rounded-[10px]"
                 >
                   <X className="w-5 h-5" />
                 </Button>
               </>
             ) : (
               <>
-                <p className="flex-1 text-[#0A1915] dark:text-white">{phrase.content}</p>
+                <p className="flex-1 text-[#0A1915] dark:text-white border border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] p-2 h-[40px] flex items-center">
+                  {phrase.content}
+                </p>
                 <Button 
                   onClick={() => startEditing(phrase.id, phrase.content)}
                   size="icon"
-                  className="bg-transparent border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-transparent h-9 w-9 rounded-[10px]"
+                  className="bg-transparent border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-transparent h-[40px] w-[40px] rounded-[10px]"
                 >
                   <Pencil className="w-5 h-5" />
                 </Button>
@@ -94,7 +96,7 @@ export const QuickPhrasesSection = () => {
                   onClick={() => deletePhrase(phrase.id)}
                   size="icon"
                   variant="destructive"
-                  className="h-9 w-9 rounded-[10px]"
+                  className="h-[40px] w-[40px] rounded-[10px]"
                 >
                   <Trash2 className="w-5 h-5" />
                 </Button>
@@ -104,7 +106,7 @@ export const QuickPhrasesSection = () => {
         ))}
 
         {isAdding ? (
-          <div className="flex items-center gap-2 border p-2 rounded-[10px] border-[#7A9992] dark:border-[#CCCCCC]">
+          <div className="flex items-center gap-2">
             <Input 
               value={newPhrase}
               onChange={(e) => setNewPhrase(e.target.value)}
@@ -115,14 +117,14 @@ export const QuickPhrasesSection = () => {
             <Button 
               onClick={handleAdd}
               size="icon"
-              className="bg-[#14A090] hover:bg-[#14A090]/80 h-9 w-9 rounded-[10px]"
+              className="bg-[#14A090] hover:bg-[#14A090]/80 h-[40px] w-[40px] rounded-[10px]"
             >
               <Check className="w-5 h-5" />
             </Button>
             <Button 
               onClick={() => setIsAdding(false)}
               size="icon"
-              className="bg-transparent border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-transparent h-9 w-9 rounded-[10px]"
+              className="bg-transparent border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-transparent h-[40px] w-[40px] rounded-[10px]"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -130,7 +132,7 @@ export const QuickPhrasesSection = () => {
         ) : (
           <Button 
             onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 bg-transparent border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-transparent rounded-[10px]"
+            className="flex items-center gap-2 bg-[#14A090] hover:bg-[#14A090]/80 text-white h-[40px] rounded-[10px]"
           >
             <Plus className="w-4 h-4" />
             <span>Neue Schnellphrase</span>

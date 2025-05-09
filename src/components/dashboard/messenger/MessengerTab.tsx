@@ -57,26 +57,11 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
     const timeString = format(date, 'HH:mm');
     
     if (isToday(date)) {
-      return (
-        <div className="flex flex-col">
-          <span>Heute</span>
-          <span>{timeString}</span>
-        </div>
-      );
+      return `Heute, ${timeString}`;
     } else if (isYesterday(date)) {
-      return (
-        <div className="flex flex-col">
-          <span>Gestern</span>
-          <span>{timeString}</span>
-        </div>
-      );
+      return `Gestern, ${timeString}`;
     } else {
-      return (
-        <div className="flex flex-col">
-          <span>{format(date, 'dd.MM.yyyy', { locale: de })}</span>
-          <span>{timeString}</span>
-        </div>
-      );
+      return `${format(date, 'dd.MM.yyyy', { locale: de })}, ${timeString}`;
     }
   };
 
@@ -126,37 +111,26 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
                     </span>
                   )}
                   
-                  {/* Message row with bubble and timestamp */}
-                  <div className="flex items-center w-full">
-                    {/* Message bubble layout with timestamps inside */}
-                    <div className={`flex items-center ${isSentByMe ? 'justify-end ml-auto' : 'justify-start'} max-w-[80%]`}>
-                      {/* Message bubble */}
-                      <div 
-                        className={`p-3 flex ${
-                          isSentByMe 
-                            ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[0px] rounded-bl-[10px] rounded-br-[10px]' 
-                            : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[0px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]'
-                        }`}
-                      >
-                        {/* Show timestamp on the left for sent messages (inside) */}
-                        {shouldShowTimestamp && isSentByMe && (
-                          <div className="flex-shrink-0 mr-[10px] text-[10px] text-white text-right">
-                            {formatMessageTime(message.created_at)}
-                          </div>
-                        )}
-                        
-                        <p className="text-sm break-words">
-                          {message.content}
-                        </p>
-                        
-                        {/* Show timestamp on the right for received messages (inside) */}
-                        {shouldShowTimestamp && !isSentByMe && (
-                          <div className="flex-shrink-0 ml-[10px] text-[10px] text-[#0A1915] dark:text-white text-left">
-                            {formatMessageTime(message.created_at)}
-                          </div>
-                        )}
-                      </div>
+                  <div className="flex flex-col items-start max-w-[80%]">
+                    {/* Message bubble */}
+                    <div 
+                      className={`p-3 ${
+                        isSentByMe 
+                          ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[0px] rounded-bl-[10px] rounded-br-[10px]' 
+                          : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[0px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]'
+                      }`}
+                    >
+                      <p className="text-sm break-words">
+                        {message.content}
+                      </p>
                     </div>
+                    
+                    {/* Timestamp outside the bubble */}
+                    {shouldShowTimestamp && (
+                      <div className={`text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-1 ${isSentByMe ? 'self-end' : 'self-start'}`}>
+                        {formatMessageTime(message.created_at)}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -195,8 +169,8 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
             onOpenChange={setIsOpen}
             className="border rounded-[10px] border-[#7A9992] dark:border-[#CCCCCC] overflow-hidden"
           >
-            <CollapsibleTrigger className="flex items-center justify-between w-full p-2 text-[#7A9992] dark:text-[#CCCCCC] hover:bg-slate-100 dark:hover:bg-slate-800">
-              <span className="text-sm font-medium">Schnellphrasen</span>
+            <CollapsibleTrigger className="w-full p-2 text-left flex items-center justify-between text-sm text-[#7A9992] dark:text-[#CCCCCC]">
+              <span className="font-medium">Schnellphrasen</span>
               {isOpen ? (
                 <ChevronUp className="h-4 w-4" />
               ) : (
@@ -211,13 +185,13 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
               ) : (
                 <div className="space-y-1 max-h-[200px] overflow-y-auto">
                   {phrases.map((phrase) => (
-                    <div 
+                    <button 
                       key={phrase.id} 
                       onClick={() => handleQuickPhraseSelect(phrase.content)}
-                      className="text-sm p-2 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded truncate text-[#0A1915] dark:text-white"
+                      className="w-full text-sm p-2 text-left border border-[#7A9992] dark:border-[#CCCCCC] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer rounded-[10px]"
                     >
                       {phrase.content}
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
