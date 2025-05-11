@@ -1,5 +1,5 @@
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { differenceInMinutes } from "date-fns";
 import { MessageBubble } from "./MessageBubble";
 import type { Tables } from "@/integrations/supabase/types";
@@ -27,18 +27,40 @@ export const MessageList = ({
   currentUserId 
 }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
+  const [prevMessagesLength, setPrevMessagesLength] = useState(0);
+
+  // Überprüfen, ob der Benutzer in der Nähe des unteren Randes ist
+  const isNearBottom = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return true;
+    
+    const threshold = 150; // Pixelwert für "in der Nähe"
+    return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+  };
+
+  // Scroll-Position überwachen und entscheiden, ob automatisch gescrollt werden soll
+  const handleScroll = () => {
+    setShouldScrollToBottom(isNearBottom());
+  };
+
+  // Wenn neue Nachrichten geladen werden und der Benutzer am unteren Rand ist, nach unten scrollen
+  useEffect(() => {
+    // Nur scrollen, wenn neue Nachrichten dazugekommen sind
+    if (messages.length > prevMessagesLength) {
+      if (shouldScrollToBottom) {
+        scrollToBottom();
+      }
+    }
+    
+    setPrevMessagesLength(messages.length);
+  }, [messages, shouldScrollToBottom, prevMessagesLength]);
 
   // Automatisches Scrollen zu neuen Nachrichten
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  // Wenn neue Nachrichten geladen werden, zum Ende scrollen
-  useEffect(() => {
-    if (!isLoading && messages.length > 0) {
-      scrollToBottom();
-    }
-  }, [messages, isLoading]);
 
   if (isLoading) {
     return (
@@ -65,7 +87,11 @@ export const MessageList = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div 
+      className="space-y-3 h-full overflow-auto" 
+      ref={scrollContainerRef}
+      onScroll={handleScroll}
+    >
       {messages.map((message, index) => {
         // Check if this message is the first from this sender in a sequence
         const isFirstInSequence = index === 0 || 
