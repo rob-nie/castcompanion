@@ -1,7 +1,7 @@
 
 import type { Tables } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMessages } from "@/hooks/messenger/useMessages";
 import { useProjectMembership } from "@/hooks/messenger/useProjectMembership";
 import { useAuth } from "@/context/AuthProvider";
@@ -26,6 +26,19 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   const [isSending, setIsSending] = useState(false);
   const { phrases } = useQuickPhrases();
   const [isOpen, setIsOpen] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Automatisches Scrollen zu neuen Nachrichten
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Wenn neue Nachrichten geladen werden, zum Ende scrollen
+  useEffect(() => {
+    if (!isLoading && messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [messages, isLoading]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !isProjectMember) return;
@@ -35,6 +48,8 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
       const sent = await sendMessage(newMessage);
       if (sent) {
         setNewMessage("");
+        // Nach dem Senden zum Ende scrollen
+        setTimeout(scrollToBottom, 100);
       }
     } finally {
       setIsSending(false);
@@ -145,6 +160,8 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
             </div>
           );
         })}
+        {/* Unsichtbarer Div für auto-scrolling */}
+        <div ref={messagesEndRef} />
       </div>
     );
   };
@@ -189,7 +206,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
               onOpenChange={setIsOpen}
               className="overflow-hidden"
             >
-              <CollapsibleTrigger className="w-full py-2 text-left flex items-center justify-between text-[14px] text-[#7A9992] dark:text-[#CCCCCC]">
+              <CollapsibleTrigger className="w-full text-left flex items-center justify-between text-[14px] text-[#7A9992] dark:text-[#CCCCCC] py-2 border-none bg-transparent hover:bg-transparent">
                 <span className="font-medium">Schnellphrasen</span>
                 {isOpen ? (
                   <ChevronUp className="h-4 w-4" />
@@ -209,7 +226,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
                         key={phrase.id}
                         onClick={() => handleQuickPhraseSelect(phrase.content)}
                         variant="outline"
-                        className="w-full text-[14px] p-2 text-left text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] h-[40px] flex items-center justify-start"
+                        className="w-full h-[44px] text-[14px] px-4 text-left justify-start text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] hover:bg-transparent hover:text-[#7A9992] hover:dark:text-[#CCCCCC]"
                       >
                         {phrase.content}
                       </Button>
