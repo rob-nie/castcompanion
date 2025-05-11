@@ -1,5 +1,5 @@
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { differenceInMinutes } from "date-fns";
 import { MessageBubble } from "./MessageBubble";
 import type { Tables } from "@/integrations/supabase/types";
@@ -27,18 +27,55 @@ export const MessageList = ({
   currentUserId 
 }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [prevMessagesLength, setPrevMessagesLength] = useState(0);
 
-  // Automatisches Scrollen zu neuen Nachrichten
+  // Überprüfe, ob der Benutzer nahe am unteren Rand ist
+  const checkIfNearBottom = () => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const threshold = 150; // Pixel-Abstand zum unteren Rand
+    const nearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    setIsNearBottom(nearBottom);
+  };
+
+  // Überwache Scroll-Events
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    container.addEventListener('scroll', checkIfNearBottom);
+    return () => {
+      container.removeEventListener('scroll', checkIfNearBottom);
+    };
+  }, []);
+
+  // Scroll-Logik für neue Nachrichten
+  useEffect(() => {
+    // Wenn neue Nachrichten geladen werden
+    if (!isLoading && messages.length > prevMessagesLength) {
+      // Nur scrollen wenn der Benutzer bereits am unteren Rand ist
+      if (isNearBottom) {
+        scrollToBottom();
+      }
+      // Aktualisiere die vorherige Nachrichtenlänge
+      setPrevMessagesLength(messages.length);
+    }
+  }, [messages, isLoading, prevMessagesLength, isNearBottom]);
+
+  // Beim ersten Laden scrollen
+  useEffect(() => {
+    if (!isLoading && messages.length > 0 && prevMessagesLength === 0) {
+      scrollToBottom();
+      setPrevMessagesLength(messages.length);
+    }
+  }, [isLoading, messages]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  // Wenn neue Nachrichten geladen werden, zum Ende scrollen
-  useEffect(() => {
-    if (!isLoading && messages.length > 0) {
-      scrollToBottom();
-    }
-  }, [messages, isLoading]);
 
   if (isLoading) {
     return (
@@ -65,7 +102,7 @@ export const MessageList = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div ref={containerRef} className="space-y-3 h-full overflow-y-auto pb-4">
       {messages.map((message, index) => {
         // Check if this message is the first from this sender in a sequence
         const isFirstInSequence = index === 0 || 
