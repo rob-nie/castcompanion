@@ -1,0 +1,58 @@
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+
+interface QuickPhrase {
+  id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface QuickPhrasesProps {
+  phrases: QuickPhrase[];
+  onSelectPhrase: (phrase: string) => void;
+}
+
+export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="overflow-hidden"
+    >
+      <CollapsibleTrigger className="w-full text-left flex items-center justify-between text-sm text-[#7A9992] dark:text-[#CCCCCC] py-0 border-none bg-transparent hover:bg-transparent">
+        <span className="font-medium">Schnellphrasen</span>
+        {isOpen ? (
+          <ChevronUp className="h-4 w-4" />
+        ) : (
+          <ChevronDown className="h-4 w-4" />
+        )}
+      </CollapsibleTrigger>
+      <CollapsibleContent className="py-2">
+        {phrases.length === 0 ? (
+          <p className="text-xs text-[#7A9992] dark:text-[#CCCCCC] py-1">
+            Keine Schnellphrasen vorhanden.
+          </p>
+        ) : (
+          <div className="space-y-1 max-h-[200px] overflow-y-auto">
+            {phrases.map((phrase) => (
+              <Button
+                key={phrase.id}
+                onClick={() => onSelectPhrase(phrase.content)}
+                variant="outline"
+                className="w-full h-[44px] text-[14px] px-4 text-left justify-start text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] hover:bg-transparent hover:text-[#7A9992] hover:dark:text-[#CCCCCC]"
+              >
+                {phrase.content}
+              </Button>
+            ))}
+          </div>
+        )}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
