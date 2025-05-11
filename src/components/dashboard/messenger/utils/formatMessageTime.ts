@@ -11,6 +11,7 @@ export const formatMessageTime = (dateStr: string) => {
   } else if (isYesterday(date)) {
     return `Gestern, ${timeString}`;
   } else {
+    // Format dates older than yesterday with full date
     return `${format(date, 'dd.MM.yyyy', { locale: de })}, ${timeString}`;
   }
 };
