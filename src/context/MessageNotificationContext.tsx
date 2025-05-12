@@ -61,16 +61,16 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
     setUnreadMessagesCount(prev => prev + 1);
   };
 
+  const value = {
+    unreadMessagesCount,
+    activeTab,
+    setActiveTab,
+    markMessagesAsRead,
+    incrementUnreadCount
+  };
+
   return (
-    <MessageNotificationContext.Provider 
-      value={{
-        unreadMessagesCount,
-        activeTab,
-        setActiveTab,
-        markMessagesAsRead,
-        incrementUnreadCount
-      }}
-    >
+    <MessageNotificationContext.Provider value={value}>
       {children}
     </MessageNotificationContext.Provider>
   );

@@ -1,6 +1,6 @@
 
 import type { Tables } from "@/integrations/supabase/types";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useMessages } from "@/hooks/messenger/useMessages";
 import { useProjectMembership } from "@/hooks/messenger/useProjectMembership";
 import { useAuth } from "@/context/AuthProvider";
