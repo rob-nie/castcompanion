@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { MessengerTab } from "./messenger/MessengerTab";
 import { Badge } from "@/components/ui/badge";
 import { MessageNotificationProvider, useMessageNotification } from "@/context/MessageNotificationContext";
+import { BellDot } from "lucide-react";
 
 interface NotesTileProps {
   project: Tables<"projects">;
@@ -68,7 +69,9 @@ const NotesTabsContent = ({ project }: NotesTileProps) => {
               <div className="flex items-center">
                 Messenger
                 {unreadMessagesCount > 0 && activeTab !== "messenger" && (
-                  <span className="ml-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                  <div className="relative ml-1.5">
+                    <span className="flex h-2.5 w-2.5 bg-red-500 rounded-full absolute -top-1 -right-1" />
+                  </div>
                 )}
               </div>
             </TabsTrigger>

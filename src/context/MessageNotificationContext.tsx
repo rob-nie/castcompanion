@@ -39,23 +39,17 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
 
   // Listen for new messages and increment counter if not on messenger tab
   useEffect(() => {
-    // Only track unread messages on mobile when not on the messenger tab
     if (isMobile && activeTab !== "messenger" && messages.length > 0) {
-      // We increment the counter on any new message that comes in
-      // This is simplified; in a real app you might want to compare with previously seen messages
-      const handleNewMessage = () => {
+      // Compare with previous message count to detect new messages
+      const lastMessageCountRef = React.useRef(messages.length);
+      
+      if (messages.length > lastMessageCountRef.current) {
+        // A new message has arrived - increment the counter
         setUnreadMessagesCount(prev => prev + 1);
-      };
+      }
       
-      // Set up a listener for the messages array
-      // This is a simple implementation; it increments the counter whenever messages array changes
-      // In a production app, you'd want to track the last read message ID
-      const lastMessageId = messages[messages.length - 1]?.id;
-      const cleanup = () => {
-        // This is where you would clean up any subscriptions
-      };
-      
-      return cleanup;
+      // Update the reference for next comparison
+      lastMessageCountRef.current = messages.length;
     }
   }, [messages, activeTab, isMobile]);
 

@@ -33,11 +33,14 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
 
   // Detect new messages and update unread count
   useEffect(() => {
+    // Check if new messages arrived and we're not on the messenger tab
     if (messages.length > lastMessageCountRef.current && isMobile && activeTab !== "messenger") {
       // Check if the latest message is not from the current user
       const latestMessage = messages[messages.length - 1];
       if (latestMessage && latestMessage.sender_id !== user?.id) {
+        // Increment the unread count for messages from others
         incrementUnreadCount();
+        console.log("New message received - incrementing unread count");
       }
     }
     lastMessageCountRef.current = messages.length;
