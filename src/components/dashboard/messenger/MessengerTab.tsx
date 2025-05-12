@@ -21,8 +21,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
   const [isSending, setIsSending] = useState(false);
   const { phrases } = useQuickPhrases();
   const isMobile = useIsMobile();
-  const { activeTab, markMessagesAsRead, incrementUnreadCount } = useMessageNotification();
-  const lastMessageCountRef = useRef(messages.length);
+  const { activeTab, markMessagesAsRead } = useMessageNotification();
 
   // Mark messages as read when the component mounts and is the active tab
   useEffect(() => {
@@ -30,21 +29,6 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
       markMessagesAsRead();
     }
   }, [isMobile, activeTab, markMessagesAsRead]);
-
-  // Detect new messages and update unread count
-  useEffect(() => {
-    // Check if new messages arrived and we're not on the messenger tab
-    if (messages.length > lastMessageCountRef.current && isMobile && activeTab !== "messenger") {
-      // Check if the latest message is not from the current user
-      const latestMessage = messages[messages.length - 1];
-      if (latestMessage && latestMessage.sender_id !== user?.id) {
-        // Increment the unread count for messages from others
-        incrementUnreadCount();
-        console.log("New message received - incrementing unread count");
-      }
-    }
-    lastMessageCountRef.current = messages.length;
-  }, [messages, isMobile, activeTab, user?.id, incrementUnreadCount]);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || !isProjectMember) return;
