@@ -28,8 +28,8 @@ const IndexRoute = () => {
     return <Navigate to="/projects" replace />;
   }
   
-  // Otherwise show the landing page
-  return <Index />;
+  // Otherwise redirect to login page
+  return <Navigate to="/auth" replace />;
 };
 
 function App() {
