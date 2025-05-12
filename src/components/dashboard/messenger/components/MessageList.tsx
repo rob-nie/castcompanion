@@ -1,8 +1,9 @@
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { differenceInMinutes } from "date-fns";
 import { MessageBubble } from "./MessageBubble";
 import type { Tables } from "@/integrations/supabase/types";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
   id: string;
@@ -27,18 +28,52 @@ export const MessageList = ({
   currentUserId 
 }: MessageListProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [hasInitialScrolled, setHasInitialScrolled] = useState(false);
+  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
+  
+  // Function to check if user is near the bottom of the scroll area
+  const isNearBottom = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return true;
+    
+    const threshold = 100; // pixels from bottom to trigger auto-scroll
+    const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
+    return distanceFromBottom <= threshold;
+  };
+
+  // Handle scroll events to determine if we should auto-scroll
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    const handleScroll = () => {
+      setShouldScrollToBottom(isNearBottom());
+    };
+    
+    container.addEventListener('scroll', handleScroll);
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  // Scroll to bottom on initial load and when new messages arrive
+  useEffect(() => {
+    if (!isLoading && messages.length > 0) {
+      // If this is the initial load or user is near bottom, scroll to bottom
+      if (!hasInitialScrolled || shouldScrollToBottom) {
+        scrollToBottom();
+        if (!hasInitialScrolled) {
+          setHasInitialScrolled(true);
+        }
+      }
+    }
+  }, [messages, isLoading, hasInitialScrolled, shouldScrollToBottom]);
 
   // Automatisches Scrollen zu neuen Nachrichten
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
-  // Wenn neue Nachrichten geladen werden, zum Ende scrollen
-  useEffect(() => {
-    if (!isLoading && messages.length > 0) {
-      scrollToBottom();
-    }
-  }, [messages, isLoading]);
 
   if (isLoading) {
     return (
@@ -65,7 +100,11 @@ export const MessageList = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div 
+      className="space-y-3"
+      ref={scrollContainerRef}
+      style={{ overflowY: 'auto', height: '100%', paddingRight: '8px' }}
+    >
       {messages.map((message, index) => {
         // Check if this message is the first from this sender in a sequence
         const isFirstInSequence = index === 0 || 
