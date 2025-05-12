@@ -3,7 +3,6 @@ import { useRef, useEffect, useState } from "react";
 import { differenceInMinutes } from "date-fns";
 import { MessageBubble } from "./MessageBubble";
 import type { Tables } from "@/integrations/supabase/types";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
   id: string;
@@ -32,17 +31,17 @@ export const MessageList = ({
   const [hasInitialScrolled, setHasInitialScrolled] = useState(false);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
   
-  // Function to check if user is near the bottom of the scroll area
+  // Funktion zur Überprüfung, ob der Benutzer nahe am unteren Rand des Scroll-Bereichs ist
   const isNearBottom = () => {
     const container = scrollContainerRef.current;
     if (!container) return true;
     
-    const threshold = 100; // pixels from bottom to trigger auto-scroll
+    const threshold = 100; // Pixel vom unteren Rand, die Auto-Scroll auslösen
     const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
     return distanceFromBottom <= threshold;
   };
 
-  // Handle scroll events to determine if we should auto-scroll
+  // Überwache Scroll-Events, um zu bestimmen, ob auto-scrolling erfolgen soll
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -57,22 +56,29 @@ export const MessageList = ({
     };
   }, []);
 
-  // Scroll to bottom on initial load and when new messages arrive
+  // Beim initialen Laden sofort zur neuesten Nachricht springen (ohne Animation)
   useEffect(() => {
-    if (!isLoading && messages.length > 0) {
-      // If this is the initial load or user is near bottom, scroll to bottom
-      if (!hasInitialScrolled || shouldScrollToBottom) {
-        scrollToBottom();
-        if (!hasInitialScrolled) {
-          setHasInitialScrolled(true);
-        }
+    if (!isLoading && messages.length > 0 && !hasInitialScrolled) {
+      scrollToBottom(false); // false = kein smooth scrolling (direkter Sprung)
+      setHasInitialScrolled(true);
+    }
+  }, [messages, isLoading, hasInitialScrolled]);
+
+  // Bei neuen Nachrichten prüfen, ob gescrollt werden soll
+  useEffect(() => {
+    if (!isLoading && messages.length > 0 && hasInitialScrolled) {
+      // Nur scrollen wenn der Benutzer bereits nahe am unteren Rand ist
+      if (shouldScrollToBottom) {
+        scrollToBottom(true); // true = smooth scrolling für bessere UX
       }
     }
   }, [messages, isLoading, hasInitialScrolled, shouldScrollToBottom]);
 
-  // Automatisches Scrollen zu neuen Nachrichten
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // Funktion zum Scrollen zum Ende der Liste
+  const scrollToBottom = (smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: smooth ? "smooth" : "auto" 
+    });
   };
 
   if (isLoading) {
