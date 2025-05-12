@@ -1,12 +1,14 @@
 
 import type { Tables } from "@/integrations/supabase/types";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMessages } from "@/hooks/messenger/useMessages";
 import { useProjectMembership } from "@/hooks/messenger/useProjectMembership";
 import { useAuth } from "@/context/AuthProvider";
 import { useQuickPhrases } from "@/hooks/useQuickPhrases";
 import { MessageList } from "./components/MessageList";
 import { MessageInput } from "./components/MessageInput";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useMessageNotification } from "@/context/MessageNotificationContext";
 
 interface MessengerTabProps {
   project: Tables<"projects">;
@@ -18,6 +20,28 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
   const { isProjectMember } = useProjectMembership(project.id);
   const [isSending, setIsSending] = useState(false);
   const { phrases } = useQuickPhrases();
+  const isMobile = useIsMobile();
+  const { activeTab, markMessagesAsRead, incrementUnreadCount } = useMessageNotification();
+  const lastMessageCountRef = useRef(messages.length);
+
+  // Mark messages as read when the component mounts and is the active tab
+  useEffect(() => {
+    if (isMobile && activeTab === "messenger") {
+      markMessagesAsRead();
+    }
+  }, [isMobile, activeTab, markMessagesAsRead]);
+
+  // Detect new messages and update unread count
+  useEffect(() => {
+    if (messages.length > lastMessageCountRef.current && isMobile && activeTab !== "messenger") {
+      // Check if the latest message is not from the current user
+      const latestMessage = messages[messages.length - 1];
+      if (latestMessage && latestMessage.sender_id !== user?.id) {
+        incrementUnreadCount();
+      }
+    }
+    lastMessageCountRef.current = messages.length;
+  }, [messages, isMobile, activeTab, user?.id, incrementUnreadCount]);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || !isProjectMember) return;

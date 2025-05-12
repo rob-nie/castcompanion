@@ -7,32 +7,32 @@ import { InterviewNotesTab } from "./notes/InterviewNotesTab";
 import { useTimer } from "./watch/useTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MessengerTab } from "./messenger/MessengerTab";
+import { Badge } from "@/components/ui/badge";
+import { MessageNotificationProvider, useMessageNotification } from "@/context/MessageNotificationContext";
 
 interface NotesTileProps {
   project: Tables<"projects">;
 }
 
-const TABS_STORAGE_KEY = "cast-companion-last-notes-tab";
-
-export const NotesTile = ({ project }: NotesTileProps) => {
+const NotesTabsContent = ({ project }: NotesTileProps) => {
   const { displayTime } = useTimer(project.id);
   const isMobile = useIsMobile();
+  const { 
+    activeTab, 
+    setActiveTab, 
+    unreadMessagesCount, 
+    markMessagesAsRead 
+  } = useMessageNotification();
 
-  // Set default to "interview-notes"
-  const [activeTab, setActiveTab] = useState("interview-notes");
-
-  // On mount: read from localStorage
-  useEffect(() => {
-    const stored = localStorage.getItem(TABS_STORAGE_KEY);
-    if (stored === "live-notes" || stored === "interview-notes" || stored === "messenger") {
-      setActiveTab(stored);
-    }
-  }, []);
-
-  // On tab change: store new value
+  // On tab change: store new value and handle notifications
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    localStorage.setItem(TABS_STORAGE_KEY, value);
+    setActiveTab(value as "interview-notes" | "live-notes" | "messenger");
+    localStorage.setItem("cast-companion-last-notes-tab", value);
+    
+    // If switching to messenger tab, mark messages as read
+    if (value === "messenger") {
+      markMessagesAsRead();
+    }
   };
 
   // Apply conditional classes for mobile view
@@ -65,7 +65,12 @@ export const NotesTile = ({ project }: NotesTileProps) => {
               value="messenger"
               className="text-[14px] py-0 px-0 pb-1 bg-transparent rounded-none font-medium data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC] relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full after:opacity-0 data-[state=active]:after:opacity-100 w-auto shadow-none"
             >
-              Messenger
+              <div className="flex items-center">
+                Messenger
+                {unreadMessagesCount > 0 && activeTab !== "messenger" && (
+                  <span className="ml-1.5 w-2 h-2 bg-red-500 rounded-full" />
+                )}
+              </div>
             </TabsTrigger>
           )}
         </TabsList>
@@ -84,5 +89,13 @@ export const NotesTile = ({ project }: NotesTileProps) => {
         </div>
       </Tabs>
     </div>
+  );
+};
+
+export const NotesTile = ({ project }: NotesTileProps) => {
+  return (
+    <MessageNotificationProvider projectId={project.id}>
+      <NotesTabsContent project={project} />
+    </MessageNotificationProvider>
   );
 };
