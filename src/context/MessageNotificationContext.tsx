@@ -78,7 +78,7 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
       }}
     >
       {children}
-    </MessageNotificationProvider>
+    </MessageNotificationContext.Provider>
   );
 };
 
