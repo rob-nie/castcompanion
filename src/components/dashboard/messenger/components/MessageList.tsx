@@ -1,6 +1,7 @@
 
 import { useRef, useEffect, useState } from "react";
-import { differenceInMinutes } from "date-fns";
+import { differenceInMinutes, differenceInDays, format } from "date-fns";
+import { de } from "date-fns/locale";
 import { MessageBubble } from "./MessageBubble";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -105,6 +106,25 @@ export const MessageList = ({
     );
   }
 
+  // Formatierung des Datums für die Datumstrenner
+  const formatDateHeader = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const isToday = date.toDateString() === today.toDateString();
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+    
+    if (isToday) {
+      return "Heute";
+    } else if (isYesterday) {
+      return "Gestern";
+    } else {
+      return format(date, "dd.MM.yyyy", { locale: de });
+    }
+  };
+
   return (
     <div 
       className="space-y-3"
@@ -116,25 +136,42 @@ export const MessageList = ({
         const isFirstInSequence = index === 0 || 
           messages[index - 1].sender_id !== message.sender_id;
         
-        // Check if we should show the timestamp
-        let showTimestamp = true;
-        if (index > 0) {
+        // Prüfen, ob wir einen Zeitstempel anzeigen sollen
+        const showTimestamp = true; // Wir zeigen den Zeitstempel jetzt immer an
+        
+        // Prüfen, ob wir einen Datumstrenner anzeigen sollen
+        let showDateSeparator = false;
+        if (index === 0) {
+          showDateSeparator = true; // Erste Nachricht bekommt immer einen Datumstrenner
+        } else {
           const currentDate = new Date(message.created_at);
           const previousDate = new Date(messages[index - 1].created_at);
-          const minuteDifference = differenceInMinutes(currentDate, previousDate);
-          showTimestamp = minuteDifference > 2;
+          
+          // Wenn sich das Datum geändert hat, zeigen wir einen Datumstrenner an
+          showDateSeparator = differenceInDays(currentDate, previousDate) !== 0;
         }
         
         const isSentByMe = message.sender_id === currentUserId;
         
         return (
-          <MessageBubble
-            key={message.id}
-            message={message}
-            isCurrentUser={isSentByMe}
-            isFirstInSequence={isFirstInSequence}
-            showTimestamp={showTimestamp}
-          />
+          <div key={message.id} className="space-y-3">
+            {/* Datumstrenner */}
+            {showDateSeparator && (
+              <div className="flex justify-center my-4">
+                <div className="px-3 py-1 text-xs rounded-full bg-[#DAE5E2] dark:bg-[#5E6664] text-[#7A9992] dark:text-[#CCCCCC]">
+                  {formatDateHeader(message.created_at)}
+                </div>
+              </div>
+            )}
+            
+            {/* Nachrichtenbubble */}
+            <MessageBubble
+              message={message}
+              isCurrentUser={isSentByMe}
+              isFirstInSequence={isFirstInSequence}
+              showTimestamp={showTimestamp}
+            />
+          </div>
         );
       })}
       {/* Unsichtbarer Div für auto-scrolling */}

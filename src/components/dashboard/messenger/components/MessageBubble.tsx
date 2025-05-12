@@ -1,6 +1,5 @@
 
-import { differenceInMinutes } from "date-fns";
-import { formatMessageTime } from "../utils/formatMessageTime";
+import { format } from "date-fns";
 
 interface Message {
   id: string;
@@ -23,19 +22,32 @@ export const MessageBubble = ({
   isFirstInSequence,
   showTimestamp 
 }: MessageBubbleProps) => {
+  // Funktion zur Formatierung des Zeitstempels im Format HH:MM
+  const formatTime = (dateStr: string) => {
+    return format(new Date(dateStr), 'HH:mm');
+  };
+
   return (
     <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'}`}>
       {/* Benutzername nur für die erste Nachricht in einer Sequenz anzeigen */}
       {!isCurrentUser && isFirstInSequence && (
-        <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
+        <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1 ml-1">
           {message.sender_full_name || 'Unbekannt'}
         </span>
       )}
       
-      <div className="flex flex-col items-start max-w-[80%]">
+      {/* Message with timestamp */}
+      <div className={`flex items-center gap-2 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
+        {/* Zeitstempel nur anzeigen wenn showTimestamp true ist */}
+        {showTimestamp && (
+          <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC]">
+            {formatTime(message.created_at)}
+          </span>
+        )}
+        
         {/* Message bubble */}
         <div 
-          className={`p-3 ${
+          className={`p-3 max-w-[80%] ${
             isCurrentUser 
               ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[0px] rounded-bl-[10px] rounded-br-[10px]' 
               : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[0px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]'
@@ -45,13 +57,6 @@ export const MessageBubble = ({
             {message.content}
           </p>
         </div>
-        
-        {/* Timestamp outside the bubble */}
-        {showTimestamp && (
-          <div className={`text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-1 ${isCurrentUser ? 'self-end' : 'self-start'}`}>
-            {formatMessageTime(message.created_at)}
-          </div>
-        )}
       </div>
     </div>
   );
