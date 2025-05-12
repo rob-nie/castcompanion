@@ -7,9 +7,7 @@ import { InterviewNotesTab } from "./notes/InterviewNotesTab";
 import { useTimer } from "./watch/useTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MessengerTab } from "./messenger/MessengerTab";
-import { Badge } from "@/components/ui/badge";
 import { MessageNotificationProvider, useMessageNotification } from "@/context/MessageNotificationContext";
-import { BellDot } from "lucide-react";
 
 interface NotesTileProps {
   project: Tables<"projects">;
@@ -70,7 +68,7 @@ const NotesTabsContent = ({ project }: NotesTileProps) => {
                 Messenger
                 {unreadMessagesCount > 0 && activeTab !== "messenger" && (
                   <div className="relative ml-1.5">
-                    <span className="flex h-2.5 w-2.5 bg-red-500 rounded-full absolute -top-1 -right-1" />
+                    <span className="flex h-2.5 w-2.5 bg-red-500 rounded-full" />
                   </div>
                 )}
               </div>
