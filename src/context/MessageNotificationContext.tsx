@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useMessages } from "@/hooks/messenger/useMessages";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -36,16 +36,16 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
   
   const isMobile = useIsMobile();
   const { messages } = useMessages(projectId);
-  const lastMessageCountRef = useRef(messages.length);
 
   // Listen for new messages and increment counter if not on messenger tab
   useEffect(() => {
     if (isMobile && activeTab !== "messenger" && messages.length > 0) {
       // Compare with previous message count to detect new messages
+      const lastMessageCountRef = React.useRef(messages.length);
+      
       if (messages.length > lastMessageCountRef.current) {
         // A new message has arrived - increment the counter
         setUnreadMessagesCount(prev => prev + 1);
-        console.log("New message detected in context - incrementing count", messages.length, lastMessageCountRef.current);
       }
       
       // Update the reference for next comparison
@@ -61,16 +61,16 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
     setUnreadMessagesCount(prev => prev + 1);
   };
 
-  const value = {
-    unreadMessagesCount,
-    activeTab,
-    setActiveTab,
-    markMessagesAsRead,
-    incrementUnreadCount
-  };
-
   return (
-    <MessageNotificationContext.Provider value={value}>
+    <MessageNotificationContext.Provider 
+      value={{
+        unreadMessagesCount,
+        activeTab,
+        setActiveTab,
+        markMessagesAsRead,
+        incrementUnreadCount
+      }}
+    >
       {children}
     </MessageNotificationContext.Provider>
   );
