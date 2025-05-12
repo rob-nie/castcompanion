@@ -37,7 +37,7 @@ export const MessageBubble = ({
       )}
       
       {/* Message with timestamp */}
-      <div className={`flex items-center gap-2 ${isCurrentUser ? 'flex-row' : 'flex-row-reverse'}`}>
+      <div className={`flex items-center gap-2 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
         {/* Message bubble */}
         <div 
           className={`p-3 max-w-[80%] ${
