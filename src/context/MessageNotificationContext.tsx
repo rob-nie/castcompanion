@@ -47,10 +47,10 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
         setUnreadMessagesCount(prev => prev + 1);
         console.log("New message detected! Count updated to:", unreadMessagesCount + 1);
       }
-      
-      // Update the reference for next comparison
-      previousMessagesCountRef.current = messages.length;
     }
+    
+    // Always update the reference for next comparison
+    previousMessagesCountRef.current = messages.length;
   }, [messages, activeTab, isMobile, unreadMessagesCount]);
 
   const markMessagesAsRead = () => {

@@ -22,7 +22,6 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
   const { phrases } = useQuickPhrases();
   const isMobile = useIsMobile();
   const { activeTab, markMessagesAsRead } = useMessageNotification();
-  const lastMessageCountRef = useRef(messages.length);
 
   // Mark messages as read when the component mounts and is the active tab
   useEffect(() => {
