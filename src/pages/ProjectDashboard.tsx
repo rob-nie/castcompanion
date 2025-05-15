@@ -15,6 +15,20 @@ const ProjectDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
 
+  // Füge useEffect hinzu, um Scrollen zu deaktivieren
+  useEffect(() => {
+    // Speichere den ursprünglichen Overflow-Wert zum Wiederherstellen
+    const originalOverflow = document.body.style.overflow;
+    
+    // Deaktiviere das Scrollen
+    document.body.style.overflow = "hidden";
+    
+    // Stelle den ursprünglichen Zustand beim Unmount wieder her
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   useEffect(() => {
     const fetchProject = async () => {
       if (!projectId) return;
@@ -57,7 +71,7 @@ const ProjectDashboard = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden no-scroll">
       <Header currentPage="projects" project={project} />
       
       <main className="flex-1 px-6 md:px-6 lg:px-6 xl:px-24 py-6 overflow-hidden mb-[48px]">

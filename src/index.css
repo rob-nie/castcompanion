@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 @tailwind base;
@@ -91,13 +92,20 @@
 
   html {
     font-family: 'Inter', sans-serif;
-    height: 100%; /* Hinzugefügt */
+    height: 100%;
+    overflow: hidden; /* Verhindere Scrollen auf HTML-Ebene */
   }
 
   body {
     @apply bg-background text-foreground font-inter;
-    min-height: 100vh; /* Hinzugefügt (oder teste height: 100%;) */
-    margin: 0; /* Hinzugefügt */
+    height: 100vh; /* Volle Höhe des Viewports */
+    margin: 0;
+    overflow: hidden; /* Verhindere Scrollen auf Body-Ebene */
+  }
+
+  #root {
+    height: 100%; /* Volle Höhe des Body-Elements */
+    overflow: hidden; /* Verhindere Scrollen auf Root-Ebene */
   }
 
   h1 {
@@ -140,6 +148,11 @@
 
   .body-text {
     @apply text-sm font-normal;
+  }
+
+  /* Ergänze eine neue Utility-Klasse für nicht scrollbare Container */
+  .no-scroll {
+    overflow: hidden;
   }
 }
 
