@@ -9,6 +9,7 @@ type QuickPhrase = {
   content: string;
   created_at: string;
   updated_at: string;
+  order: number | null;
 };
 
 export const useQuickPhrases = () => {
@@ -27,6 +28,7 @@ export const useQuickPhrases = () => {
       const { data, error } = await supabase
         .from("quick_phrases")
         .select("*")
+        .order("order", { ascending: true })
         .order("created_at", { ascending: true });
 
       if (error) throw error;
@@ -43,9 +45,18 @@ export const useQuickPhrases = () => {
     if (!user || !content.trim()) return null;
 
     try {
+      // Get the highest order value
+      const maxOrder = phrases.length > 0 
+        ? Math.max(...phrases.map(p => p.order ?? 0)) 
+        : -1;
+      
       const { data, error } = await supabase
         .from("quick_phrases")
-        .insert([{ content, user_id: user.id }])
+        .insert([{ 
+          content, 
+          user_id: user.id,
+          order: maxOrder + 1 
+        }])
         .select()
         .single();
 
@@ -99,6 +110,43 @@ export const useQuickPhrases = () => {
     }
   };
 
+  const reorderPhrases = async (startIndex: number, endIndex: number) => {
+    if (!user) return false;
+    
+    // Create new array with reordered phrases
+    const newItems = Array.from(phrases);
+    const [removed] = newItems.splice(startIndex, 1);
+    newItems.splice(endIndex, 0, removed);
+    
+    // Update local state immediately for responsive UI
+    setPhrases(newItems);
+    
+    try {
+      // Update order values in database
+      const updates = newItems.map((phrase, index) => ({
+        id: phrase.id,
+        order: index
+      }));
+      
+      for (const update of updates) {
+        const { error } = await supabase
+          .from("quick_phrases")
+          .update({ order: update.order })
+          .eq("id", update.id);
+          
+        if (error) throw error;
+      }
+      
+      toast.success("Reihenfolge aktualisiert");
+      return true;
+    } catch (err: any) {
+      // Restore original order on error
+      fetchPhrases();
+      toast.error(`Fehler beim Aktualisieren der Reihenfolge: ${err.message}`);
+      return false;
+    }
+  };
+
   useEffect(() => {
     if (user) {
       fetchPhrases();
@@ -112,6 +160,7 @@ export const useQuickPhrases = () => {
     fetchPhrases,
     addPhrase,
     updatePhrase,
-    deletePhrase
+    deletePhrase,
+    reorderPhrases
   };
 };

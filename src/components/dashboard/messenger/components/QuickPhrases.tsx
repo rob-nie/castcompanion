@@ -9,6 +9,7 @@ interface QuickPhrase {
   content: string;
   created_at: string;
   updated_at: string;
+  order?: number | null;
 }
 
 interface QuickPhrasesProps {
@@ -18,6 +19,14 @@ interface QuickPhrasesProps {
 
 export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Sort phrases by order if available
+  const sortedPhrases = [...phrases].sort((a, b) => {
+    if (a.order !== null && b.order !== null && a.order !== undefined && b.order !== undefined) {
+      return a.order - b.order;
+    }
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
   
   return (
     <Collapsible
@@ -34,13 +43,13 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
         )}
       </CollapsibleTrigger>
       <CollapsibleContent className="py-2">
-        {phrases.length === 0 ? (
+        {sortedPhrases.length === 0 ? (
           <p className="text-xs text-[#7A9992] dark:text-[#CCCCCC] py-1">
             Keine Schnellphrasen vorhanden.
           </p>
         ) : (
           <div className="space-y-1 max-h-[200px] overflow-y-auto">
-            {phrases.map((phrase) => (
+            {sortedPhrases.map((phrase) => (
               <Button
                 key={phrase.id}
                 onClick={() => onSelectPhrase(phrase.content)}
