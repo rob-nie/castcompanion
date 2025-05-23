@@ -49,20 +49,20 @@ const NotesTabsContent = ({ project }: NotesTileProps) => {
         <TabsList className="flex w-full mb-4 bg-transparent p-0 justify-start items-start gap-6 !shadow-none shrink-0">
           <TabsTrigger 
             value="interview-notes"
-            className="text-[14px] py-0 px-0 pb-1 bg-transparent rounded-none font-medium data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC] relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full after:opacity-0 data-[state=active]:after:opacity-100 w-auto shadow-none"
+            className="text-[14px] py-1 px-0 bg-transparent rounded-none font-medium data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC] relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-0 after:rounded-full after:opacity-0 data-[state=active]:after:opacity-100 w-auto shadow-none"
           >
             Interview Notes
           </TabsTrigger>
           <TabsTrigger 
             value="live-notes"
-            className="text-[14px] py-0 px-0 pb-1 bg-transparent rounded-none font-medium data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC] relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full after:opacity-0 data-[state=active]:after:opacity-100 w-auto shadow-none"
+            className="text-[14px] py-1 px-0 bg-transparent rounded-none font-medium data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC] relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-0 after:rounded-full after:opacity-0 data-[state=active]:after:opacity-100 w-auto shadow-none"
           >
             Live Notes
           </TabsTrigger>
           {isMobile && (
             <TabsTrigger 
               value="messenger"
-              className="text-[14px] py-0 px-0 pb-1 bg-transparent rounded-none font-medium data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC] relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full after:opacity-0 data-[state=active]:after:opacity-100 w-auto shadow-none"
+              className="text-[14px] py-1 px-0 bg-transparent rounded-none font-medium data-[state=active]:text-[#14A090] data-[state=active]:font-medium data-[state=inactive]:text-[#7A9992] dark:data-[state=inactive]:text-[#CCCCCC] relative after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-0 after:rounded-full after:opacity-0 data-[state=active]:after:opacity-100 w-auto shadow-none"
             >
               <div className="flex items-center">
                 Messenger
