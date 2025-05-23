@@ -1,3 +1,4 @@
 
 // Re-export from the new modular location
-export { useQuickPhrases, QuickPhrase } from './quick-phrases';
+export { useQuickPhrases } from './quick-phrases';
+export type { QuickPhrase } from './quick-phrases';
