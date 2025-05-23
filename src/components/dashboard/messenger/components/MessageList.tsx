@@ -129,7 +129,7 @@ export const MessageList = ({
     <div 
       className="space-y-3"
       ref={scrollContainerRef}
-      style={{ overflowY: 'auto', height: '100%', paddingRight: '8px' }}
+      style={{ overflowY: 'auto', height: '100%' }}
     >
       {messages.map((message, index) => {
         // Check if this message is the first from this sender in a sequence
