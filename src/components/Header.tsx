@@ -82,12 +82,15 @@ export function Header({ currentPage, project }: HeaderProps) {
               </a>
               {project && (
                 <div className="relative flex items-end">
-                  <a 
-                    href={`/projects/${project.id}`}
-                    className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1 flex items-center"
-                    title={project.title}
-                  >
-                    {project.title.length > 40 ? `${project.title.substring(0, 35)}...` : project.title}
+                  <div className="flex items-center">
+                    <a 
+                      href={`/projects/${project.id}`}
+                      className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1 relative"
+                      title={project.title}
+                    >
+                      {project.title.length > 40 ? `${project.title.substring(0, 35)}...` : project.title}
+                      <div className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></div>
+                    </a>
                     <button
                       onClick={handleSettingsClick}
                       className="ml-2 p-1 rounded-full hover:bg-[#14A090]/10 transition-colors"
@@ -95,8 +98,7 @@ export function Header({ currentPage, project }: HeaderProps) {
                     >
                       <Settings className="h-4 w-4 text-[#14A090]" />
                     </button>
-                  </a>
-                  <div className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></div>
+                  </div>
                 </div>
               )}
             </nav>
@@ -168,12 +170,15 @@ export function Header({ currentPage, project }: HeaderProps) {
               </a>
               {project && (
                 <div className="relative flex items-end">
-                  <a 
-                    href={`/projects/${project.id}`}
-                    className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1 flex items-center"
-                    title={project.title}
-                  >
-                    {project.title.length > 40 ? `${project.title.substring(0, 40)}...` : project.title}
+                  <div className="flex items-center">
+                    <a 
+                      href={`/projects/${project.id}`}
+                      className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1 relative"
+                      title={project.title}
+                    >
+                      {project.title.length > 40 ? `${project.title.substring(0, 40)}...` : project.title}
+                      <div className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></div>
+                    </a>
                     <button
                       onClick={handleSettingsClick}
                       className="ml-2 p-1 rounded-full hover:bg-[#14A090]/10 transition-colors"
@@ -181,8 +186,7 @@ export function Header({ currentPage, project }: HeaderProps) {
                     >
                       <Settings className="h-4 w-4 text-[#14A090]" />
                     </button>
-                  </a>
-                  <div className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></div>
+                  </div>
                 </div>
               )}
             </nav>
