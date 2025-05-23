@@ -90,9 +90,6 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Neues Projekt erstellen</DialogTitle>
-          <DialogDescription>
-            Füge hier die Details deines neuen Projekts hinzu.
-          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
