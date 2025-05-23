@@ -35,7 +35,7 @@ export function ProjectNavigation({
               title={project.title}
             >
               {project.title.length > 40 ? `${project.title.substring(0, 35)}...` : project.title}
-              <div className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></div>
+              <span className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></span>
             </a>
             <button
               onClick={onSettingsClick}
