@@ -130,6 +130,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 required
                 className="transition-all duration-200"
                 disabled={isLoading}
+                autoFocus={false}
               />
             </div>
             <div className="space-y-2">
@@ -143,6 +144,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 placeholder="Projektbeschreibung"
                 className="h-32 transition-all duration-200"
                 disabled={isLoading}
+                autoFocus={false}
               />
             </div>
             <div className="flex justify-end gap-3">

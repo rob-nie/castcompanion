@@ -60,6 +60,7 @@ export const EditProjectForm = ({ project, onSuccess, onClose }: EditProjectForm
           className="w-full transition-all duration-200"
           required
           disabled={isSubmitting}
+          autoFocus={false}
         />
       </div>
       <div>
@@ -73,6 +74,7 @@ export const EditProjectForm = ({ project, onSuccess, onClose }: EditProjectForm
           className="w-full h-32 transition-all duration-200"
           placeholder="Projektbeschreibung"
           disabled={isSubmitting}
+          autoFocus={false}
         />
       </div>
       <div className="flex justify-end gap-2">
