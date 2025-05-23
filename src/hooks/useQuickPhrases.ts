@@ -13,6 +13,16 @@ type QuickPhrase = {
   user_id?: string; // Added user_id as optional since it comes from the database
 };
 
+// Define the shape of the data coming from Supabase
+type SupabaseQuickPhrase = {
+  id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  order?: number | null;
+};
+
 export const useQuickPhrases = () => {
   const { user } = useAuth();
   const [phrases, setPhrases] = useState<QuickPhrase[]>([]);
@@ -35,9 +45,13 @@ export const useQuickPhrases = () => {
       if (error) throw error;
       
       // Convert the data to ensure each item has the order property
-      const typedData = data.map(item => ({
-        ...item,
-        order: item.order === undefined ? null : item.order
+      const typedData = (data as SupabaseQuickPhrase[]).map(item => ({
+        id: item.id,
+        content: item.content,
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        order: item.order !== undefined ? item.order : null,
+        user_id: item.user_id
       })) as QuickPhrase[];
       
       setPhrases(typedData);
@@ -72,8 +86,12 @@ export const useQuickPhrases = () => {
       
       // Make sure the returned object has all required fields
       const newPhrase: QuickPhrase = {
-        ...data,
-        order: data.order !== undefined ? data.order : null
+        id: (data as SupabaseQuickPhrase).id,
+        content: (data as SupabaseQuickPhrase).content,
+        created_at: (data as SupabaseQuickPhrase).created_at,
+        updated_at: (data as SupabaseQuickPhrase).updated_at,
+        order: (data as SupabaseQuickPhrase).order !== undefined ? (data as SupabaseQuickPhrase).order : null,
+        user_id: (data as SupabaseQuickPhrase).user_id
       };
       
       setPhrases((prev) => [...prev, newPhrase]);
