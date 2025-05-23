@@ -36,16 +36,9 @@ export const MessageBubble = ({
         </span>
       )}
       
-      {/* Message with timestamp */}
-      <div className={`flex items-center gap-2 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'} max-w-[80%]`}>
-        {/* Zeitstempel nur anzeigen wenn showTimestamp true ist */}
-        {showTimestamp && (
-          <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC]">
-            {formatTime(message.created_at)}
-          </span>
-        )}
-        
-        {/* Message bubble */}
+      {/* Nachrichtencontainer mit Timestamp */}
+      <div className={`flex items-center ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'} max-w-[80%]`}>
+        {/* Nachricht */}
         <div 
           className={`p-3 ${
             isCurrentUser 
@@ -57,6 +50,13 @@ export const MessageBubble = ({
             {message.content}
           </p>
         </div>
+        
+        {/* Zeitstempel mit 10px Abstand zur Bubble */}
+        {showTimestamp && (
+          <span className={`text-[10px] text-[#7A9992] dark:text-[#CCCCCC] ${isCurrentUser ? 'mr-[10px]' : 'ml-[10px]'}`}>
+            {formatTime(message.created_at)}
+          </span>
+        )}
       </div>
     </div>
   );
