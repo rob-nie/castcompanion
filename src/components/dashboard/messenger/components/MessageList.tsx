@@ -127,7 +127,7 @@ export const MessageList = ({
 
   return (
     <div 
-      className="space-y-3"
+      className="px-4 space-y-3"
       ref={scrollContainerRef}
       style={{ overflowY: 'auto', height: '100%' }}
     >

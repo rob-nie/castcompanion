@@ -28,7 +28,7 @@ export const MessageBubble = ({
   };
 
   return (
-    <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'}`}>
+    <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'} w-full`}>
       {/* Benutzername nur für die erste Nachricht in einer Sequenz anzeigen */}
       {!isCurrentUser && isFirstInSequence && (
         <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1 ml-1">
@@ -37,7 +37,7 @@ export const MessageBubble = ({
       )}
       
       {/* Message with timestamp */}
-      <div className={`flex items-center gap-2 ${isCurrentUser ? 'flex-row' : 'flex-row-reverse'}`}>
+      <div className={`flex items-center gap-2 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'} max-w-[80%]`}>
         {/* Zeitstempel nur anzeigen wenn showTimestamp true ist */}
         {showTimestamp && (
           <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC]">
@@ -47,13 +47,13 @@ export const MessageBubble = ({
         
         {/* Message bubble */}
         <div 
-          className={`p-3 max-w-[80%] ${
+          className={`p-3 ${
             isCurrentUser 
               ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[0px] rounded-bl-[10px] rounded-br-[10px]' 
               : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[0px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]'
-          }`}
+          } break-words`}
         >
-          <p className="text-sm break-words">
+          <p className="text-sm">
             {message.content}
           </p>
         </div>
