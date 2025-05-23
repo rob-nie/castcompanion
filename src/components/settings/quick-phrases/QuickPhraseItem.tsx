@@ -39,6 +39,14 @@ export const QuickPhraseItem = ({
       {...provided.draggableProps}
       className={`flex items-center gap-2 ${snapshot.isDragging ? 'opacity-80' : ''}`}
     >
+      {/* Das Grip-Element wird jetzt immer angezeigt, unabhängig vom Bearbeitungsmodus */}
+      <div
+        {...provided.dragHandleProps}
+        className={`flex items-center justify-center h-[40px] w-[40px] text-[#7A9992] dark:text-[#CCCCCC] cursor-grab ${isDragging ? 'cursor-grabbing' : ''}`}
+      >
+        <GripVertical className="w-5 h-5" />
+      </div>
+      
       {editId === id ? (
         <>
           <Input 
@@ -64,12 +72,6 @@ export const QuickPhraseItem = ({
         </>
       ) : (
         <>
-          <div
-            {...provided.dragHandleProps}
-            className={`flex items-center justify-center h-[40px] w-[40px] text-[#7A9992] dark:text-[#CCCCCC] cursor-grab ${isDragging ? 'cursor-grabbing' : ''}`}
-          >
-            <GripVertical className="w-5 h-5" />
-          </div>
           <p className="flex-1 text-[14px] text-[#0A1915] dark:text-white border border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] p-2 h-[40px] flex items-center">
             {content}
           </p>
