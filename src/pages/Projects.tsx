@@ -154,19 +154,21 @@ const Projects = () => {
             )}
           </div>
           
-          {/* Add animation keyframes for staggered card appearance */}
-          <style jsx global>{`
-            @keyframes fadeInUp {
-              from {
-                opacity: 0;
-                transform: translateY(20px);
+          {/* Add animation keyframes in a standard style tag */}
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              @keyframes fadeInUp {
+                from {
+                  opacity: 0;
+                  transform: translateY(20px);
+                }
+                to {
+                  opacity: 1;
+                  transform: translateY(0);
+                }
               }
-              to {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
-          `}</style>
+            `
+          }} />
         </div>
       </main>
 
