@@ -162,6 +162,7 @@ export const useQuickPhrases = () => {
       }));
       
       for (const update of updates) {
+        // Fix: Use a properly typed object with only known properties
         const { error } = await supabase
           .from("quick_phrases")
           .update({ order: update.order })
