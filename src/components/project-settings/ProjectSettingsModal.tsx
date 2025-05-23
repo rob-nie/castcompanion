@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import type { Tables } from "@/integrations/supabase/types";
@@ -11,7 +12,7 @@ import { EditProjectForm } from "./EditProjectForm";
 import { ProjectMembers } from "./ProjectMembers";
 import { DeleteProjectButton } from "./DeleteProjectButton";
 import { LeaveProjectButton } from "./LeaveProjectButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ProjectSettingsModalProps {
   project: Tables<"projects">;
@@ -35,14 +36,20 @@ export const ProjectSettingsModal = ({
     onClose();
   };
   
+  // Set visibility when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsVisible(true);
+    }
+  }, [isOpen]);
+  
   const handleOpenChange = (open: boolean) => {
     if (!open) {
+      // Add a small delay before actually closing to allow fade-out animation
+      setIsVisible(false);
       setTimeout(() => {
         onClose();
-      }, 300); // Match the duration of the fade-out animation
-      setIsVisible(false);
-    } else {
-      setIsVisible(true);
+      }, 300);
     }
   };
 
@@ -51,9 +58,12 @@ export const ProjectSettingsModal = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Projekt Einstellungen</DialogTitle>
+          <DialogDescription>
+            Verwalte die Einstellungen für dein Projekt
+          </DialogDescription>
         </DialogHeader>
 
-        <div className={`transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="space-y-4 transition-opacity duration-300" style={{ opacity: isVisible ? 1 : 0 }}>
           {isOwner && <EditProjectForm project={project} onSuccess={onSuccess} onClose={onClose} />}
 
           <Separator className="my-4 bg-cast-moss-gray/50 dark:bg-cast-silver-gray/50" />
