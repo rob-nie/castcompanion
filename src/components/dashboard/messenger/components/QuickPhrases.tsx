@@ -9,7 +9,7 @@ interface QuickPhrase {
   content: string;
   created_at: string;
   updated_at: string;
-  order: number | null;
+  order?: number | null; // Made order optional
 }
 
 interface QuickPhrasesProps {

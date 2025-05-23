@@ -9,7 +9,7 @@ interface MessageInputProps {
   onSendMessage: (content: string) => Promise<void>;
   isProjectMember: boolean;
   isSending: boolean;
-  phrases: Array<{ id: string; content: string; created_at: string; updated_at: string }>;
+  phrases: Array<{ id: string; content: string; created_at: string; updated_at: string; order?: number | null }>;
 }
 
 export const MessageInput = ({
