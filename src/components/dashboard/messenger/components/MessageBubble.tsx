@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 
 interface Message {
@@ -15,11 +16,11 @@ interface MessageBubbleProps {
   showTimestamp: boolean;
 }
 
-export const MessageBubble = ({
-  message,
+export const MessageBubble = ({ 
+  message, 
   isCurrentUser,
   isFirstInSequence,
-  showTimestamp,
+  showTimestamp 
 }: MessageBubbleProps) => {
   // Funktion zur Formatierung des Zeitstempels im Format HH:MM
   const formatTime = (dateStr: string) => {
@@ -27,33 +28,34 @@ export const MessageBubble = ({
   };
 
   return (
-    <div className={`flex flex-col mb-2 ${isCurrentUser ? 'items-end' : 'items-start'}`}>
+    <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'}`}>
       {/* Benutzername nur für die erste Nachricht in einer Sequenz anzeigen */}
       {!isCurrentUser && isFirstInSequence && (
-        <span className="text-sm text-gray-600 mb-1">
+        <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1 ml-1">
           {message.sender_full_name || 'Unbekannt'}
         </span>
       )}
-
+      
       {/* Message with timestamp */}
-      <div className={`flex items-end ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'} gap-2`}>
-        {/* Zeitstempel nur anzeigen wenn showTimestamp true ist */}
+      <div className={`flex items-center gap-2 ${isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
+        {/* Zeitstempel */}
         {showTimestamp && (
-          <span className={`text-xs text-gray-500 ${isCurrentUser ? 'mr-1' : 'ml-1'}`}>
+          <span className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC]">
             {formatTime(message.created_at)}
           </span>
         )}
-
+        
         {/* Message bubble */}
-        <div
-          className={`relative p-2 rounded-lg shadow-md ${
-            isCurrentUser
-              ? 'bg-blue-500 text-white ml-auto'
-              : 'bg-gray-300 text-gray-800 mr-auto'
-          } max-w-[75%]`} {/* Hier wurde max-w-[75%] hinzugefügt */}
+        <div 
+          className={`p-3 max-w-[80%] ${
+            isCurrentUser 
+              ? 'bg-[#14A090] text-white rounded-tl-[10px] rounded-tr-[0px] rounded-bl-[10px] rounded-br-[10px]' 
+              : 'bg-[#DAE5E2] dark:bg-[#5E6664] text-[#0A1915] dark:text-white rounded-tl-[0px] rounded-tr-[10px] rounded-br-[10px] rounded-bl-[10px]'
+          }`}
         >
-          {/* Sicherstellen, dass der Inhalt umbricht */}
-          <p className="break-words">{message.content}</p>
+          <p className="text-sm break-words">
+            {message.content}
+          </p>
         </div>
       </div>
     </div>
