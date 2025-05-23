@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthProvider";
+import { Loader2 } from "lucide-react";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -91,7 +92,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         <DialogHeader>
           <DialogTitle>Neues Projekt erstellen</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 animate-in fade-in-50 duration-300">
           <div className="space-y-2">
             <label htmlFor="title" className="text-sm font-medium">
               Titel
@@ -102,6 +103,8 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Projekttitel"
               required
+              className="transition-all duration-200"
+              disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
@@ -113,15 +116,31 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Projektbeschreibung"
-              className="h-32"
+              className="h-32 transition-all duration-200"
+              disabled={isLoading}
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button variant="outline" type="button" onClick={onClose} className="border-[#7A9992] text-[#7A9992]">
+            <Button 
+              variant="outline" 
+              type="button" 
+              onClick={onClose} 
+              className="border-[#7A9992] text-[#7A9992]"
+              disabled={isLoading}
+            >
               Abbrechen
             </Button>
-            <Button type="submit" disabled={isLoading} className="bg-[#14A090] hover:bg-[#14A090]/90">
-              {isLoading ? "Wird erstellt..." : "Erstellen"}
+            <Button 
+              type="submit" 
+              disabled={isLoading} 
+              className="bg-[#14A090] hover:bg-[#14A090]/90 flex items-center"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Wird erstellt...
+                </>
+              ) : "Erstellen"}
             </Button>
           </div>
         </form>

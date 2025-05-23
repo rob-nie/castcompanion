@@ -7,10 +7,11 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { CreateProjectModal } from "@/components/CreateProjectModal";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Projects = () => {
   const { user, isLoading: authLoading } = useAuth();
@@ -19,6 +20,7 @@ const Projects = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   const fetchProjects = async () => {
     if (!user) return;
@@ -36,8 +38,6 @@ const Projects = () => {
       }
       
       // Fetch ALL projects - we'll let RLS handle the filtering
-      // This should include both owned projects and projects where user is a member
-      // thanks to the RLS policy using the is_project_member function
       const { data: allProjects, error: projectsError } = await supabase
         .from("projects")
         .select("*");
@@ -61,6 +61,8 @@ const Projects = () => {
       toast.error("Fehler beim Laden der Projekte");
     } finally {
       setIsLoading(false);
+      // Add a slight delay before showing content for smooth transition
+      setTimeout(() => setIsVisible(true), 300);
     }
   };
 
@@ -77,16 +79,27 @@ const Projects = () => {
   }, [user, navigate, authLoading]); 
 
   if (authLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Laden...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center">
+          <div className="w-16 h-16 border-4 border-[#14A090] border-t-transparent rounded-full animate-spin mb-4"></div>
+          <div className="text-[#7A9992] dark:text-[#CCCCCC] text-lg">Authentifizierung wird überprüft...</div>
+        </div>
+      </div>
+    );
   }
 
   if (!user) return null;
+  
+  const contentClassNames = isVisible 
+    ? "opacity-100 translate-y-0 transition-all duration-500 ease-out" 
+    : "opacity-0 translate-y-4 transition-all duration-500 ease-out";
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header currentPage="projects" />
       
-      <main className="flex-grow px-6 md:px-12 lg:px-24 py-16">
+      <main className={`flex-grow px-6 md:px-12 lg:px-24 py-16 ${contentClassNames}`}>
         <div className="mx-auto max-w-[1288px]">
           <div className="flex justify-between mb-6">
             <Button onClick={() => setIsModalOpen(true)} className="bg-[#14A090] hover:bg-[#14A090]/90">
@@ -96,7 +109,7 @@ const Projects = () => {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-[10px] mb-6">
+            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-[10px] mb-6 animate-in fade-in duration-300">
               <p className="font-medium">Fehler beim Laden der Projekte</p>
               <p className="text-sm">{error}</p>
             </div>
@@ -104,11 +117,14 @@ const Projects = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {isLoading ? (
-              <div className="col-span-full text-center py-8">
-                <p>Projekte werden geladen...</p>
-              </div>
+              // Loading skeletons for projects
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="h-[220px] rounded-[20px] overflow-hidden">
+                  <Skeleton className="h-full w-full" />
+                </div>
+              ))
             ) : projects.length === 0 ? (
-              <div className="col-span-full text-center py-12">
+              <div className="col-span-full text-center py-12 animate-in fade-in duration-300">
                 <h2 className="text-xl font-normal mb-4">
                   Erstelle dein erstes Projekt
                 </h2>
@@ -121,15 +137,36 @@ const Projects = () => {
                 </Button>
               </div>
             ) : (
-              projects.map((project) => (
-                <ProjectCard 
+              projects.map((project, index) => (
+                <div 
                   key={project.id} 
-                  project={project} 
-                  onUpdate={fetchProjects}
-                />
+                  className={`transition-all duration-500 ease-out opacity-0`}
+                  style={{ 
+                    animation: `fadeInUp 0.5s ease-out ${index * 0.1}s forwards` 
+                  }}
+                >
+                  <ProjectCard 
+                    project={project} 
+                    onUpdate={fetchProjects}
+                  />
+                </div>
               ))
             )}
           </div>
+          
+          {/* Add animation keyframes for staggered card appearance */}
+          <style jsx global>{`
+            @keyframes fadeInUp {
+              from {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+          `}</style>
         </div>
       </main>
 

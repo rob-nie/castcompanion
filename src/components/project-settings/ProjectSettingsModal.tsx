@@ -39,26 +39,28 @@ export const ProjectSettingsModal = ({
           <DialogTitle>Projekt Einstellungen</DialogTitle>
         </DialogHeader>
 
-        {isOwner && <EditProjectForm project={project} onSuccess={onSuccess} onClose={onClose} />}
+        <div className="animate-in fade-in-50 duration-300">
+          {isOwner && <EditProjectForm project={project} onSuccess={onSuccess} onClose={onClose} />}
 
-        <Separator className="my-4 bg-cast-moss-gray/50 dark:bg-cast-silver-gray/50" />
+          <Separator className="my-4 bg-cast-moss-gray/50 dark:bg-cast-silver-gray/50" />
 
-        <ProjectMembers projectId={project.id} isOwner={isOwner} />
+          <ProjectMembers projectId={project.id} isOwner={isOwner} />
 
-        <Separator className="my-4 bg-cast-moss-gray/50 dark:bg-cast-silver-gray/50" />
+          <Separator className="my-4 bg-cast-moss-gray/50 dark:bg-cast-silver-gray/50" />
 
-        <div className="flex justify-between pt-2">
-          {isOwner ? (
-            <DeleteProjectButton 
-              projectId={project.id}
-              onSuccess={handleActionSuccess}
-            />
-          ) : (
-            <LeaveProjectButton 
-              projectId={project.id}
-              onSuccess={handleActionSuccess}
-            />
-          )}
+          <div className="flex justify-between pt-2">
+            {isOwner ? (
+              <DeleteProjectButton 
+                projectId={project.id}
+                onSuccess={handleActionSuccess}
+              />
+            ) : (
+              <LeaveProjectButton 
+                projectId={project.id}
+                onSuccess={handleActionSuccess}
+              />
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
