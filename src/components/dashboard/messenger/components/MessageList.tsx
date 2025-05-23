@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useState } from "react";
 import { differenceInMinutes, differenceInDays, format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -127,7 +126,7 @@ export const MessageList = ({
 
   return (
     <div 
-      className="space-y-3"
+      className="space-y-3 px-3"
       ref={scrollContainerRef}
       style={{ overflowY: 'auto', height: '100%' }}
     >
