@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/context/AuthProvider";
 import type { Tables } from "@/integrations/supabase/types";
@@ -19,6 +20,7 @@ export function Header({ currentPage, project }: HeaderProps) {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isOwner, setIsOwner] = useState(true); // Default to true until we have a proper check
 
   const handleSettingsClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -77,7 +79,7 @@ export function Header({ currentPage, project }: HeaderProps) {
           isOpen={isSettingsModalOpen} 
           onClose={() => setIsSettingsModalOpen(false)}
           onSuccess={handleProjectUpdate}
-          isOwner={true} // Hier müsste idealerweise die Owner-Information aus dem Projekt oder vom Server ermittelt werden
+          isOwner={isOwner} 
         />
       )}
     </header>

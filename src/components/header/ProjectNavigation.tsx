@@ -30,7 +30,7 @@ export function ProjectNavigation({
         <div className="relative flex items-end">
           <div className="flex items-center">
             <a 
-              href={`/projects/${project.id}`}
+              href={`/project/${project.id}`}
               className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1 relative"
               title={project.title}
             >

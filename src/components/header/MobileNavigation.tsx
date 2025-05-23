@@ -22,8 +22,8 @@ export function MobileNavigation({
             "text-[#14A090] font-medium" : 
             "text-[#7A9992] dark:text-[#CCCCCC] font-normal"} 
             ${currentPage === "projects" && !project ? "after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full" : ""}
-          shadow-none !shadow-none [--tw-shadow:none]
-        `}
+            shadow-none !shadow-none [--tw-shadow:none]
+          `}
         >
           Meine Projekte
         </a>
@@ -31,7 +31,7 @@ export function MobileNavigation({
           <div className="relative flex items-end">
             <div className="flex items-center">
               <a 
-                href={`/projects/${project.id}`}
+                href={`/project/${project.id}`}
                 className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1 relative"
                 title={project.title}
               >
