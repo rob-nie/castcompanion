@@ -27,12 +27,60 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const { error } = await supabase
+      // First, delete all messages associated with the project
+      const { error: messagesError } = await supabase
+        .from("messages")
+        .delete()
+        .eq("project_id", projectId);
+      
+      if (messagesError) {
+        console.error("Error deleting project messages:", messagesError);
+        throw messagesError;
+      }
+      
+      // Then, delete all live notes associated with the project
+      const { error: liveNotesError } = await supabase
+        .from("live_notes")
+        .delete()
+        .eq("project_id", projectId);
+
+      if (liveNotesError) {
+        console.error("Error deleting project live notes:", liveNotesError);
+        throw liveNotesError;
+      }
+      
+      // Delete interview notes associated with the project
+      const { error: interviewNotesError } = await supabase
+        .from("interview_notes")
+        .delete()
+        .eq("project_id", projectId);
+        
+      if (interviewNotesError) {
+        console.error("Error deleting project interview notes:", interviewNotesError);
+        throw interviewNotesError;
+      }
+      
+      // Delete all project members
+      const { error: membersError } = await supabase
+        .from("project_members")
+        .delete()
+        .eq("project_id", projectId);
+
+      if (membersError) {
+        console.error("Error deleting project members:", membersError);
+        throw membersError;
+      }
+      
+      // Finally delete the project itself
+      const { error: projectError } = await supabase
         .from("projects")
         .delete()
         .eq("id", projectId);
 
-      if (error) throw error;
+      if (projectError) {
+        console.error("Error deleting project:", projectError);
+        throw projectError;
+      }
 
       toast.success("Projekt erfolgreich gelöscht");
       onSuccess();
@@ -62,6 +110,7 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
             <AlertDialogTitle>Projekt löschen</AlertDialogTitle>
             <AlertDialogDescription>
               Möchten Sie dieses Projekt wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+              Alle Mitglieder, Nachrichten und Notizen des Projekts werden dabei ebenfalls gelöscht.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
