@@ -54,7 +54,7 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
                 key={phrase.id}
                 onClick={() => onSelectPhrase(phrase.content)}
                 variant="outline"
-                className="w-full h-[40px] text-[14px] px-4 text-left justify-start text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] hover:bg-transparent hover:text-[#7A9992] hover:dark:text-[#CCCCCC]"
+                className="w-full h-[40px] text-[14px] px-4 text-left justify-start text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] hover:bg-muted hover:text-[#0A1915] dark:hover:bg-accent dark:hover:text-white transition-colors duration-200"
               >
                 {phrase.content}
               </Button>
