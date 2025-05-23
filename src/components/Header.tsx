@@ -44,11 +44,13 @@ export function Header({ currentPage, project }: HeaderProps) {
 
           {/* Center Navigation (only on desktop) */}
           {!isMobile && user && (
-            <ProjectNavigation 
-              currentPage={currentPage} 
-              project={project}
-              onSettingsClick={handleSettingsClick}
-            />
+            <div className="flex-grow flex justify-center">
+              <ProjectNavigation 
+                currentPage={currentPage} 
+                project={project}
+                onSettingsClick={handleSettingsClick}
+              />
+            </div>
           )}
 
           {/* Right Side Controls */}

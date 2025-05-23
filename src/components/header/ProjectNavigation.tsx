@@ -17,10 +17,10 @@ export function ProjectNavigation({
     <nav className="flex items-center justify-center">
       <a 
         href="/projects"
-        className={`relative text-sm mr-3 py-0 pb-1 ${currentPage === "projects" && !project ? 
+        className={`relative text-sm mr-3 py-1 ${currentPage === "projects" && !project ? 
           "text-[#14A090] font-medium" : 
           "text-[#7A9992] dark:text-[#CCCCCC] font-normal"} 
-          ${currentPage === "projects" && !project ? "after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-[-1px] after:rounded-full" : ""}
+          ${currentPage === "projects" && !project ? "after:absolute after:h-[3px] after:bg-[#14A090] after:left-0 after:right-0 after:bottom-0 after:rounded-full" : ""}
           shadow-none !shadow-none [--tw-shadow:none]
         `}
       >
@@ -31,11 +31,11 @@ export function ProjectNavigation({
           <div className="flex items-center">
             <a 
               href={`/project/${project.id}`}
-              className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1 relative"
+              className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate py-1 relative"
               title={project.title}
             >
               {project.title.length > 40 ? `${project.title.substring(0, 35)}...` : project.title}
-              <span className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></span>
+              <span className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-0 rounded-full"></span>
             </a>
             <button
               onClick={onSettingsClick}
