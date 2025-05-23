@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/context/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +14,7 @@ import {
 import { Settings, LogOut, UserIcon } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ProjectSettingsModal } from "./project-settings/ProjectSettingsModal";
 
 interface HeaderProps {
   currentPage?: string;
@@ -23,6 +25,7 @@ export function Header({ currentPage, project }: HeaderProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const handleLogoClick = () => {
     if (user) {
@@ -35,6 +38,18 @@ export function Header({ currentPage, project }: HeaderProps) {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
+  };
+
+  const handleSettingsClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsSettingsModalOpen(true);
+  };
+
+  const handleProjectUpdate = () => {
+    // Refresh der Seite oder State-Update könnte hier implementiert werden
+    // Für einfache Lösung reicht momentan ein Seiten-Refresh
+    window.location.reload();
   };
 
   return (
@@ -69,10 +84,17 @@ export function Header({ currentPage, project }: HeaderProps) {
                 <div className="relative flex items-end">
                   <a 
                     href={`/projects/${project.id}`}
-                    className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1"
+                    className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1 flex items-center"
                     title={project.title}
                   >
                     {project.title.length > 40 ? `${project.title.substring(0, 35)}...` : project.title}
+                    <button
+                      onClick={handleSettingsClick}
+                      className="ml-2 p-1 rounded-full hover:bg-[#14A090]/10 transition-colors"
+                      aria-label="Projekteinstellungen öffnen"
+                    >
+                      <Settings className="h-4 w-4 text-[#14A090]" />
+                    </button>
                   </a>
                   <div className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></div>
                 </div>
@@ -148,10 +170,17 @@ export function Header({ currentPage, project }: HeaderProps) {
                 <div className="relative flex items-end">
                   <a 
                     href={`/projects/${project.id}`}
-                    className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1"
+                    className="text-sm text-[#14A090] font-medium max-w-[40ch] truncate pb-1 flex items-center"
                     title={project.title}
                   >
                     {project.title.length > 40 ? `${project.title.substring(0, 40)}...` : project.title}
+                    <button
+                      onClick={handleSettingsClick}
+                      className="ml-2 p-1 rounded-full hover:bg-[#14A090]/10 transition-colors"
+                      aria-label="Projekteinstellungen öffnen"
+                    >
+                      <Settings className="h-4 w-4 text-[#14A090]" />
+                    </button>
                   </a>
                   <div className="absolute h-[3px] bg-[#14A090] left-0 right-0 bottom-[-1px] rounded-full"></div>
                 </div>
@@ -160,6 +189,17 @@ export function Header({ currentPage, project }: HeaderProps) {
           </div>
         )}
       </div>
+      
+      {/* Project Settings Modal */}
+      {project && (
+        <ProjectSettingsModal 
+          project={project} 
+          isOpen={isSettingsModalOpen} 
+          onClose={() => setIsSettingsModalOpen(false)}
+          onSuccess={handleProjectUpdate}
+          isOwner={true} // Hier müsste idealerweise die Owner-Information aus dem Projekt oder vom Server ermittelt werden
+        />
+      )}
     </header>
   );
 }

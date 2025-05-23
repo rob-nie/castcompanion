@@ -13,6 +13,7 @@ const ProjectDashboard = () => {
   const { projectId } = useParams();
   const [project, setProject] = useState<Tables<"projects"> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -34,6 +35,36 @@ const ProjectDashboard = () => {
       }
 
       setProject(data);
+
+      // Check if current user is owner
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Direct match with project creator
+        if (data?.user_id === user.id) {
+          setIsOwner(true);
+          setIsLoading(false);
+          return;
+        }
+
+        // Check if user is a member with owner role
+        const { data: memberData, error: memberError } = await supabase
+          .from("project_members")
+          .select("role")
+          .eq("project_id", projectId)
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (memberError) {
+          console.error("Error checking ownership:", memberError);
+        }
+
+        setIsOwner(memberData?.role === "owner");
+      } catch (error) {
+        console.error("Error checking ownership:", error);
+      }
+
       setIsLoading(false);
     };
 
