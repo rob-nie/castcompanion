@@ -4,6 +4,7 @@ import { differenceInMinutes, differenceInDays, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { MessageBubble } from "./MessageBubble";
 import type { Tables } from "@/integrations/supabase/types";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
   id: string;
@@ -127,9 +128,8 @@ export const MessageList = ({
 
   return (
     <div 
-      className="space-y-3" 
       ref={scrollContainerRef}
-      style={{ overflowY: 'auto', height: '100%' }}
+      className="space-y-3 overflow-y-auto h-full hide-scrollbar"
     >
       {messages.map((message, index) => {
         // Check if this message is the first from this sender in a sequence
@@ -179,3 +179,4 @@ export const MessageList = ({
     </div>
   );
 };
+

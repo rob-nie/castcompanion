@@ -35,7 +35,7 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
   return (
     <div className="h-full p-6 rounded-[20px] bg-background border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] flex flex-col">
       <div className="flex-1 min-h-0 flex flex-col">
-        {/* Scrollbarer Nachrichtenbereich */}
+        {/* Scrollbarer Nachrichtenbereich mit versteckter Scrollbar */}
         <div className="flex-1 overflow-hidden min-h-0">
           <MessageList
             messages={messages}
@@ -56,3 +56,4 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
     </div>
   );
 };
+
