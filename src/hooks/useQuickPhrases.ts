@@ -32,7 +32,8 @@ export const useQuickPhrases = () => {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      setPhrases(data || []);
+      // Cast the returned data to ensure it matches the QuickPhrase type
+      setPhrases(data as QuickPhrase[]);
     } catch (err: any) {
       setError(err.message);
       toast.error(`Fehler beim Laden der Schnellphrasen: ${err.message}`);
@@ -61,9 +62,10 @@ export const useQuickPhrases = () => {
         .single();
 
       if (error) throw error;
-      setPhrases((prev) => [...prev, data]);
+      // Ensure the returned data has the correct type
+      setPhrases((prev) => [...prev, data as QuickPhrase]);
       toast.success("Schnellphrase hinzugefügt");
-      return data;
+      return data as QuickPhrase;
     } catch (err: any) {
       toast.error(`Fehler beim Hinzufügen: ${err.message}`);
       return null;
