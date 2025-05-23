@@ -42,7 +42,7 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
           <ChevronDown className="h-4 w-4" />
         )}
       </CollapsibleTrigger>
-      <CollapsibleContent className="py-2">
+      <CollapsibleContent className="pt-2">
         {sortedPhrases.length === 0 ? (
           <p className="text-xs text-[#7A9992] dark:text-[#CCCCCC] py-1">
             Keine Schnellphrasen vorhanden.
