@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface EditProjectFormProps {
@@ -78,7 +77,6 @@ export const EditProjectForm = ({ project, onSuccess, onClose }: EditProjectForm
           Abbrechen
         </Button>
         <Button type="submit" disabled={isSubmitting} className="bg-[#14A090] hover:bg-[#14A090]/90">
-          <Settings className="mr-2 h-4 w-4" />
           Speichern
         </Button>
       </div>
