@@ -95,23 +95,72 @@
     height: 100%;
   }
 
+  /* Mesh gradient animations */
+  @keyframes meshGradientLight {
+    0%, 100% {
+      background: radial-gradient(ellipse 800px 600px at 30% 20%, #14A090, transparent),
+                  radial-gradient(ellipse 600px 800px at 70% 80%, #0A2550, transparent),
+                  radial-gradient(ellipse 1000px 400px at 80% 40%, #E6E6E6, transparent),
+                  radial-gradient(ellipse 400px 600px at 20% 70%, #E4E4E4, transparent);
+    }
+    25% {
+      background: radial-gradient(ellipse 900px 500px at 35% 25%, #14A090, transparent),
+                  radial-gradient(ellipse 500px 900px at 75% 75%, #0A2550, transparent),
+                  radial-gradient(ellipse 800px 500px at 85% 35%, #E6E6E6, transparent),
+                  radial-gradient(ellipse 500px 700px at 15% 75%, #E4E4E4, transparent);
+    }
+    50% {
+      background: radial-gradient(ellipse 700px 700px at 40% 30%, #14A090, transparent),
+                  radial-gradient(ellipse 700px 700px at 80% 70%, #0A2550, transparent),
+                  radial-gradient(ellipse 900px 600px at 90% 30%, #E6E6E6, transparent),
+                  radial-gradient(ellipse 600px 800px at 10% 80%, #E4E4E4, transparent);
+    }
+    75% {
+      background: radial-gradient(ellipse 800px 800px at 25% 35%, #14A090, transparent),
+                  radial-gradient(ellipse 800px 600px at 65% 85%, #0A2550, transparent),
+                  radial-gradient(ellipse 700px 700px at 75% 25%, #E6E6E6, transparent),
+                  radial-gradient(ellipse 700px 500px at 25% 65%, #E4E4E4, transparent);
+    }
+  }
+
+  @keyframes meshGradientDark {
+    0%, 100% {
+      background: radial-gradient(ellipse 800px 600px at 30% 20%, #14A090, transparent),
+                  radial-gradient(ellipse 600px 800px at 70% 80%, #CE9F7C, transparent),
+                  radial-gradient(ellipse 1000px 400px at 80% 40%, #252827, transparent),
+                  radial-gradient(ellipse 400px 600px at 20% 70%, #0C0D0D, transparent);
+    }
+    25% {
+      background: radial-gradient(ellipse 900px 500px at 35% 25%, #14A090, transparent),
+                  radial-gradient(ellipse 500px 900px at 75% 75%, #CE9F7C, transparent),
+                  radial-gradient(ellipse 800px 500px at 85% 35%, #252827, transparent),
+                  radial-gradient(ellipse 500px 700px at 15% 75%, #0C0D0D, transparent);
+    }
+    50% {
+      background: radial-gradient(ellipse 700px 700px at 40% 30%, #14A090, transparent),
+                  radial-gradient(ellipse 700px 700px at 80% 70%, #CE9F7C, transparent),
+                  radial-gradient(ellipse 900px 600px at 90% 30%, #252827, transparent),
+                  radial-gradient(ellipse 600px 800px at 10% 80%, #0C0D0D, transparent);
+    }
+    75% {
+      background: radial-gradient(ellipse 800px 800px at 25% 35%, #14A090, transparent),
+                  radial-gradient(ellipse 800px 600px at 65% 85%, #CE9F7C, transparent),
+                  radial-gradient(ellipse 700px 700px at 75% 25%, #252827, transparent),
+                  radial-gradient(ellipse 700px 500px at 25% 65%, #0C0D0D, transparent);
+    }
+  }
+
   body {
     @apply text-foreground font-inter;
     min-height: 100vh;
     margin: 0;
-    /* Light mode background with image - higher opacity and fallback */
-    background-color: #F9F9F9; /* Fallback color */
-    background-image: url('/lovable-uploads/b77764d7-aa49-446d-ac0e-08a33e96baef.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    /* Light mode mesh gradient background */
+    animation: meshGradientLight 20s ease-in-out infinite;
   }
 
-  /* Dark mode background without image */
+  /* Dark mode mesh gradient background */
   .dark body {
-    background-image: none;
-    background-color: #222625;
+    animation: meshGradientDark 20s ease-in-out infinite;
   }
 
   h1 {
