@@ -43,7 +43,7 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden bg-[#F9F9F9] dark:bg-[#222625] rounded-[20px]">    
+    <div className="h-full flex flex-col overflow-hidden tile-backdrop rounded-[20px]">    
       {/* Scrollbarer Nachrichtenbereich mit versteckter Scrollbar */}
       <div className="flex-1 overflow-hidden min-h-0">
         <MessageList
@@ -64,4 +64,3 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
     </div>
   );
 };
-
