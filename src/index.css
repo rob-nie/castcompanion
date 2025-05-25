@@ -95,9 +95,21 @@
   }
 
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply text-foreground font-inter;
     min-height: 100vh; /* Hinzugefügt (oder teste height: 100%;) */
     margin: 0; /* Hinzugefügt */
+    /* Light mode background with image */
+    background-image: url('/lovable-uploads/b77764d7-aa49-446d-ac0e-08a33e96baef.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  /* Dark mode background without image */
+  .dark body {
+    background-image: none;
+    background-color: #222625;
   }
 
   h1 {
