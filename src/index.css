@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 @tailwind base;
@@ -96,56 +97,116 @@
 
   /* Mesh gradient animations */
   @keyframes meshGradientLight {
-    0%, 100% {
-      background: radial-gradient(ellipse 500px 400px at 40% 40%, #14A090, transparent),
-                  radial-gradient(ellipse 450px 500px at 60% 60%, #0A2550, transparent),
+    0% {
+      background: radial-gradient(ellipse 500px 400px at 45% 40%, #14A090, transparent),
+                  radial-gradient(ellipse 450px 500px at 55% 60%, #0A2550, transparent),
                   radial-gradient(ellipse 1400px 1000px at 15% 25%, #E6E6E6, transparent),
                   radial-gradient(ellipse 1200px 1100px at 85% 75%, #E4E4E4, transparent);
     }
+    12.5% {
+      background: radial-gradient(ellipse 520px 420px at 50% 45%, #14A090, transparent),
+                  radial-gradient(ellipse 480px 520px at 50% 55%, #0A2550, transparent),
+                  radial-gradient(ellipse 1350px 1050px at 18% 22%, #E6E6E6, transparent),
+                  radial-gradient(ellipse 1250px 1050px at 82% 78%, #E4E4E4, transparent);
+    }
     25% {
-      background: radial-gradient(ellipse 580px 420px at 35% 50%, #14A090, transparent),
-                  radial-gradient(ellipse 520px 580px at 65% 50%, #0A2550, transparent),
+      background: radial-gradient(ellipse 540px 440px at 55% 50%, #14A090, transparent),
+                  radial-gradient(ellipse 510px 540px at 45% 50%, #0A2550, transparent),
                   radial-gradient(ellipse 1300px 1100px at 20% 20%, #E6E6E6, transparent),
                   radial-gradient(ellipse 1300px 1000px at 80% 80%, #E4E4E4, transparent);
     }
+    37.5% {
+      background: radial-gradient(ellipse 560px 460px at 60% 55%, #14A090, transparent),
+                  radial-gradient(ellipse 490px 510px at 40% 45%, #0A2550, transparent),
+                  radial-gradient(ellipse 1250px 1150px at 22% 18%, #E6E6E6, transparent),
+                  radial-gradient(ellipse 1350px 950px at 78% 82%, #E4E4E4, transparent);
+    }
     50% {
-      background: radial-gradient(ellipse 520px 520px at 60% 35%, #14A090, transparent),
-                  radial-gradient(ellipse 480px 480px at 40% 65%, #0A2550, transparent),
+      background: radial-gradient(ellipse 520px 520px at 55% 45%, #14A090, transparent),
+                  radial-gradient(ellipse 480px 480px at 45% 55%, #0A2550, transparent),
                   radial-gradient(ellipse 1200px 1200px at 25% 15%, #E6E6E6, transparent),
                   radial-gradient(ellipse 1400px 900px at 75% 85%, #E4E4E4, transparent);
     }
+    62.5% {
+      background: radial-gradient(ellipse 500px 500px at 50% 40%, #14A090, transparent),
+                  radial-gradient(ellipse 470px 490px at 50% 60%, #0A2550, transparent),
+                  radial-gradient(ellipse 1180px 1180px at 28% 18%, #E6E6E6, transparent),
+                  radial-gradient(ellipse 1380px 920px at 72% 82%, #E4E4E4, transparent);
+    }
     75% {
-      background: radial-gradient(ellipse 460px 460px at 65% 60%, #14A090, transparent),
-                  radial-gradient(ellipse 540px 460px at 35% 40%, #0A2550, transparent),
+      background: radial-gradient(ellipse 480px 480px at 45% 55%, #14A090, transparent),
+                  radial-gradient(ellipse 520px 460px at 55% 45%, #0A2550, transparent),
                   radial-gradient(ellipse 1350px 950px at 30% 30%, #E6E6E6, transparent),
                   radial-gradient(ellipse 1150px 1150px at 70% 70%, #E4E4E4, transparent);
+    }
+    87.5% {
+      background: radial-gradient(ellipse 490px 390px at 47% 42%, #14A090, transparent),
+                  radial-gradient(ellipse 460px 480px at 53% 58%, #0A2550, transparent),
+                  radial-gradient(ellipse 1380px 980px at 17% 27%, #E6E6E6, transparent),
+                  radial-gradient(ellipse 1180px 1120px at 83% 73%, #E4E4E4, transparent);
+    }
+    100% {
+      background: radial-gradient(ellipse 500px 400px at 45% 40%, #14A090, transparent),
+                  radial-gradient(ellipse 450px 500px at 55% 60%, #0A2550, transparent),
+                  radial-gradient(ellipse 1400px 1000px at 15% 25%, #E6E6E6, transparent),
+                  radial-gradient(ellipse 1200px 1100px at 85% 75%, #E4E4E4, transparent);
     }
   }
 
   @keyframes meshGradientDark {
-    0%, 100% {
-      background: radial-gradient(ellipse 500px 400px at 40% 40%, #14A090, transparent),
-                  radial-gradient(ellipse 450px 500px at 60% 60%, #CE9F7C, transparent),
+    0% {
+      background: radial-gradient(ellipse 500px 400px at 45% 40%, #14A090, transparent),
+                  radial-gradient(ellipse 450px 500px at 55% 60%, #CE9F7C, transparent),
                   radial-gradient(ellipse 1400px 1000px at 15% 25%, #252827, transparent),
                   radial-gradient(ellipse 1200px 1100px at 85% 75%, #0C0D0D, transparent);
     }
+    12.5% {
+      background: radial-gradient(ellipse 520px 420px at 50% 45%, #14A090, transparent),
+                  radial-gradient(ellipse 480px 520px at 50% 55%, #CE9F7C, transparent),
+                  radial-gradient(ellipse 1350px 1050px at 18% 22%, #252827, transparent),
+                  radial-gradient(ellipse 1250px 1050px at 82% 78%, #0C0D0D, transparent);
+    }
     25% {
-      background: radial-gradient(ellipse 580px 420px at 35% 50%, #14A090, transparent),
-                  radial-gradient(ellipse 520px 580px at 65% 50%, #CE9F7C, transparent),
+      background: radial-gradient(ellipse 540px 440px at 55% 50%, #14A090, transparent),
+                  radial-gradient(ellipse 510px 540px at 45% 50%, #CE9F7C, transparent),
                   radial-gradient(ellipse 1300px 1100px at 20% 20%, #252827, transparent),
                   radial-gradient(ellipse 1300px 1000px at 80% 80%, #0C0D0D, transparent);
     }
+    37.5% {
+      background: radial-gradient(ellipse 560px 460px at 60% 55%, #14A090, transparent),
+                  radial-gradient(ellipse 490px 510px at 40% 45%, #CE9F7C, transparent),
+                  radial-gradient(ellipse 1250px 1150px at 22% 18%, #252827, transparent),
+                  radial-gradient(ellipse 1350px 950px at 78% 82%, #0C0D0D, transparent);
+    }
     50% {
-      background: radial-gradient(ellipse 520px 520px at 60% 35%, #14A090, transparent),
-                  radial-gradient(ellipse 480px 480px at 40% 65%, #CE9F7C, transparent),
+      background: radial-gradient(ellipse 520px 520px at 55% 45%, #14A090, transparent),
+                  radial-gradient(ellipse 480px 480px at 45% 55%, #CE9F7C, transparent),
                   radial-gradient(ellipse 1200px 1200px at 25% 15%, #252827, transparent),
                   radial-gradient(ellipse 1400px 900px at 75% 85%, #0C0D0D, transparent);
     }
+    62.5% {
+      background: radial-gradient(ellipse 500px 500px at 50% 40%, #14A090, transparent),
+                  radial-gradient(ellipse 470px 490px at 50% 60%, #CE9F7C, transparent),
+                  radial-gradient(ellipse 1180px 1180px at 28% 18%, #252827, transparent),
+                  radial-gradient(ellipse 1380px 920px at 72% 82%, #0C0D0D, transparent);
+    }
     75% {
-      background: radial-gradient(ellipse 460px 460px at 65% 60%, #14A090, transparent),
-                  radial-gradient(ellipse 540px 460px at 35% 40%, #CE9F7C, transparent),
+      background: radial-gradient(ellipse 480px 480px at 45% 55%, #14A090, transparent),
+                  radial-gradient(ellipse 520px 460px at 55% 45%, #CE9F7C, transparent),
                   radial-gradient(ellipse 1350px 950px at 30% 30%, #252827, transparent),
                   radial-gradient(ellipse 1150px 1150px at 70% 70%, #0C0D0D, transparent);
+    }
+    87.5% {
+      background: radial-gradient(ellipse 490px 390px at 47% 42%, #14A090, transparent),
+                  radial-gradient(ellipse 460px 480px at 53% 58%, #CE9F7C, transparent),
+                  radial-gradient(ellipse 1380px 980px at 17% 27%, #252827, transparent),
+                  radial-gradient(ellipse 1180px 1120px at 83% 73%, #0C0D0D, transparent);
+    }
+    100% {
+      background: radial-gradient(ellipse 500px 400px at 45% 40%, #14A090, transparent),
+                  radial-gradient(ellipse 450px 500px at 55% 60%, #CE9F7C, transparent),
+                  radial-gradient(ellipse 1400px 1000px at 15% 25%, #252827, transparent),
+                  radial-gradient(ellipse 1200px 1100px at 85% 75%, #0C0D0D, transparent);
     }
   }
 
