@@ -7,7 +7,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%; /* #F9F9F9 */
+    --background: transparent; /* Changed from solid color to transparent */
     --foreground: 165 3% 6%; /* #0A1915 */
 
     --card: 0 0% 100%;
@@ -48,7 +48,7 @@
   }
 
   .dark {
-    --background: 160 4% 15%; /* #222625 */
+    --background: transparent; /* Changed from solid color to transparent */
     --foreground: 0 0% 100%; /* #FFFFFF */
 
     --card: 160 4% 15%; /* #222625 */
@@ -156,11 +156,14 @@
     margin: 0;
     /* Light mode mesh gradient background */
     animation: meshGradientLight 20s ease-in-out infinite;
+    /* Ensure the gradient is visible */
+    background-color: #F9F9F9;
   }
 
   /* Dark mode mesh gradient background */
   .dark body {
     animation: meshGradientDark 20s ease-in-out infinite;
+    background-color: #222625;
   }
 
   h1 {
