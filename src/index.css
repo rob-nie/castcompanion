@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 
 @tailwind base;
@@ -91,14 +92,15 @@
 
   html {
     font-family: 'Inter', sans-serif;
-    height: 100%; /* Hinzugefügt */
+    height: 100%;
   }
 
   body {
     @apply text-foreground font-inter;
-    min-height: 100vh; /* Hinzugefügt (oder teste height: 100%;) */
-    margin: 0; /* Hinzugefügt */
-    /* Light mode background with image */
+    min-height: 100vh;
+    margin: 0;
+    /* Light mode background with image - higher opacity and fallback */
+    background-color: #F9F9F9; /* Fallback color */
     background-image: url('/lovable-uploads/b77764d7-aa49-446d-ac0e-08a33e96baef.png');
     background-size: cover;
     background-position: center;
