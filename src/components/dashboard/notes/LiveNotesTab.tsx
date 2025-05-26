@@ -19,6 +19,10 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
     await createLiveNote(displayTime);
   };
 
+  const handleExportCSV = () => {
+    exportLiveNotesAsCSV(liveNotes);
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Nur auslösen, wenn kein Input- oder Textfeld aktiv ist
