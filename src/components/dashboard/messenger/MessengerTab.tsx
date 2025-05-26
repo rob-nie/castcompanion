@@ -42,8 +42,13 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
     }
   };
 
+  // Apply conditional classes for mobile view
+  const containerClasses = isMobile
+    ? "h-full flex flex-col overflow-hidden"
+    : "h-full flex flex-col overflow-hidden tile-backdrop rounded-[20px]";
+
   return (
-    <div className="h-full flex flex-col overflow-hidden tile-backdrop rounded-[20px]">    
+    <div className={containerClasses}>    
       {/* Scrollbarer Nachrichtenbereich mit versteckter Scrollbar */}
       <div className="flex-1 overflow-hidden min-h-0">
         <MessageList
