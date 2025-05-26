@@ -15,11 +15,8 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
   const { liveNotes, isLoading, createLiveNote, updateLiveNote, deleteLiveNote } = useLiveNotes(projectId);
 
   const handleCreateNote = async () => {
+    console.log("Creating live note with time marker:", displayTime);
     await createLiveNote(displayTime);
-  };
-
-  const handleExportCSV = () => {
-    exportLiveNotesAsCSV(liveNotes);
   };
 
   useEffect(() => {
@@ -36,7 +33,7 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTi
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleCreateNote]);
+  }, [displayTime]); // displayTime als Dependency hinzufügen
 
   // Sortiere nach Erstellungsdatum (älteste zuerst)
   const sortedLiveNotes = [...liveNotes].sort(

@@ -46,6 +46,11 @@ export const useLiveNotes = (projectId: string) => {
   const createLiveNote = async (timeMarker: number) => {
     if (!user) return null;
     
+    // Verwende Math.round um sicherzustellen, dass wir eine ganze Zahl haben
+    const roundedTimeMarker = Math.round(timeMarker);
+    
+    console.log('Creating live note with rounded time marker:', roundedTimeMarker);
+    
     try {
       const { data, error } = await supabase
         .from('live_notes')
@@ -53,7 +58,7 @@ export const useLiveNotes = (projectId: string) => {
           project_id: projectId,
           user_id: user.id,
           content: '',
-          time_marker: timeMarker
+          time_marker: roundedTimeMarker
         })
         .select()
         .single();
