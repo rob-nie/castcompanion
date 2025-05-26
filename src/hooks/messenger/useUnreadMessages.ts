@@ -9,7 +9,10 @@ export const useUnreadMessages = (projectId: string) => {
 
   // Funktion zum Laden der ungelesenen Nachrichten
   const fetchUnreadCount = async () => {
-    if (!user || !projectId) return;
+    if (!user || !projectId) {
+      setUnreadCount(0);
+      return;
+    }
 
     try {
       // Alle Nachrichten des Projekts abrufen
@@ -21,6 +24,7 @@ export const useUnreadMessages = (projectId: string) => {
 
       if (messagesError) {
         console.error("Error fetching messages:", messagesError);
+        setUnreadCount(0);
         return;
       }
 
@@ -38,15 +42,18 @@ export const useUnreadMessages = (projectId: string) => {
 
       if (readError) {
         console.error("Error fetching read status:", readError);
+        setUnreadCount(0);
         return;
       }
 
       const readMessageIds = new Set(readMessages?.map(r => r.message_id) || []);
       const unreadMessages = messages.filter(m => !readMessageIds.has(m.id));
       
+      console.log(`Unread messages count for project ${projectId}:`, unreadMessages.length);
       setUnreadCount(unreadMessages.length);
     } catch (error) {
       console.error("Error in fetchUnreadCount:", error);
+      setUnreadCount(0);
     }
   };
 
@@ -55,6 +62,8 @@ export const useUnreadMessages = (projectId: string) => {
     if (!user || !projectId) return;
 
     try {
+      console.log(`Marking all messages as read for project ${projectId} and user ${user.id}`);
+      
       // Alle Nachrichten des Projekts abrufen
       const { data: messages, error: messagesError } = await supabase
         .from("messages")
@@ -63,6 +72,12 @@ export const useUnreadMessages = (projectId: string) => {
 
       if (messagesError || !messages) {
         console.error("Error fetching messages:", messagesError);
+        return;
+      }
+
+      if (messages.length === 0) {
+        console.log("No messages found to mark as read");
+        setUnreadCount(0);
         return;
       }
 
@@ -82,6 +97,8 @@ export const useUnreadMessages = (projectId: string) => {
       const unreadMessages = messages.filter(m => !alreadyReadIds.has(m.id));
 
       if (unreadMessages.length > 0) {
+        console.log(`Marking ${unreadMessages.length} messages as read`);
+        
         // Neue Read-Status-Einträge erstellen
         const newReadStatuses = unreadMessages.map(message => ({
           message_id: message.id,
@@ -96,6 +113,10 @@ export const useUnreadMessages = (projectId: string) => {
           console.error("Error marking messages as read:", insertError);
           return;
         }
+        
+        console.log("Successfully marked messages as read");
+      } else {
+        console.log("All messages already marked as read");
       }
 
       setUnreadCount(0);
@@ -113,8 +134,10 @@ export const useUnreadMessages = (projectId: string) => {
   useEffect(() => {
     if (!projectId || !user) return;
 
+    console.log(`Setting up realtime subscription for project ${projectId}`);
+
     const channel = supabase
-      .channel('unread-messages')
+      .channel(`unread-messages-${projectId}`)
       .on(
         'postgres_changes',
         {
@@ -123,7 +146,8 @@ export const useUnreadMessages = (projectId: string) => {
           table: 'messages',
           filter: `project_id=eq.${projectId}`
         },
-        () => {
+        (payload) => {
+          console.log("New message received:", payload);
           fetchUnreadCount();
         }
       )
@@ -135,13 +159,15 @@ export const useUnreadMessages = (projectId: string) => {
           table: 'message_read_status',
           filter: `user_id=eq.${user.id}`
         },
-        () => {
+        (payload) => {
+          console.log("Message marked as read:", payload);
           fetchUnreadCount();
         }
       )
       .subscribe();
 
     return () => {
+      console.log(`Cleaning up realtime subscription for project ${projectId}`);
       supabase.removeChannel(channel);
     };
   }, [projectId, user]);

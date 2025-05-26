@@ -39,8 +39,14 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
   const unreadMessagesCount = isMobile ? unreadCount : 0;
 
   const handleMarkMessagesAsRead = async () => {
+    console.log("Context: markMessagesAsRead called");
     await markAllMessagesAsRead();
   };
+
+  // Log unread count changes for debugging
+  useEffect(() => {
+    console.log(`Unread messages count updated: ${unreadCount} (mobile: ${isMobile}, showing: ${unreadMessagesCount})`);
+  }, [unreadCount, isMobile, unreadMessagesCount]);
 
   return (
     <MessageNotificationContext.Provider 

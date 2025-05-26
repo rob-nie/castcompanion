@@ -22,22 +22,31 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
   const { phrases } = useQuickPhrases();
   const isMobile = useIsMobile();
   const { activeTab, markMessagesAsRead } = useMessageNotification();
+  const [hasMarkedAsRead, setHasMarkedAsRead] = useState(false);
 
-  // Mark messages as read when the component mounts and is the active tab
+  // Mark messages as read when the tab becomes active and messages are loaded
   useEffect(() => {
-    if (isMobile && activeTab === "messenger") {
-      console.log("Marking messages as read - MessengerTab active");
+    if (isMobile && activeTab === "messenger" && messages.length > 0 && !isLoading && !hasMarkedAsRead) {
+      console.log("MessengerTab is active and messages are loaded - marking as read");
+      markMessagesAsRead();
+      setHasMarkedAsRead(true);
+    }
+  }, [isMobile, activeTab, messages.length, isLoading, markMessagesAsRead, hasMarkedAsRead]);
+
+  // Reset the "hasMarkedAsRead" flag when switching away from messenger tab
+  useEffect(() => {
+    if (activeTab !== "messenger") {
+      setHasMarkedAsRead(false);
+    }
+  }, [activeTab]);
+
+  // Mark new messages as read when they arrive and tab is active
+  useEffect(() => {
+    if (isMobile && activeTab === "messenger" && messages.length > 0 && !isLoading) {
+      console.log("New messages detected while MessengerTab is active - marking as read");
       markMessagesAsRead();
     }
-  }, [isMobile, activeTab, markMessagesAsRead]);
-
-  // Mark messages as read when new messages arrive and tab is active
-  useEffect(() => {
-    if (isMobile && activeTab === "messenger" && messages.length > 0) {
-      console.log("New messages detected, marking as read - MessengerTab active");
-      markMessagesAsRead();
-    }
-  }, [messages, isMobile, activeTab, markMessagesAsRead]);
+  }, [messages.length, isMobile, activeTab, isLoading, markMessagesAsRead]);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || !isProjectMember) return;
