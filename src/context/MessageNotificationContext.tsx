@@ -33,7 +33,7 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
   });
   
   const isMobile = useIsMobile();
-  const { unreadCount, markAllMessagesAsRead } = useUnreadMessages(projectId);
+  const { unreadCount, markAllMessagesAsRead, refreshUnreadCount } = useUnreadMessages(projectId);
 
   // Nur in der mobilen Ansicht Unread-Nachrichten anzeigen
   const unreadMessagesCount = isMobile ? unreadCount : 0;
@@ -41,6 +41,23 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
   const handleMarkMessagesAsRead = async () => {
     console.log("Context: markMessagesAsRead called");
     await markAllMessagesAsRead();
+    // Nach dem Markieren als gelesen, aktualisiere den Count
+    setTimeout(() => {
+      refreshUnreadCount();
+    }, 200);
+  };
+
+  // Tab-Wechsel Handler
+  const handleSetActiveTab = (tab: TabType) => {
+    setActiveTab(tab);
+    localStorage.setItem("cast-companion-last-notes-tab", tab);
+    
+    // Wenn zum Messenger-Tab gewechselt wird, markiere Nachrichten als gelesen
+    if (tab === "messenger" && isMobile) {
+      setTimeout(() => {
+        handleMarkMessagesAsRead();
+      }, 100);
+    }
   };
 
   // Log unread count changes for debugging
@@ -53,7 +70,7 @@ export const MessageNotificationProvider: React.FC<MessageNotificationProviderPr
       value={{
         unreadMessagesCount,
         activeTab,
-        setActiveTab,
+        setActiveTab: handleSetActiveTab,
         markMessagesAsRead: handleMarkMessagesAsRead
       }}
     >

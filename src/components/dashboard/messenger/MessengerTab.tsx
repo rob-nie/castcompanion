@@ -22,27 +22,27 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
   const { phrases } = useQuickPhrases();
   const isMobile = useIsMobile();
   const { activeTab, markMessagesAsRead } = useMessageNotification();
-  const [hasMarkedAsRead, setHasMarkedAsRead] = useState(false);
+  const hasMarkedAsReadRef = useRef(false);
 
-  // Mark messages as read when the tab becomes active and messages are loaded
+  // Mark messages as read when tab becomes active and messages are loaded
   useEffect(() => {
-    if (isMobile && activeTab === "messenger" && messages.length > 0 && !isLoading && !hasMarkedAsRead) {
+    if (isMobile && activeTab === "messenger" && messages.length > 0 && !isLoading && !hasMarkedAsReadRef.current) {
       console.log("MessengerTab is active and messages are loaded - marking as read");
       markMessagesAsRead();
-      setHasMarkedAsRead(true);
+      hasMarkedAsReadRef.current = true;
     }
-  }, [isMobile, activeTab, messages.length, isLoading, markMessagesAsRead, hasMarkedAsRead]);
+  }, [isMobile, activeTab, messages.length, isLoading, markMessagesAsRead]);
 
   // Reset the "hasMarkedAsRead" flag when switching away from messenger tab
   useEffect(() => {
     if (activeTab !== "messenger") {
-      setHasMarkedAsRead(false);
+      hasMarkedAsReadRef.current = false;
     }
   }, [activeTab]);
 
   // Mark new messages as read when they arrive and tab is active
   useEffect(() => {
-    if (isMobile && activeTab === "messenger" && messages.length > 0 && !isLoading) {
+    if (isMobile && activeTab === "messenger" && messages.length > 0 && !isLoading && hasMarkedAsReadRef.current) {
       console.log("New messages detected while MessengerTab is active - marking as read");
       markMessagesAsRead();
     }

@@ -130,14 +130,15 @@ export const useUnreadMessages = (projectId: string) => {
     fetchUnreadCount();
   }, [projectId, user]);
 
-  // Realtime-Updates für neue Nachrichten
+  // Realtime-Updates für neue Nachrichten und read status
   useEffect(() => {
     if (!projectId || !user) return;
 
     console.log(`Setting up realtime subscription for project ${projectId}`);
 
-    const channel = supabase
-      .channel(`unread-messages-${projectId}`)
+    // Channel für neue Nachrichten in diesem Projekt
+    const messagesChannel = supabase
+      .channel(`project-messages-${projectId}`)
       .on(
         'postgres_changes',
         {
@@ -147,10 +148,18 @@ export const useUnreadMessages = (projectId: string) => {
           filter: `project_id=eq.${projectId}`
         },
         (payload) => {
-          console.log("New message received:", payload);
-          fetchUnreadCount();
+          console.log("New message received via realtime:", payload);
+          // Verzögerung um sicherzustellen, dass die Nachricht in der DB verfügbar ist
+          setTimeout(() => {
+            fetchUnreadCount();
+          }, 100);
         }
       )
+      .subscribe();
+
+    // Channel für Read Status Updates dieses Users
+    const readStatusChannel = supabase
+      .channel(`user-read-status-${user.id}`)
       .on(
         'postgres_changes',
         {
@@ -160,15 +169,19 @@ export const useUnreadMessages = (projectId: string) => {
           filter: `user_id=eq.${user.id}`
         },
         (payload) => {
-          console.log("Message marked as read:", payload);
-          fetchUnreadCount();
+          console.log("Message marked as read via realtime:", payload);
+          // Verzögerung um sicherzustellen, dass der Status in der DB verfügbar ist
+          setTimeout(() => {
+            fetchUnreadCount();
+          }, 100);
         }
       )
       .subscribe();
 
     return () => {
-      console.log(`Cleaning up realtime subscription for project ${projectId}`);
-      supabase.removeChannel(channel);
+      console.log(`Cleaning up realtime subscriptions for project ${projectId}`);
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(readStatusChannel);
     };
   }, [projectId, user]);
 
