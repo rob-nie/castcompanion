@@ -27,7 +27,23 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      // First, delete all messages associated with the project
+      // First, delete all message read status entries for messages in this project
+      const { error: readStatusError } = await supabase
+        .from("message_read_status")
+        .delete()
+        .in("message_id", 
+          supabase
+            .from("messages")
+            .select("id")
+            .eq("project_id", projectId)
+        );
+      
+      if (readStatusError) {
+        console.error("Error deleting message read status:", readStatusError);
+        throw readStatusError;
+      }
+      
+      // Then, delete all messages associated with the project
       const { error: messagesError } = await supabase
         .from("messages")
         .delete()
@@ -38,7 +54,7 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
         throw messagesError;
       }
       
-      // Then, delete all live notes associated with the project
+      // Delete all live notes associated with the project
       const { error: liveNotesError } = await supabase
         .from("live_notes")
         .delete()
@@ -58,6 +74,17 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
       if (interviewNotesError) {
         console.error("Error deleting project interview notes:", interviewNotesError);
         throw interviewNotesError;
+      }
+      
+      // Delete project timers associated with the project
+      const { error: timersError } = await supabase
+        .from("project_timers")
+        .delete()
+        .eq("project_id", projectId);
+
+      if (timersError) {
+        console.error("Error deleting project timers:", timersError);
+        throw timersError;
       }
       
       // Delete all project members
