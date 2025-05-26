@@ -104,9 +104,8 @@
     overflow-x: hidden;
   }
 
-  /* Animated blob background for light mode */
-  body::before {
-    content: '';
+  /* Blob outer container - equivalent to your .blob-outer-container */
+  .blob-outer-container {
     position: fixed;
     height: 100%;
     width: 100%;
@@ -117,10 +116,10 @@
     pointer-events: none;
   }
 
-  body::after {
-    content: '';
+  /* Blob inner container - equivalent to your .blob-inner-container */
+  .blob-inner-container {
     border-radius: 99999px;
-    position: fixed;
+    position: absolute;
     inset: 0;
     margin: auto;
     width: 100vw;
@@ -129,32 +128,29 @@
     overflow: hidden;
     background-color: #101010;
     transform: scale(0.5);
-    z-index: -1;
-    pointer-events: none;
   }
 
-  .blob-light {
-    position: fixed;
+  /* The actual blob with gradient - equivalent to your .blob */
+  .blob {
+    position: absolute;
     width: 100vw;
     height: 100vh;
     inset: 0;
     margin: auto;
     background: conic-gradient(from 0deg, #14A090, #799A8E, #0A2550, #F9F9F9, #0A2550, #388F6F, #14A090);
     animation: spinBlob 120s linear infinite;
-    z-index: -1;
-    pointer-events: none;
   }
 
-  /* Dark mode animated blob background */
+  /* Dark mode changes */
   .dark body {
     background-color: #252827;
   }
 
-  .dark body::after {
+  .dark .blob-inner-container {
     background-color: #fff;
   }
 
-  .dark .blob-light {
+  .dark .blob {
     background: conic-gradient(from 0deg, #14A090, #799A8E, #CE9F7C, #252827, #66DBCE, #E4CBB8, #388F6F);
   }
 

@@ -100,8 +100,12 @@ const ProjectDashboard = () => {
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
-      {/* Add the animated blob */}
-      <div className="blob-light"></div>
+      {/* Animated blob background with correct structure */}
+      <div className="blob-outer-container">
+        <div className="blob-inner-container">
+          <div className="blob"></div>
+        </div>
+      </div>
       
       <Header currentPage="projects" project={project} />
       
