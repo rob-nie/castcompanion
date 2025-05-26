@@ -4,7 +4,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { Tables } from "@/integrations/supabase/types";
 import { LiveNotesTab } from "./notes/LiveNotesTab";
 import { InterviewNotesTab } from "./notes/InterviewNotesTab";
-import { useTimer } from "./watch/useTimer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MessengerTab } from "./messenger/MessengerTab";
 import { MessageNotificationProvider, useMessageNotification } from "@/context/MessageNotificationContext";
@@ -14,7 +13,6 @@ interface NotesTileProps {
 }
 
 const NotesTabsContent = ({ project }: NotesTileProps) => {
-  const { displayTime } = useTimer(project.id);
   const isMobile = useIsMobile();
   const { 
     activeTab, 
@@ -77,7 +75,7 @@ const NotesTabsContent = ({ project }: NotesTileProps) => {
         </TabsList>
         <div className="flex-1 overflow-hidden min-h-0">
           <TabsContent value="live-notes" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
-            <LiveNotesTab projectId={project.id} displayTime={displayTime} />
+            <LiveNotesTab projectId={project.id} />
           </TabsContent>
           <TabsContent value="interview-notes" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
             <InterviewNotesTab projectId={project.id} />

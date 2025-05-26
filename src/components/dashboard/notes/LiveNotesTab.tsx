@@ -4,15 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Plus, Download } from 'lucide-react';
 import { LiveNoteItem } from './LiveNoteItem';
 import { useLiveNotes } from '@/hooks/useLiveNotes';
+import { useTimer } from '../watch/useTimer';
 import { exportLiveNotesAsCSV } from '@/utils/exportUtils';
 
 interface LiveNotesTabProps {
   projectId: string;
-  displayTime: number;
 }
 
-export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId, displayTime }) => {
+export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId }) => {
   const { liveNotes, isLoading, createLiveNote, updateLiveNote, deleteLiveNote } = useLiveNotes(projectId);
+  const { displayTime } = useTimer(projectId);
 
   const handleCreateNote = async () => {
     console.log("Creating live note with time marker:", displayTime);
