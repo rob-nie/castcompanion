@@ -36,7 +36,7 @@ const NotesTabsContent = ({ project }: NotesTileProps) => {
 
   // Apply conditional classes for mobile view
   const tileClasses = isMobile
-    ? "h-full tile-backdrop flex flex-col overflow-hidden"
+    ? "h-full flex flex-col overflow-hidden"
     : "h-full p-6 rounded-[20px] tile-backdrop border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] flex flex-col overflow-hidden";
 
   return (

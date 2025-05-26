@@ -32,8 +32,13 @@ export const MessengerTile = ({ project }: MessengerTileProps) => {
     }
   };
 
+  // Apply conditional classes for mobile view
+  const tileClasses = isMobile
+    ? "h-full flex flex-col"
+    : "h-full p-6 rounded-[20px] tile-backdrop border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] flex flex-col";
+
   return (
-    <div className="h-full p-6 rounded-[20px] tile-backdrop border-[0.5px] border-[#CCCCCC] dark:border-[#5E6664] flex flex-col">
+    <div className={tileClasses}>
       <div className="flex-1 min-h-0 flex flex-col">
         {/* Scrollbarer Nachrichtenbereich mit versteckter Scrollbar */}
         <div className="flex-1 overflow-hidden min-h-0">
