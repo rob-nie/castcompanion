@@ -31,6 +31,14 @@ export const MessengerTab = ({ project }: MessengerTabProps) => {
     }
   }, [isMobile, activeTab, markMessagesAsRead]);
 
+  // Mark messages as read when new messages arrive and tab is active
+  useEffect(() => {
+    if (isMobile && activeTab === "messenger" && messages.length > 0) {
+      console.log("New messages detected, marking as read - MessengerTab active");
+      markMessagesAsRead();
+    }
+  }, [messages, isMobile, activeTab, markMessagesAsRead]);
+
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || !isProjectMember) return;
     
