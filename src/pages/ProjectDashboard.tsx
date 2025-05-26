@@ -100,6 +100,9 @@ const ProjectDashboard = () => {
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
+      {/* Add the animated blob */}
+      <div className="blob-light"></div>
+      
       <Header currentPage="projects" project={project} />
       
       <main className={`flex-1 px-6 md:px-6 lg:px-6 xl:px-24 py-6 overflow-hidden mb-[48px] ${contentClassNames}`}>
