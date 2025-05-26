@@ -27,7 +27,10 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      // First, get all message IDs for this project
+      console.log("Starting project deletion for:", projectId);
+      
+      // Step 1: Delete message read status entries first
+      console.log("Deleting message read status entries...");
       const { data: messages, error: messagesQueryError } = await supabase
         .from("messages")
         .select("id")
@@ -38,9 +41,10 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
         throw messagesQueryError;
       }
       
-      // If there are messages, delete their read status entries
       if (messages && messages.length > 0) {
         const messageIds = messages.map(msg => msg.id);
+        console.log("Found messages to clean up:", messageIds.length);
+        
         const { error: readStatusError } = await supabase
           .from("message_read_status")
           .delete()
@@ -50,42 +54,50 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
           console.error("Error deleting message read status:", readStatusError);
           throw readStatusError;
         }
+        console.log("Message read status entries deleted successfully");
       }
       
-      // Then, delete all messages associated with the project
+      // Step 2: Delete all messages
+      console.log("Deleting messages...");
       const { error: messagesError } = await supabase
         .from("messages")
         .delete()
         .eq("project_id", projectId);
       
       if (messagesError) {
-        console.error("Error deleting project messages:", messagesError);
+        console.error("Error deleting messages:", messagesError);
         throw messagesError;
       }
+      console.log("Messages deleted successfully");
       
-      // Delete all live notes associated with the project
+      // Step 3: Delete live notes
+      console.log("Deleting live notes...");
       const { error: liveNotesError } = await supabase
         .from("live_notes")
         .delete()
         .eq("project_id", projectId);
 
       if (liveNotesError) {
-        console.error("Error deleting project live notes:", liveNotesError);
+        console.error("Error deleting live notes:", liveNotesError);
         throw liveNotesError;
       }
+      console.log("Live notes deleted successfully");
       
-      // Delete interview notes associated with the project
+      // Step 4: Delete interview notes
+      console.log("Deleting interview notes...");
       const { error: interviewNotesError } = await supabase
         .from("interview_notes")
         .delete()
         .eq("project_id", projectId);
         
       if (interviewNotesError) {
-        console.error("Error deleting project interview notes:", interviewNotesError);
+        console.error("Error deleting interview notes:", interviewNotesError);
         throw interviewNotesError;
       }
+      console.log("Interview notes deleted successfully");
       
-      // Delete project timers associated with the project
+      // Step 5: Delete project timers
+      console.log("Deleting project timers...");
       const { error: timersError } = await supabase
         .from("project_timers")
         .delete()
@@ -95,8 +107,10 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
         console.error("Error deleting project timers:", timersError);
         throw timersError;
       }
+      console.log("Project timers deleted successfully");
       
-      // Delete all project members
+      // Step 6: Delete project members
+      console.log("Deleting project members...");
       const { error: membersError } = await supabase
         .from("project_members")
         .delete()
@@ -106,8 +120,10 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
         console.error("Error deleting project members:", membersError);
         throw membersError;
       }
+      console.log("Project members deleted successfully");
       
-      // Finally delete the project itself
+      // Step 7: Finally delete the project itself
+      console.log("Deleting project...");
       const { error: projectError } = await supabase
         .from("projects")
         .delete()
@@ -117,6 +133,7 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
         console.error("Error deleting project:", projectError);
         throw projectError;
       }
+      console.log("Project deleted successfully");
 
       toast.success("Projekt erfolgreich gelöscht");
       onSuccess();
