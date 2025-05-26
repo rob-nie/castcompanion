@@ -27,20 +27,29 @@ export const DeleteProjectButton = ({ projectId, onSuccess }: DeleteProjectButto
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      // First, delete all message read status entries for messages in this project
-      const { error: readStatusError } = await supabase
-        .from("message_read_status")
-        .delete()
-        .in("message_id", 
-          supabase
-            .from("messages")
-            .select("id")
-            .eq("project_id", projectId)
-        );
+      // First, get all message IDs for this project
+      const { data: messages, error: messagesQueryError } = await supabase
+        .from("messages")
+        .select("id")
+        .eq("project_id", projectId);
       
-      if (readStatusError) {
-        console.error("Error deleting message read status:", readStatusError);
-        throw readStatusError;
+      if (messagesQueryError) {
+        console.error("Error fetching message IDs:", messagesQueryError);
+        throw messagesQueryError;
+      }
+      
+      // If there are messages, delete their read status entries
+      if (messages && messages.length > 0) {
+        const messageIds = messages.map(msg => msg.id);
+        const { error: readStatusError } = await supabase
+          .from("message_read_status")
+          .delete()
+          .in("message_id", messageIds);
+        
+        if (readStatusError) {
+          console.error("Error deleting message read status:", readStatusError);
+          throw readStatusError;
+        }
       }
       
       // Then, delete all messages associated with the project
