@@ -137,7 +137,7 @@
     height: 100vh;
     inset: 0;
     margin: auto;
-    background: conic-gradient(from 0deg, #14A090, #799A8E, #0A2550, #F9F9F9, #0A2550, #388F6F, #14A090);
+    background: conic-gradient(from 0deg, #14A090, #0A2550, #F9F9F9, #0A2550, #388F6F, #14A090);
     animation: spinBlob 120s linear infinite;
   }
 
