@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useInterval } from "@/hooks/useInterval";
@@ -23,7 +24,8 @@ export const useTimer = (projectId: string) => {
     isSyncing,
     lastSyncTime: Date.now(),
     syncInProgress: false,
-    pendingChanges: false
+    pendingChanges: false,
+    optimisticUpdateId: 0
   });
   
   // Update reference whenever state changes
@@ -143,7 +145,7 @@ export const useTimer = (projectId: string) => {
     // Initialize timer data
     initializeTimer();
     
-    // Set up realtime subscription with robust error handling
+    // Set up realtime subscription with optimized error handling
     const setupRealtimeSubscription = () => {
       try {
         channel = supabase
@@ -162,9 +164,14 @@ export const useTimer = (projectId: string) => {
               try {
                 const newData = payload.new as any;
                 
-                // Ignore our own updates
-                if (stateRef.current.pendingChanges) {
+                // Check if this is our own update to avoid processing it
+                const currentUpdateId = stateRef.current.optimisticUpdateId;
+                if (stateRef.current.pendingChanges && currentUpdateId > 0) {
                   stateRef.current.pendingChanges = false;
+                  stateRef.current.optimisticUpdateId = 0;
+                  // Immediately clear syncing state for our own updates
+                  setIsSyncing(false);
+                  stateRef.current.syncInProgress = false;
                   return;
                 }
                 
@@ -190,9 +197,11 @@ export const useTimer = (projectId: string) => {
                 
                 stateRef.current.lastSyncTime = Date.now();
                 setIsSyncing(false);
+                stateRef.current.syncInProgress = false;
               } catch (error) {
                 console.error("Error processing realtime update:", error);
                 setIsSyncing(false);
+                stateRef.current.syncInProgress = false;
               }
             }
           )
@@ -208,45 +217,45 @@ export const useTimer = (projectId: string) => {
               setIsConnected(false);
               console.error("Nicht mit Echtzeit-Updates verbunden:", status);
               
-              // Retry connection after delay
+              // Retry connection after shorter delay
               setTimeout(() => {
                 if (mounted) {
                   setupRealtimeSubscription();
                 }
-              }, 5000);
+              }, 2000);
             } else if (status === 'TIMED_OUT') {
               setIsConnected(false);
               console.error("Verbindung zur Echtzeit-Aktualisierung zeitüberschreitung:", status);
               
-              // Retry connection after delay
+              // Retry connection after shorter delay
               setTimeout(() => {
                 if (mounted) {
                   setupRealtimeSubscription();
                 }
-              }, 5000);
+              }, 2000);
             }
           });
       } catch (err) {
         console.error("Error setting up realtime subscription:", err);
         setIsConnected(false);
         
-        // Retry subscription setup
+        // Retry subscription setup with shorter delay
         setTimeout(() => {
           if (mounted) {
             setupRealtimeSubscription();
           }
-        }, 5000);
+        }, 2000);
       }
     };
     
     // Set up realtime subscription
     setupRealtimeSubscription();
     
-    // Periodic re-sync for safety
+    // Optimized periodic re-sync for safety
     const syncInterval = setInterval(() => {
-      // If timer is running and last sync was more than 30 seconds ago, re-sync
+      // If timer is running and last sync was more than 15 seconds ago, re-sync
       if (stateRef.current.isRunning && 
-          Date.now() - stateRef.current.lastSyncTime > 30000 && 
+          Date.now() - stateRef.current.lastSyncTime > 15000 && 
           !stateRef.current.syncInProgress) {
         syncWithServer();
       }
@@ -255,7 +264,7 @@ export const useTimer = (projectId: string) => {
       if (!isConnected && channel) {
         setupRealtimeSubscription();
       }
-    }, 30000);
+    }, 15000); // Reduced from 30s to 15s
     
     // Cleanup
     return () => {
@@ -269,16 +278,16 @@ export const useTimer = (projectId: string) => {
     };
   }, [projectId]);
 
-  // Update the display time continuously while running
+  // Update the display time continuously while running with optimized interval
   useInterval(() => {
     if (stateRef.current.isRunning && stateRef.current.startTime) {
       const currentTime = new Date().getTime();
       const start = new Date(stateRef.current.startTime).getTime();
       setDisplayTime(stateRef.current.accumulatedTime + (currentTime - start));
     }
-  }, stateRef.current.isRunning ? 50 : null); // More responsive updates
+  }, stateRef.current.isRunning ? 100 : null); // Slightly increased from 50ms to 100ms for better performance
 
-  // Function to update server state with robust error handling
+  // Optimized function to update server state
   const updateServerState = async (newState: {
     is_running?: boolean;
     start_time?: string | null;
@@ -289,7 +298,9 @@ export const useTimer = (projectId: string) => {
       return false;
     }
     
-    // Mark update as pending to avoid processing our own realtime update
+    // Generate unique update ID and mark update as pending
+    const updateId = Date.now();
+    stateRef.current.optimisticUpdateId = updateId;
     stateRef.current.pendingChanges = true;
     stateRef.current.syncInProgress = true;
     setIsSyncing(true);
@@ -311,6 +322,7 @@ export const useTimer = (projectId: string) => {
         console.error("Error updating timer:", error);
         stateRef.current.pendingChanges = false;
         stateRef.current.syncInProgress = false;
+        stateRef.current.optimisticUpdateId = 0;
         setIsSyncing(false);
         
         toast({
@@ -325,20 +337,22 @@ export const useTimer = (projectId: string) => {
       // Update last sync time
       stateRef.current.lastSyncTime = Date.now();
       
-      // Keep syncing state until we receive real-time update or timeout
+      // Reduced timeout for faster response - realtime should handle clearing sync state
       setTimeout(() => {
-        if (stateRef.current.syncInProgress) {
+        if (stateRef.current.syncInProgress && stateRef.current.optimisticUpdateId === updateId) {
           stateRef.current.syncInProgress = false;
           stateRef.current.pendingChanges = false;
+          stateRef.current.optimisticUpdateId = 0;
           setIsSyncing(false);
         }
-      }, 3000); // Timeout safety
+      }, 1000); // Reduced from 3000ms to 1000ms
       
       return true;
     } catch (error) {
       console.error("Unexpected error updating timer:", error);
       stateRef.current.pendingChanges = false;
       stateRef.current.syncInProgress = false;
+      stateRef.current.optimisticUpdateId = 0;
       setIsSyncing(false);
       
       toast({
@@ -351,7 +365,7 @@ export const useTimer = (projectId: string) => {
     }
   };
 
-  // Toggle timer state with optimistic UI update
+  // Optimized toggle timer function
   const toggleTimer = async () => {
     if (stateRef.current.syncInProgress) {
       console.warn("Sync in progress, cannot toggle timer");
@@ -394,7 +408,7 @@ export const useTimer = (projectId: string) => {
     }
   };
 
-  // Reset timer with optimistic UI update
+  // Optimized reset timer function
   const resetTimer = async () => {
     if (stateRef.current.syncInProgress) {
       console.warn("Sync in progress, cannot reset timer");
@@ -415,7 +429,7 @@ export const useTimer = (projectId: string) => {
     });
   };
 
-  // Manual synchronization function
+  // Manual synchronization function with faster execution
   const syncWithServer = async () => {
     if (stateRef.current.syncInProgress) {
       console.warn("Sync already in progress");
