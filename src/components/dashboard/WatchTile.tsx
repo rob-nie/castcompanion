@@ -169,8 +169,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
           : 'linear-gradient(135deg, #14A090, #0A2550)'
       }}
     >
-      {!isConnected && (
-      )}
+      {!isConnected &&}
       <div className="text-white h-full flex flex-col items-center justify-between">
         <div className="w-full px-3">
           <TimerControls 
