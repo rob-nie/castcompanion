@@ -170,7 +170,6 @@ export const WatchTile = ({ project }: WatchTileProps) => {
       }}
     >
       {!isConnected && (
-        <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 animate-pulse"></div>
       )}
       <div className="text-white h-full flex flex-col items-center justify-between">
         <div className="w-full px-3">
