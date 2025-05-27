@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { TimerControls } from "./watch/TimerControls";
@@ -14,9 +13,22 @@ interface WatchTileProps {
 export const WatchTile = ({ project }: WatchTileProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isDarkMode, setIsDarkMode] = useState(false);
+  
+  // Optimistische UI-Zustände für sofortige Reaktion
+  const [optimisticIsRunning, setOptimisticIsRunning] = useState<boolean | null>(null);
+  const [optimisticLastAction, setOptimisticLastAction] = useState<'toggle' | 'reset' | null>(null);
+  
   // Nutze den verbesserten Timer-Hook mit Verbindungsstatus
   const { isRunning, displayTime, toggleTimer, resetTimer, isSyncing, isConnected } = useTimer(project.id);
   const isMobile = useIsMobile();
+
+  // Reset optimistic state when server state changes or sync completes
+  useEffect(() => {
+    if (!isSyncing && optimisticIsRunning !== null) {
+      setOptimisticIsRunning(null);
+      setOptimisticLastAction(null);
+    }
+  }, [isSyncing, isRunning, optimisticIsRunning]);
 
   useEffect(() => {
     const timeInterval = setInterval(() => {
@@ -52,15 +64,25 @@ export const WatchTile = ({ project }: WatchTileProps) => {
     };
   }, []);
 
-  // Memoized event handler für bessere Performance
+  // Optimized event handler mit optimistischer UI-Aktualisierung
   const handleToggle = useCallback(() => {
     if (!isSyncing) {
+      // Sofortige optimistische UI-Aktualisierung
+      setOptimisticIsRunning(!isRunning);
+      setOptimisticLastAction('toggle');
+      
+      // Tatsächliche Aktion ausführen
       toggleTimer();
     }
-  }, [toggleTimer, isSyncing]);
+  }, [toggleTimer, isSyncing, isRunning]);
 
   const handleReset = useCallback(() => {
     if (!isSyncing) {
+      // Sofortige optimistische UI-Aktualisierung
+      setOptimisticIsRunning(false);
+      setOptimisticLastAction('reset');
+      
+      // Tatsächliche Aktion ausführen
       resetTimer();
     }
   }, [resetTimer, isSyncing]);
@@ -72,20 +94,24 @@ export const WatchTile = ({ project }: WatchTileProps) => {
     }
   }, []);
 
+  // Bestimme den aktuellen Zustand (optimistisch oder real)
+  const currentIsRunning = optimisticIsRunning !== null ? optimisticIsRunning : isRunning;
+  const showSyncingState = isSyncing && optimisticLastAction !== null;
+
   if (isMobile) {
     return (
       <div className="flex items-center h-10">
-        {/* Play/Pause Button - mit verbesserten Touch-Handlern */}
+        {/* Play/Pause Button - mit optimistischer UI */}
         <div 
           role="button"
           tabIndex={0}
-          aria-label={isRunning ? "Pause" : "Play"}
+          aria-label={currentIsRunning ? "Pause" : "Play"}
           onClick={handleToggle}
           onTouchEnd={handleToggle} 
           onKeyDown={handleKeyDown(handleToggle)}
           className={`h-10 w-10 flex items-center justify-center rounded-full 
-            ${isSyncing ? 'bg-[#14A090]/70 cursor-not-allowed' : 'bg-[#14A090] cursor-pointer active:bg-[#118174]'}
-            text-white transition-colors`}
+            ${showSyncingState ? 'bg-[#14A090]/70 cursor-not-allowed' : 'bg-[#14A090] cursor-pointer active:bg-[#118174]'}
+            text-white transition-colors duration-150`}
           style={{ 
             WebkitTapHighlightColor: 'transparent',
             touchAction: 'manipulation',
@@ -93,12 +119,12 @@ export const WatchTile = ({ project }: WatchTileProps) => {
             userSelect: 'none'
           }}
         >
-          {isSyncing ? (
+          {showSyncingState ? (
             <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-          ) : isRunning ? (
+          ) : currentIsRunning ? (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
               <path d="M10 4H6v16h4V4z"/><path d="M18 4h-4v16h4V4z"/>
             </svg>
@@ -119,14 +145,14 @@ export const WatchTile = ({ project }: WatchTileProps) => {
           }}
         >
           <div
-            className="font-inter font-bold text-[20px] text-white text-center"
+            className="font-inter font-bold text-[20px] text-white text-center transition-opacity duration-150"
             style={{ fontVariantNumeric: "tabular-nums" }}
           >
             {formatTime(displayTime)}
           </div>
         </div>
         
-        {/* Reset Button - mit verbesserten Touch-Handlern */}
+        {/* Reset Button - mit optimistischer UI */}
         <div
           role="button"
           tabIndex={0}
@@ -135,8 +161,8 @@ export const WatchTile = ({ project }: WatchTileProps) => {
           onTouchEnd={handleReset}
           onKeyDown={handleKeyDown(handleReset)}
           className={`h-10 w-10 flex items-center justify-center rounded-full 
-            ${isSyncing ? 'bg-[#14A090]/70 cursor-not-allowed' : 'bg-[#14A090] cursor-pointer active:bg-[#118174]'}
-            text-white transition-colors`}
+            ${showSyncingState && optimisticLastAction === 'reset' ? 'bg-[#14A090]/70 cursor-not-allowed' : 'bg-[#14A090] cursor-pointer active:bg-[#118174]'}
+            text-white transition-colors duration-150`}
           style={{ 
             WebkitTapHighlightColor: 'transparent',
             touchAction: 'manipulation',
@@ -144,7 +170,7 @@ export const WatchTile = ({ project }: WatchTileProps) => {
             userSelect: 'none'
           }}
         >
-          {isSyncing ? (
+          {showSyncingState && optimisticLastAction === 'reset' ? (
             <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -172,12 +198,13 @@ export const WatchTile = ({ project }: WatchTileProps) => {
       <div className="text-white h-full flex flex-col items-center justify-between">
         <div className="w-full px-3">
           <TimerControls 
-            isRunning={isRunning} 
+            isRunning={currentIsRunning} 
             displayTime={displayTime}
             onToggle={handleToggle} 
             onReset={handleReset}
             isMobile={false}
-            isSyncing={isSyncing}
+            isSyncing={showSyncingState}
+            optimisticLastAction={optimisticLastAction}
           />
         </div>
         <TimeDisplay currentTime={currentTime} />
