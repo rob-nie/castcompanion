@@ -126,7 +126,7 @@
     height: 100vh;
     min-width: 1000px;
     overflow: hidden;
-    background-color: #101010;
+    background-color: #F9F9F9;
     transform: scale(0.5);
   }
 
@@ -147,7 +147,7 @@
   }
 
   .dark .blob-inner-container {
-    background-color: #fff;
+    background-color: #252827;
   }
 
   .dark .blob {
