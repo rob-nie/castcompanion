@@ -30,32 +30,17 @@ export const MessageList = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [hasInitialScrolled, setHasInitialScrolled] = useState(false);
-  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
+  const previousMessageCountRef = useRef(0);
   
-  // Funktion zur Überprüfung, ob der Benutzer nahe am unteren Rand des Scroll-Bereichs ist
-  const isNearBottom = () => {
+  // Funktion zur Überprüfung, ob der Benutzer am unteren Rand des Scroll-Bereichs ist
+  const isAtBottom = () => {
     const container = scrollContainerRef.current;
     if (!container) return true;
     
-    const threshold = 100; // Pixel vom unteren Rand, die Auto-Scroll auslösen
+    const threshold = 10; // Kleine Toleranz für Pixel-Unterschiede
     const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
     return distanceFromBottom <= threshold;
   };
-
-  // Überwache Scroll-Events, um zu bestimmen, ob auto-scrolling erfolgen soll
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    
-    const handleScroll = () => {
-      setShouldScrollToBottom(isNearBottom());
-    };
-    
-    container.addEventListener('scroll', handleScroll);
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   // Funktion zum Scrollen zum Ende der Liste
   const scrollToBottom = (smooth = false) => {
@@ -71,6 +56,7 @@ export const MessageList = ({
       setTimeout(() => {
         scrollToBottom(false); // false = kein smooth scrolling (direkter Sprung)
         setHasInitialScrolled(true);
+        previousMessageCountRef.current = messages.length;
       }, 0);
     }
   }, [messages.length, isLoading, hasInitialScrolled]);
@@ -78,12 +64,26 @@ export const MessageList = ({
   // Bei neuen Nachrichten prüfen, ob gescrollt werden soll (nur nach dem initialen Laden)
   useEffect(() => {
     if (!isLoading && messages.length > 0 && hasInitialScrolled) {
-      // Nur scrollen wenn der Benutzer bereits nahe am unteren Rand ist
-      if (shouldScrollToBottom) {
-        scrollToBottom(true); // true = smooth scrolling für bessere UX
+      const hasNewMessages = messages.length > previousMessageCountRef.current;
+      
+      if (hasNewMessages) {
+        // Überprüfen ob der Benutzer vor der neuen Nachricht am Ende war
+        const wasAtBottom = isAtBottom();
+        
+        // Aktualisiere die Nachrichtenanzahl für zukünftige Vergleiche
+        previousMessageCountRef.current = messages.length;
+        
+        // Nur scrollen wenn der Benutzer bereits am Ende war
+        if (wasAtBottom) {
+          // Kurze Verzögerung um sicherzustellen, dass die neue Nachricht gerendert wurde
+          setTimeout(() => {
+            scrollToBottom(true); // true = smooth scrolling für bessere UX
+          }, 50);
+        }
+        // Wenn der Benutzer nicht am Ende war, zeigen wir die neue Nachricht an, scrollen aber nicht
       }
     }
-  }, [messages.length, isLoading, hasInitialScrolled, shouldScrollToBottom]);
+  }, [messages.length, isLoading, hasInitialScrolled]);
 
   if (isLoading) {
     return (
