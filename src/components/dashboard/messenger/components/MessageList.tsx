@@ -31,7 +31,7 @@ export const MessageList = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Zustandsvariablen
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [hasInitiallyScrolled, setHasInitiallyScrolled] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
@@ -39,87 +39,121 @@ export const MessageList = ({
   // Refs für Tracking
   const lastMessageCount = useRef(0);
   const userScrollTimer = useRef<NodeJS.Timeout>();
-  const lastScrollPosition = useRef(0);
+  const isScrollingProgrammatically = useRef(false);
+  const lastKnownScrollHeight = useRef(0);
 
-  // Hilfsfunktion: Ist User am Ende?
+  // Robuste Scroll-to-Bottom Funktion
+  const scrollToBottom = useCallback((smooth = false) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    console.log('🔄 ScrollToBottom called, smooth:', smooth);
+    
+    // Flag setzen um programmatisches Scrollen zu markieren
+    isScrollingProgrammatically.current = true;
+    
+    // Mehrere Versuche für robustes Scrollen
+    const performScroll = () => {
+      const maxScrollTop = container.scrollHeight - container.clientHeight;
+      console.log(`📍 Scrolling to: ${maxScrollTop} (height: ${container.scrollHeight})`);
+      
+      if (smooth) {
+        container.scrollTo({
+          top: maxScrollTop,
+          behavior: 'smooth'
+        });
+      } else {
+        container.scrollTop = maxScrollTop;
+      }
+      
+      lastKnownScrollHeight.current = container.scrollHeight;
+    };
+    
+    // Sofort ausführen
+    performScroll();
+    
+    // Nach kurzer Zeit nochmal prüfen (für Layout-Shifts)
+    setTimeout(() => {
+      if (container.scrollHeight !== lastKnownScrollHeight.current) {
+        console.log('📐 Layout changed, adjusting scroll');
+        performScroll();
+      }
+      isScrollingProgrammatically.current = false;
+    }, 100);
+    
+  }, []);
+
+  // Prüfung ob am Ende
   const isAtBottom = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return true;
     
     const { scrollTop, scrollHeight, clientHeight } = container;
-    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
-    return distanceFromBottom <= 100; // 100px Toleranz
-  }, []);
-
-  // Hilfsfunktion: Scroll zum Ende
-  const scrollToBottom = useCallback((smooth = true) => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    const maxScrollTop = scrollHeight - clientHeight;
+    const distanceFromBottom = maxScrollTop - scrollTop;
     
-    if (smooth) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      });
-    } else {
-      container.scrollTop = container.scrollHeight;
-    }
+    return distanceFromBottom <= 50; // Nur 50px Toleranz
   }, []);
 
-  // Scroll Event Handler (throttled)
+  // Scroll Event Handler
   const handleScroll = useCallback(() => {
+    // Ignoriere programmatisches Scrollen 
+    if (isScrollingProgrammatically.current) {
+      console.log('⏭️ Ignoring programmatic scroll');
+      return;
+    }
+    
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const currentPosition = container.scrollTop;
-    const { scrollHeight, clientHeight } = container;
-    const distanceFromBottom = scrollHeight - (currentPosition + clientHeight);
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const maxScrollTop = scrollHeight - clientHeight;
+    const distanceFromBottom = maxScrollTop - scrollTop;
 
-    // Erkennung von User-Scroll (nur wenn sich Position tatsächlich ändert)
-    if (Math.abs(currentPosition - lastScrollPosition.current) > 5) {
+    console.log(`📊 Scroll: ${scrollTop}, Max: ${maxScrollTop}, Distance: ${distanceFromBottom}`);
+
+    // User-Scroll nur erkennen wenn wirklich vom Ende weg gescrollt wird
+    if (distanceFromBottom > 100 && !isUserScrolling) {
+      console.log('👆 User scroll detected');
       setIsUserScrolling(true);
       
-      // Timer zurücksetzen
       if (userScrollTimer.current) {
         clearTimeout(userScrollTimer.current);
       }
       
-      // Nach 3 Sekunden Inaktivität: User-Scroll deaktivieren
       userScrollTimer.current = setTimeout(() => {
+        console.log('⏰ User scroll timeout - resuming autoscroll');
         setIsUserScrolling(false);
       }, 3000);
-      
-      lastScrollPosition.current = currentPosition;
     }
 
-    // Scroll-Button und Unread-Counter verwalten
-    if (distanceFromBottom <= 100) {
-      // Am Ende - alles zurücksetzen
+    // Button und Counter Management
+    if (distanceFromBottom <= 50) {
       setShowScrollButton(false);
       setUnreadCount(0);
     } else if (unreadCount > 0) {
-      // Nicht am Ende und ungelesene Nachrichten - Button zeigen
       setShowScrollButton(true);
     }
-  }, [unreadCount]);
+  }, [isUserScrolling, unreadCount]);
 
-  // Throttled Scroll Handler
+  // Throttled Scroll Listener
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    let ticking = false;
+    let isThrottled = false;
     const throttledHandler = () => {
-      if (!ticking) {
+      if (!isThrottled) {
+        isThrottled = true;
         requestAnimationFrame(() => {
           handleScroll();
-          ticking = false;
+          isThrottled = false;
         });
-        ticking = true;
       }
     };
 
     container.addEventListener('scroll', throttledHandler, { passive: true });
+    
     return () => {
       container.removeEventListener('scroll', throttledHandler);
       if (userScrollTimer.current) {
@@ -128,70 +162,104 @@ export const MessageList = ({
     };
   }, [handleScroll]);
 
-  // Erstes Laden - sofort zum Ende scrollen
+  // Initialer Scroll - sehr robust
   useEffect(() => {
-    if (!isLoading && messages.length > 0 && !isInitialized) {
-      // Kurz warten bis DOM gerendert ist
-      setTimeout(() => {
-        scrollToBottom(false); // Ohne Animation für ersten Load
-        setIsInitialized(true);
-        lastMessageCount.current = messages.length;
-      }, 50);
+    if (isLoading || messages.length === 0) return;
+    
+    if (!hasInitiallyScrolled) {
+      console.log('🚀 Initial scroll setup');
+      
+      // Mehrere Versuche mit steigenden Delays
+      const attempts = [50, 150, 300];
+      
+      attempts.forEach((delay, index) => {
+        setTimeout(() => {
+          const container = scrollContainerRef.current;
+          if (container && !hasInitiallyScrolled) {
+            console.log(`🎯 Initial scroll attempt ${index + 1}`);
+            scrollToBottom(false);
+            
+            if (index === attempts.length - 1) {
+              setHasInitiallyScrolled(true);
+              lastMessageCount.current = messages.length;
+            }
+          }
+        }, delay);
+      });
     }
-  }, [messages.length, isLoading, isInitialized, scrollToBottom]);
+  }, [messages.length, isLoading, hasInitiallyScrolled, scrollToBottom]);
 
-  // Neue Nachrichten behandeln
+  // Neue Nachrichten Handler
   useEffect(() => {
-    if (!isInitialized || isLoading || messages.length <= lastMessageCount.current) {
-      return; // Keine neuen Nachrichten
-    }
-
+    if (!hasInitiallyScrolled || isLoading) return;
+    
     const newMessageCount = messages.length - lastMessageCount.current;
+    if (newMessageCount <= 0) return;
+
     const lastMessage = messages[messages.length - 1];
     const isMyMessage = lastMessage?.sender_id === currentUserId;
 
-    console.log(`Neue Nachrichten: ${newMessageCount}, Eigene: ${isMyMessage}, User scrollt: ${isUserScrolling}`);
+    console.log(`📨 New messages: ${newMessageCount}, Mine: ${isMyMessage}, UserScrolling: ${isUserScrolling}`);
 
-    // Regel 1: Eigene Nachrichten - IMMER scrollen
+    // Update count first
+    lastMessageCount.current = messages.length;
+
     if (isMyMessage) {
+      // Eigene Nachricht - IMMER scrollen
+      console.log('📤 Own message - force scroll');
       setTimeout(() => {
         scrollToBottom(true);
         setUnreadCount(0);
         setShowScrollButton(false);
-      }, 100);
-    }
-    // Regel 2: Fremde Nachrichten - nur scrollen wenn am Ende und nicht user-scrolling
-    else if (isAtBottom() && !isUserScrolling) {
+      }, 50);
+    } else if (isAtBottom() && !isUserScrolling) {
+      // Am Ende und User scrollt nicht - autoscroll
+      console.log('📥 Auto-scroll to new message');
       setTimeout(() => {
         scrollToBottom(true);
-      }, 100);
-    }
-    // Regel 3: Sonst Unread-Counter erhöhen
-    else {
+      }, 50);
+    } else {
+      // Unread indicator zeigen
+      console.log('🔔 Show unread indicator');
       setUnreadCount(prev => prev + newMessageCount);
       setShowScrollButton(true);
     }
-
-    lastMessageCount.current = messages.length;
-  }, [messages.length, currentUserId, isInitialized, isLoading, isAtBottom, scrollToBottom, isUserScrolling]);
+  }, [messages.length, currentUserId, hasInitiallyScrolled, isLoading, isAtBottom, scrollToBottom, isUserScrolling]);
 
   // Button Click Handler
   const handleScrollButtonClick = useCallback(() => {
+    console.log('🔘 Scroll button clicked');
     scrollToBottom(true);
     setUnreadCount(0);
     setShowScrollButton(false);
   }, [scrollToBottom]);
 
-  // Cleanup
+  // Debug: Scroll Position Monitoring
   useEffect(() => {
-    return () => {
-      if (userScrollTimer.current) {
-        clearTimeout(userScrollTimer.current);
-      }
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const logPosition = () => {
+      console.log(`📍 Position: ${container.scrollTop}/${container.scrollHeight - container.clientHeight}`);
     };
+
+    // Log position changes
+    const observer = new MutationObserver(() => {
+      if (container.scrollHeight !== lastKnownScrollHeight.current) {
+        console.log(`📐 Height changed: ${lastKnownScrollHeight.current} → ${container.scrollHeight}`);
+        lastKnownScrollHeight.current = container.scrollHeight;
+      }
+    });
+
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+
+    return () => observer.disconnect();
   }, []);
 
-  // Loading State
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -200,7 +268,6 @@ export const MessageList = ({
     );
   }
 
-  // Error State
   if (error) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -209,7 +276,6 @@ export const MessageList = ({
     );
   }
 
-  // Empty State
   if (messages.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -218,7 +284,6 @@ export const MessageList = ({
     );
   }
 
-  // Hilfsfunktion für Datumsformatierung
   const formatDateHeader = (dateStr: string) => {
     const date = new Date(dateStr);
     const today = new Date();
@@ -235,7 +300,7 @@ export const MessageList = ({
 
   return (
     <div className="relative h-full flex flex-col">
-      {/* Scroll-zu-neuen-Nachrichten Button */}
+      {/* Scroll Button */}
       {showScrollButton && (
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
           <button
@@ -248,10 +313,15 @@ export const MessageList = ({
         </div>
       )}
       
-      {/* Nachrichten Container */}
+      {/* Messages Container */}
       <div 
         ref={scrollContainerRef}
         className="space-y-3 overflow-y-auto h-full hide-scrollbar flex-1"
+        style={{
+          // Verhindert Layout-Shifts
+          scrollBehavior: 'auto',
+          overflowAnchor: 'none'
+        }}
       >
         {messages.map((message, index) => {
           const isFirstInSequence = index === 0 || 
@@ -269,8 +339,7 @@ export const MessageList = ({
           const isSentByMe = message.sender_id === currentUserId;
           
           return (
-            <div key={message.id} className="space-y-3">
-              {/* Datumstrenner */}
+            <div key={message.id}>
               {showDateSeparator && (
                 <div className="flex justify-center my-4">
                   <div className="px-3 py-1 text-xs rounded-full bg-[#DAE5E2] dark:bg-[#5E6664] text-[#7A9992] dark:text-[#CCCCCC]">
@@ -279,18 +348,18 @@ export const MessageList = ({
                 </div>
               )}
               
-              {/* Nachrichtenbubble */}
-              <MessageBubble
-                message={message}
-                isCurrentUser={isSentByMe}
-                isFirstInSequence={isFirstInSequence}
-                showTimestamp={true}
-              />
+              <div className="space-y-3">
+                <MessageBubble
+                  message={message}
+                  isCurrentUser={isSentByMe}
+                  isFirstInSequence={isFirstInSequence}
+                  showTimestamp={true}
+                />
+              </div>
             </div>
           );
         })}
         
-        {/* Scroll-Anker */}
         <div ref={messagesEndRef} />
       </div>
     </div>
