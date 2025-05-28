@@ -1,5 +1,5 @@
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { differenceInMinutes, differenceInDays, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { MessageBubble } from "./MessageBubble";
@@ -33,101 +33,155 @@ export const MessageList = ({
   const [hasInitialScrolled, setHasInitialScrolled] = useState(false);
   const previousMessageCountRef = useRef(0);
   const [unreadCount, setUnreadCount] = useState(0);
-  const lastMessageIdRef = useRef<string | null>(null);
+  const [userScrollPaused, setUserScrollPaused] = useState(false);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const userScrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const lastUserScrollRef = useRef<number>(0);
   
-  // Funktion zur Überprüfung, ob der Benutzer am unteren Rand des Scroll-Bereichs ist
-  const isAtBottom = () => {
+  // Throttle scroll events to 60fps
+  const throttledScrollHandler = useCallback(() => {
+    let ticking = false;
+    
+    return () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const container = scrollContainerRef.current;
+          if (!container) return;
+          
+          const scrollTop = container.scrollTop;
+          const scrollHeight = container.scrollHeight;
+          const clientHeight = container.clientHeight;
+          const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+          
+          // Check if user is near bottom (within last 2-3 messages, roughly 200px)
+          const isNearBottom = distanceFromBottom <= 200;
+          
+          // Show scroll-to-bottom button if > 500px from bottom AND unread messages exist
+          setShowScrollToBottom(distanceFromBottom > 500 && unreadCount > 0);
+          
+          // If user scrolled manually, pause autoscroll
+          const now = Date.now();
+          if (now - lastUserScrollRef.current > 100) { // Debounce user scrolls
+            setUserScrollPaused(true);
+            
+            // Clear existing timeout
+            if (userScrollTimeoutRef.current) {
+              clearTimeout(userScrollTimeoutRef.current);
+            }
+            
+            // Resume autoscroll after 4 seconds of no user interaction
+            userScrollTimeoutRef.current = setTimeout(() => {
+              setUserScrollPaused(false);
+            }, 4000);
+            
+            lastUserScrollRef.current = now;
+          }
+          
+          // Clear unread count if user is at bottom
+          if (isNearBottom && unreadCount > 0) {
+            setUnreadCount(0);
+          }
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+  }, [unreadCount]);
+
+  // Check if user is near bottom of conversation
+  const isNearBottom = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return true;
     
-    const threshold = 50; // Toleranz für "am Ende"
-    const distanceFromBottom = container.scrollHeight - (container.scrollTop + container.clientHeight);
-    return distanceFromBottom <= threshold;
-  };
+    const scrollTop = container.scrollTop;
+    const scrollHeight = container.scrollHeight;
+    const clientHeight = container.clientHeight;
+    const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+    
+    // Consider "near bottom" as within last 2-3 messages (roughly 200px)
+    return distanceFromBottom <= 200;
+  }, []);
 
-  // Funktion zum Scrollen zum Ende der Liste
-  const scrollToBottom = (smooth = false) => {
+  // Smooth scroll to bottom
+  const scrollToBottom = useCallback((behavior: 'smooth' | 'auto' = 'smooth') => {
     messagesEndRef.current?.scrollIntoView({ 
-      behavior: smooth ? "smooth" : "auto" 
+      behavior,
+      block: 'end'
     });
-  };
+  }, []);
 
-  // Beim initialen Laden direkt zur neuesten Nachricht springen
+  // Handle scroll to new messages button click
+  const handleScrollToNewMessages = useCallback(() => {
+    scrollToBottom('smooth');
+    setUnreadCount(0);
+    setShowScrollToBottom(false);
+  }, [scrollToBottom]);
+
+  // Initial scroll on load
   useEffect(() => {
     if (!isLoading && messages.length > 0 && !hasInitialScrolled) {
       setTimeout(() => {
-        scrollToBottom(false);
+        scrollToBottom('auto');
         setHasInitialScrolled(true);
         previousMessageCountRef.current = messages.length;
-        if (messages.length > 0) {
-          lastMessageIdRef.current = messages[messages.length - 1].id;
-        }
-      }, 0);
+      }, 100);
     }
-  }, [messages.length, isLoading, hasInitialScrolled]);
+  }, [messages.length, isLoading, hasInitialScrolled, scrollToBottom]);
 
-  // Neue Nachrichten-Logik
+  // Handle new messages
   useEffect(() => {
     if (!isLoading && messages.length > 0 && hasInitialScrolled) {
       const hasNewMessages = messages.length > previousMessageCountRef.current;
       
       if (hasNewMessages) {
-        const newMessages = messages.slice(previousMessageCountRef.current);
-        const lastNewMessage = newMessages[newMessages.length - 1];
-        const isMyMessage = lastNewMessage.sender_id === currentUserId;
+        const newMessagesCount = messages.length - previousMessageCountRef.current;
+        const lastMessage = messages[messages.length - 1];
+        const isMyMessage = lastMessage.sender_id === currentUserId;
         
-        // Aktuelle Scroll-Position vor der neuen Nachricht überprüfen
-        const wasAtBottom = isAtBottom();
-        
-        // Aktualisiere die Nachrichtenanzahl
+        // Update message count
         previousMessageCountRef.current = messages.length;
-        lastMessageIdRef.current = lastNewMessage.id;
         
         if (isMyMessage) {
-          // Eigene Nachricht: Immer scrollen
+          // Regel 2: Eigene Nachrichten - IMMER scrollen
           setTimeout(() => {
-            scrollToBottom(true);
-            setUnreadCount(0); // Reset bei eigenen Nachrichten
+            scrollToBottom('smooth');
+            setUnreadCount(0);
           }, 50);
         } else {
-          // Empfangene Nachricht
-          if (wasAtBottom) {
-            // War am Ende: Scrollen und keine ungelesenen Nachrichten
+          // Regel 1: Neue Nachrichten
+          const wasNearBottom = isNearBottom();
+          
+          if (wasNearBottom && !userScrollPaused) {
+            // User ist am Ende und Autoscroll ist nicht pausiert - scrollen
             setTimeout(() => {
-              scrollToBottom(true);
+              scrollToBottom('smooth');
               setUnreadCount(0);
             }, 50);
           } else {
-            // War nicht am Ende: Ungelesene Nachrichten erhöhen
-            setUnreadCount(prev => prev + newMessages.length);
+            // User ist weiter oben oder Autoscroll ist pausiert - Indikator zeigen
+            setUnreadCount(prev => prev + newMessagesCount);
           }
         }
       }
     }
-  }, [messages.length, isLoading, hasInitialScrolled, currentUserId]);
+  }, [messages.length, isLoading, hasInitialScrolled, currentUserId, isNearBottom, scrollToBottom, userScrollPaused]);
 
-  // Ungelesene Nachrichten zurücksetzen wenn der User manuell nach unten scrollt
+  // Setup scroll event listener
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
     
-    const handleScroll = () => {
-      if (isAtBottom() && unreadCount > 0) {
-        setUnreadCount(0);
+    const scrollHandler = throttledScrollHandler();
+    container.addEventListener('scroll', scrollHandler, { passive: true });
+    
+    return () => {
+      container.removeEventListener('scroll', scrollHandler);
+      if (userScrollTimeoutRef.current) {
+        clearTimeout(userScrollTimeoutRef.current);
       }
     };
-    
-    container.addEventListener('scroll', handleScroll);
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-    };
-  }, [unreadCount]);
-
-  // Funktion zum Scrollen zu neuen Nachrichten
-  const scrollToNewMessages = () => {
-    scrollToBottom(true);
-    setUnreadCount(0);
-  };
+  }, [throttledScrollHandler]);
 
   if (isLoading) {
     return (
@@ -174,13 +228,14 @@ export const MessageList = ({
 
   return (
     <div className="relative h-full flex flex-col">
-      {/* Ungelesene Nachrichten Hinweis */}
-      {unreadCount > 0 && (
-        <div className="absolute top-0 left-0 right-0 z-10 flex justify-center p-2">
+      {/* Regel 4: "Zurück nach unten"-Button */}
+      {showScrollToBottom && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
           <button
-            onClick={scrollToNewMessages}
-            className="bg-[#14A090] text-white px-4 py-2 rounded-full shadow-lg hover:bg-[#14A090]/90 transition-colors text-sm font-medium"
+            onClick={handleScrollToNewMessages}
+            className="bg-[#14A090] text-white px-4 py-2 rounded-full shadow-lg hover:bg-[#14A090]/90 transition-colors text-sm font-medium flex items-center gap-2"
           >
+            <span>↓</span>
             {unreadCount === 1 ? "1 neue Nachricht" : `${unreadCount} neue Nachrichten`}
           </button>
         </div>
@@ -197,17 +252,16 @@ export const MessageList = ({
             messages[index - 1].sender_id !== message.sender_id;
           
           // Prüfen, ob wir einen Zeitstempel anzeigen sollen
-          const showTimestamp = true; // Wir zeigen den Zeitstempel jetzt immer an
+          const showTimestamp = true;
           
           // Prüfen, ob wir einen Datumstrenner anzeigen sollen
           let showDateSeparator = false;
           if (index === 0) {
-            showDateSeparator = true; // Erste Nachricht bekommt immer einen Datumstrenner
+            showDateSeparator = true;
           } else {
             const currentDate = new Date(message.created_at);
             const previousDate = new Date(messages[index - 1].created_at);
             
-            // Wenn sich das Datum geändert hat, zeigen wir einen Datumstrenner an
             showDateSeparator = differenceInDays(currentDate, previousDate) !== 0;
           }
           
