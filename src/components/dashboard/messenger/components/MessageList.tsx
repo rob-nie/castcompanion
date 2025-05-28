@@ -37,57 +37,31 @@ export const MessageList = ({
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const userScrollTimeoutRef = useRef<NodeJS.Timeout>();
   const lastUserScrollRef = useRef<number>(0);
+  const scrollAnimationRef = useRef<number>();
   
-  // Throttle scroll events to 60fps
-  const throttledScrollHandler = useCallback(() => {
-    let ticking = false;
+  // Improved scroll to bottom function using scrollTop
+  const scrollToBottom = useCallback((behavior: 'smooth' | 'auto' = 'smooth') => {
+    const container = scrollContainerRef.current;
+    if (!container) {
+      console.log("ScrollToBottom: Container not found");
+      return;
+    }
     
-    return () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const container = scrollContainerRef.current;
-          if (!container) return;
-          
-          const scrollTop = container.scrollTop;
-          const scrollHeight = container.scrollHeight;
-          const clientHeight = container.clientHeight;
-          const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
-          
-          // Check if user is near bottom (within last 2-3 messages, roughly 200px)
-          const isNearBottom = distanceFromBottom <= 200;
-          
-          // Show scroll-to-bottom button if > 500px from bottom AND unread messages exist
-          setShowScrollToBottom(distanceFromBottom > 500 && unreadCount > 0);
-          
-          // If user scrolled manually, pause autoscroll
-          const now = Date.now();
-          if (now - lastUserScrollRef.current > 100) { // Debounce user scrolls
-            setUserScrollPaused(true);
-            
-            // Clear existing timeout
-            if (userScrollTimeoutRef.current) {
-              clearTimeout(userScrollTimeoutRef.current);
-            }
-            
-            // Resume autoscroll after 4 seconds of no user interaction
-            userScrollTimeoutRef.current = setTimeout(() => {
-              setUserScrollPaused(false);
-            }, 4000);
-            
-            lastUserScrollRef.current = now;
-          }
-          
-          // Clear unread count if user is at bottom
-          if (isNearBottom && unreadCount > 0) {
-            setUnreadCount(0);
-          }
-          
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-  }, [unreadCount]);
+    const scrollHeight = container.scrollHeight;
+    const clientHeight = container.clientHeight;
+    const targetScrollTop = scrollHeight - clientHeight;
+    
+    console.log(`ScrollToBottom: behavior=${behavior}, current=${container.scrollTop}, target=${targetScrollTop}`);
+    
+    if (behavior === 'smooth') {
+      container.scrollTo({
+        top: targetScrollTop,
+        behavior: 'smooth'
+      });
+    } else {
+      container.scrollTop = targetScrollTop;
+    }
+  }, []);
 
   // Check if user is near bottom of conversation
   const isNearBottom = useCallback(() => {
@@ -99,37 +73,92 @@ export const MessageList = ({
     const clientHeight = container.clientHeight;
     const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
     
-    // Consider "near bottom" as within last 2-3 messages (roughly 200px)
-    return distanceFromBottom <= 200;
+    const nearBottom = distanceFromBottom <= 200;
+    console.log(`IsNearBottom: ${nearBottom} (distance: ${distanceFromBottom}px)`);
+    return nearBottom;
   }, []);
 
-  // Smooth scroll to bottom
-  const scrollToBottom = useCallback((behavior: 'smooth' | 'auto' = 'smooth') => {
-    messagesEndRef.current?.scrollIntoView({ 
-      behavior,
-      block: 'end'
-    });
-  }, []);
+  // Throttle scroll events to 60fps
+  const throttledScrollHandler = useCallback(() => {
+    let ticking = false;
+    
+    return () => {
+      if (!ticking) {
+        if (scrollAnimationRef.current) {
+          cancelAnimationFrame(scrollAnimationRef.current);
+        }
+        
+        scrollAnimationRef.current = requestAnimationFrame(() => {
+          const container = scrollContainerRef.current;
+          if (!container) return;
+          
+          const scrollTop = container.scrollTop;
+          const scrollHeight = container.scrollHeight;
+          const clientHeight = container.clientHeight;
+          const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
+          
+          // Show scroll-to-bottom button if > 500px from bottom AND unread messages exist
+          setShowScrollToBottom(distanceFromBottom > 500 && unreadCount > 0);
+          
+          // If user scrolled manually, pause autoscroll
+          const now = Date.now();
+          if (now - lastUserScrollRef.current > 100) {
+            console.log("User scroll detected - pausing autoscroll");
+            setUserScrollPaused(true);
+            
+            // Clear existing timeout
+            if (userScrollTimeoutRef.current) {
+              clearTimeout(userScrollTimeoutRef.current);
+            }
+            
+            // Resume autoscroll after 4 seconds of no user interaction
+            userScrollTimeoutRef.current = setTimeout(() => {
+              console.log("Resuming autoscroll after user inactivity");
+              setUserScrollPaused(false);
+            }, 4000);
+            
+            lastUserScrollRef.current = now;
+          }
+          
+          // Clear unread count if user is at bottom
+          if (distanceFromBottom <= 200 && unreadCount > 0) {
+            console.log("User at bottom - clearing unread count");
+            setUnreadCount(0);
+          }
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+  }, [unreadCount]);
 
   // Handle scroll to new messages button click
   const handleScrollToNewMessages = useCallback(() => {
+    console.log("Scroll to new messages button clicked");
     scrollToBottom('smooth');
     setUnreadCount(0);
     setShowScrollToBottom(false);
   }, [scrollToBottom]);
 
-  // Initial scroll on load
+  // Initial scroll on load with improved timing
   useEffect(() => {
     if (!isLoading && messages.length > 0 && !hasInitialScrolled) {
-      setTimeout(() => {
-        scrollToBottom('auto');
-        setHasInitialScrolled(true);
-        previousMessageCountRef.current = messages.length;
-      }, 100);
+      console.log("Initial scroll setup");
+      
+      // Use requestAnimationFrame for better timing
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          console.log("Executing initial scroll");
+          scrollToBottom('auto');
+          setHasInitialScrolled(true);
+          previousMessageCountRef.current = messages.length;
+        }, 250); // Increased delay for initial load
+      });
     }
   }, [messages.length, isLoading, hasInitialScrolled, scrollToBottom]);
 
-  // Handle new messages
+  // Handle new messages with improved logic
   useEffect(() => {
     if (!isLoading && messages.length > 0 && hasInitialScrolled) {
       const hasNewMessages = messages.length > previousMessageCountRef.current;
@@ -139,27 +168,37 @@ export const MessageList = ({
         const lastMessage = messages[messages.length - 1];
         const isMyMessage = lastMessage.sender_id === currentUserId;
         
+        console.log(`New messages detected: ${newMessagesCount}, isMyMessage: ${isMyMessage}, userScrollPaused: ${userScrollPaused}`);
+        
         // Update message count
         previousMessageCountRef.current = messages.length;
         
         if (isMyMessage) {
           // Regel 2: Eigene Nachrichten - IMMER scrollen
-          setTimeout(() => {
-            scrollToBottom('smooth');
-            setUnreadCount(0);
-          }, 50);
-        } else {
-          // Regel 1: Neue Nachrichten
-          const wasNearBottom = isNearBottom();
-          
-          if (wasNearBottom && !userScrollPaused) {
-            // User ist am Ende und Autoscroll ist nicht pausiert - scrollen
+          console.log("Own message - always scrolling");
+          requestAnimationFrame(() => {
             setTimeout(() => {
               scrollToBottom('smooth');
               setUnreadCount(0);
-            }, 50);
+            }, 25); // Shorter delay for new messages
+          });
+        } else {
+          // Regel 1: Neue Nachrichten
+          const wasNearBottom = isNearBottom();
+          console.log(`Received message - wasNearBottom: ${wasNearBottom}, userScrollPaused: ${userScrollPaused}`);
+          
+          if (wasNearBottom && !userScrollPaused) {
+            // User ist am Ende und Autoscroll ist nicht pausiert - scrollen
+            console.log("Scrolling to new received message");
+            requestAnimationFrame(() => {
+              setTimeout(() => {
+                scrollToBottom('smooth');
+                setUnreadCount(0);
+              }, 25);
+            });
           } else {
             // User ist weiter oben oder Autoscroll ist pausiert - Indikator zeigen
+            console.log("Showing unread indicator");
             setUnreadCount(prev => prev + newMessagesCount);
           }
         }
@@ -180,8 +219,23 @@ export const MessageList = ({
       if (userScrollTimeoutRef.current) {
         clearTimeout(userScrollTimeoutRef.current);
       }
+      if (scrollAnimationRef.current) {
+        cancelAnimationFrame(scrollAnimationRef.current);
+      }
     };
   }, [throttledScrollHandler]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (userScrollTimeoutRef.current) {
+        clearTimeout(userScrollTimeoutRef.current);
+      }
+      if (scrollAnimationRef.current) {
+        cancelAnimationFrame(scrollAnimationRef.current);
+      }
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -251,10 +305,8 @@ export const MessageList = ({
           const isFirstInSequence = index === 0 || 
             messages[index - 1].sender_id !== message.sender_id;
           
-          // Prüfen, ob wir einen Zeitstempel anzeigen sollen
           const showTimestamp = true;
           
-          // Prüfen, ob wir einen Datumstrenner anzeigen sollen
           let showDateSeparator = false;
           if (index === 0) {
             showDateSeparator = true;
@@ -288,7 +340,7 @@ export const MessageList = ({
             </div>
           );
         })}
-        {/* Unsichtbarer Div für auto-scrolling */}
+        {/* Marker für das Ende der Nachrichten */}
         <div ref={messagesEndRef} />
       </div>
     </div>
