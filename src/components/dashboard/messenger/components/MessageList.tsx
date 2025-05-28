@@ -1,8 +1,9 @@
 
 import { useRef } from "react";
-import { differenceInDays, format } from "date-fns";
-import { de } from "date-fns/locale";
 import { MessageBubble } from "./MessageBubble";
+import { DateSeparator } from "./DateSeparator";
+import { EmptyStates } from "./EmptyStates";
+import { useMessageGrouping } from "../hooks/useMessageGrouping";
 
 interface Message {
   id: string;
@@ -27,75 +28,34 @@ export const MessageList = ({
   currentUserId 
 }: MessageListProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { groupedMessages } = useMessageGrouping(messages);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-[#7A9992] dark:text-[#CCCCCC]">Nachrichten werden geladen...</p>
-      </div>
-    );
+  // Show empty states if needed
+  const emptyState = (
+    <EmptyStates 
+      isLoading={isLoading}
+      error={error}
+      hasMessages={messages.length > 0}
+    />
+  );
+
+  if (isLoading || error || messages.length === 0) {
+    return emptyState;
   }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-red-500">Fehler: {error}</p>
-      </div>
-    );
-  }
-
-  if (messages.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Nachrichten vorhanden.</p>
-      </div>
-    );
-  }
-
-  const formatDateHeader = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    
-    const isToday = date.toDateString() === today.toDateString();
-    const isYesterday = date.toDateString() === yesterday.toDateString();
-    
-    if (isToday) return "Heute";
-    if (isYesterday) return "Gestern";
-    return format(date, "dd.MM.yyyy", { locale: de });
-  };
 
   return (
     <div className="relative h-full flex flex-col">
-      {/* Messages Container */}
       <div 
         ref={scrollContainerRef}
         className="space-y-3 overflow-y-auto h-full hide-scrollbar flex-1"
       >
-        {messages.map((message, index) => {
-          const isFirstInSequence = index === 0 || 
-            messages[index - 1].sender_id !== message.sender_id;
-          
-          let showDateSeparator = false;
-          if (index === 0) {
-            showDateSeparator = true;
-          } else {
-            const currentDate = new Date(message.created_at);
-            const previousDate = new Date(messages[index - 1].created_at);
-            showDateSeparator = differenceInDays(currentDate, previousDate) !== 0;
-          }
-          
+        {groupedMessages.map(({ message, isFirstInSequence, showDateSeparator }) => {
           const isSentByMe = message.sender_id === currentUserId;
           
           return (
             <div key={message.id}>
               {showDateSeparator && (
-                <div className="flex justify-center my-4">
-                  <div className="px-3 py-1 text-xs rounded-full bg-[#DAE5E2] dark:bg-[#5E6664] text-[#7A9992] dark:text-[#CCCCCC]">
-                    {formatDateHeader(message.created_at)}
-                  </div>
-                </div>
+                <DateSeparator date={message.created_at} />
               )}
               
               <MessageBubble
