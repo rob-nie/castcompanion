@@ -31,7 +31,7 @@ export const MessageBubble = ({
     <div className={`flex flex-col ${isCurrentUser ? 'items-end' : 'items-start'} w-full`}>
       {/* Benutzername nur für die erste Nachricht in einer Sequenz anzeigen */}
       {!isCurrentUser && isFirstInSequence && (
-        <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1 ml-1">
+        <span className="text-xs text-[#7A9992] dark:text-[#CCCCCC] mb-1">
           {message.sender_full_name || 'Unbekannt'}
         </span>
       )}
