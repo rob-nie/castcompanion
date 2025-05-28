@@ -1,4 +1,3 @@
-
 import { useRef, useEffect, useState } from "react";
 import { differenceInMinutes, differenceInDays, format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -58,15 +57,25 @@ export const MessageList = ({
     };
   }, []);
 
-  // Beim initialen Laden sofort zur neuesten Nachricht springen (ohne Animation)
+  // Funktion zum Scrollen zum Ende der Liste
+  const scrollToBottom = (smooth = false) => {
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: smooth ? "smooth" : "auto" 
+    });
+  };
+
+  // Beim initialen Laden sofort zur neuesten Nachricht springen
   useEffect(() => {
     if (!isLoading && messages.length > 0 && !hasInitialScrolled) {
-      scrollToBottom(false); // false = kein smooth scrolling (direkter Sprung)
-      setHasInitialScrolled(true);
+      // Verwende setTimeout um sicherzustellen, dass das DOM vollständig gerendert ist
+      setTimeout(() => {
+        scrollToBottom(false); // false = kein smooth scrolling (direkter Sprung)
+        setHasInitialScrolled(true);
+      }, 0);
     }
-  }, [messages, isLoading, hasInitialScrolled]);
+  }, [messages.length, isLoading, hasInitialScrolled]);
 
-  // Bei neuen Nachrichten prüfen, ob gescrollt werden soll
+  // Bei neuen Nachrichten prüfen, ob gescrollt werden soll (nur nach dem initialen Laden)
   useEffect(() => {
     if (!isLoading && messages.length > 0 && hasInitialScrolled) {
       // Nur scrollen wenn der Benutzer bereits nahe am unteren Rand ist
@@ -74,14 +83,7 @@ export const MessageList = ({
         scrollToBottom(true); // true = smooth scrolling für bessere UX
       }
     }
-  }, [messages, isLoading, hasInitialScrolled, shouldScrollToBottom]);
-
-  // Funktion zum Scrollen zum Ende der Liste
-  const scrollToBottom = (smooth = true) => {
-    messagesEndRef.current?.scrollIntoView({ 
-      behavior: smooth ? "smooth" : "auto" 
-    });
-  };
+  }, [messages.length, isLoading, hasInitialScrolled, shouldScrollToBottom]);
 
   if (isLoading) {
     return (
@@ -179,4 +181,3 @@ export const MessageList = ({
     </div>
   );
 };
-
