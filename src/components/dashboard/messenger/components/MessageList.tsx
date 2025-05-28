@@ -75,13 +75,10 @@ export const MessageList = ({
     }
   }, [messages.length, isLoading, hasInitialScrolled]);
 
-  // Bei neuen Nachrichten prüfen, ob gescrollt werden soll (nur nach dem initialen Laden)
+  // Bei neuen Nachrichten nur scrollen wenn der Benutzer bereits nahe am unteren Rand ist
   useEffect(() => {
-    if (!isLoading && messages.length > 0 && hasInitialScrolled) {
-      // Nur scrollen wenn der Benutzer bereits nahe am unteren Rand ist
-      if (shouldScrollToBottom) {
-        scrollToBottom(true); // true = smooth scrolling für bessere UX
-      }
+    if (!isLoading && messages.length > 0 && hasInitialScrolled && shouldScrollToBottom) {
+      scrollToBottom(true); // true = smooth scrolling für bessere UX
     }
   }, [messages.length, isLoading, hasInitialScrolled, shouldScrollToBottom]);
 
