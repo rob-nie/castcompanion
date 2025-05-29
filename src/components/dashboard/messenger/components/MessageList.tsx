@@ -10,13 +10,13 @@ import { useEffect, useRef } from "react";
 interface MessageListProps {
   messages: Tables<"messages">[];
   isLoading: boolean;
-  error: Error | null;
+  error: Error | string | null;
   currentUserId?: string;
 }
 
 export const MessageList = ({ messages, isLoading, error, currentUserId }: MessageListProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const groupedMessages = useMessageGrouping(messages);
+  const { groupedMessages } = useMessageGrouping(messages);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -46,16 +46,14 @@ export const MessageList = ({ messages, isLoading, error, currentUserId }: Messa
         <div className="space-y-2 p-1">
           {groupedMessages.map((group, groupIndex) => (
             <div key={`group-${groupIndex}`}>
-              <DateSeparator date={group.date} />
-              <div className="space-y-2">
-                {group.messages.map((message) => (
-                  <MessageBubble
-                    key={message.id}
-                    message={message}
-                    isOwn={message.user_id === currentUserId}
-                  />
-                ))}
-              </div>
+              {group.showDateSeparator && <DateSeparator date={new Date(group.message.created_at)} />}
+              <MessageBubble
+                key={group.message.id}
+                message={group.message}
+                isCurrentUser={group.message.sender_id === currentUserId}
+                isFirstInSequence={group.isFirstInSequence}
+                showTimestamp={true}
+              />
             </div>
           ))}
         </div>

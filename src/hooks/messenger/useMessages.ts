@@ -17,7 +17,7 @@ export const useMessages = (projectId: string) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
 
   // Fetch messages
   const fetchMessages = async () => {
@@ -35,14 +35,14 @@ export const useMessages = (projectId: string) => {
       
       if (error) {
         console.error("Error fetching messages:", error);
-        setError(error.message);
+        setError(new Error(error.message));
         return;
       }
       
       setMessages(data || []);
     } catch (err) {
       console.error("Exception in fetchMessages:", err);
-      setError("Failed to load messages");
+      setError(new Error("Failed to load messages"));
     } finally {
       setIsLoading(false);
     }
