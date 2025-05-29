@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProjectCard } from "@/components/ProjectCard";
+import { ProjectSearch } from "@/components/ProjectSearch";
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
 import { CreateProjectModal } from "@/components/CreateProjectModal";
@@ -13,14 +14,20 @@ import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface ProjectWithArchiveStatus extends Tables<"projects"> {
+  is_archived?: boolean;
+}
+
 const Projects = () => {
   const { user, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [projects, setProjects] = useState<Tables<"projects">[]>([]);
+  const [projects, setProjects] = useState<ProjectWithArchiveStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
 
   const fetchProjects = async () => {
     if (!user) return;
@@ -29,7 +36,6 @@ const Projects = () => {
     setError(null);
     
     try {
-      // First check if user is authenticated
       const { data: sessionData } = await supabase.auth.getSession();
       if (!sessionData.session) {
         toast.error("Nicht authentifiziert. Bitte erneut anmelden.");
@@ -37,10 +43,13 @@ const Projects = () => {
         return;
       }
       
-      // Fetch ALL projects - we'll let RLS handle the filtering
+      // Fetch ALL projects with archive status
       const { data: allProjects, error: projectsError } = await supabase
         .from("projects")
-        .select("*");
+        .select(`
+          *,
+          user_project_archives!left(is_archived)
+        `);
         
       if (projectsError) {
         console.error("Error fetching projects:", projectsError);
@@ -49,8 +58,14 @@ const Projects = () => {
         return;
       }
       
+      // Transform data to include archive status
+      const projectsWithArchiveStatus: ProjectWithArchiveStatus[] = (allProjects || []).map(project => ({
+        ...project,
+        is_archived: project.user_project_archives?.[0]?.is_archived || false
+      }));
+      
       // Sort by updated_at date
-      const sortedProjects = [...(allProjects || [])].sort((a, b) => 
+      const sortedProjects = projectsWithArchiveStatus.sort((a, b) => 
         new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
       );
       
@@ -61,13 +76,11 @@ const Projects = () => {
       toast.error("Fehler beim Laden der Projekte");
     } finally {
       setIsLoading(false);
-      // Add a slight delay before showing content for smooth transition
       setTimeout(() => setIsVisible(true), 300);
     }
   };
 
   useEffect(() => {
-    // Only redirect if we're sure the session has been checked
     if (!authLoading && !user) {
       navigate("/auth");
       return;
@@ -90,6 +103,17 @@ const Projects = () => {
   }
 
   if (!user) return null;
+
+  // Filter projects based on search and archive status
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesArchiveFilter = showArchived ? project.is_archived : !project.is_archived;
+    
+    return matchesSearch && matchesArchiveFilter;
+  });
+
+  const archivedCount = projects.filter(p => p.is_archived).length;
   
   const contentClassNames = isVisible 
     ? "opacity-100 translate-y-0 transition-all duration-500 ease-out" 
@@ -108,6 +132,14 @@ const Projects = () => {
             </Button>
           </div>
 
+          <ProjectSearch
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            showArchived={showArchived}
+            onToggleArchived={() => setShowArchived(!showArchived)}
+            archivedCount={archivedCount}
+          />
+
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-[10px] mb-6 animate-in fade-in duration-300">
               <p className="font-medium">Fehler beim Laden der Projekte</p>
@@ -117,27 +149,48 @@ const Projects = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {isLoading ? (
-              // Loading skeletons for projects
               Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="h-[220px] rounded-[20px] overflow-hidden">
                   <Skeleton className="h-full w-full" />
                 </div>
               ))
-            ) : projects.length === 0 ? (
+            ) : filteredProjects.length === 0 ? (
               <div className="col-span-full text-center py-12 animate-in fade-in duration-300">
-                <h2 className="text-xl font-normal mb-4">
-                  Erstelle dein erstes Projekt
-                </h2>
-                <p className="text-[#7A9992] dark:text-[#CCCCCC] mb-6">
-                  Füge ein neues Projekt hinzu, um mit der Zusammenarbeit zu beginnen
-                </p>
-                <Button onClick={() => setIsModalOpen(true)} className="bg-[#14A090] hover:bg-[#14A090]/90">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Neues Projekt
-                </Button>
+                {searchTerm ? (
+                  <>
+                    <h2 className="text-xl font-normal mb-4">
+                      Keine Projekte gefunden
+                    </h2>
+                    <p className="text-[#7A9992] dark:text-[#CCCCCC] mb-6">
+                      Versuche einen anderen Suchbegriff oder überprüfe deine Filter
+                    </p>
+                  </>
+                ) : showArchived ? (
+                  <>
+                    <h2 className="text-xl font-normal mb-4">
+                      Keine archivierten Projekte
+                    </h2>
+                    <p className="text-[#7A9992] dark:text-[#CCCCCC] mb-6">
+                      Du hast noch keine Projekte archiviert
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-xl font-normal mb-4">
+                      Erstelle dein erstes Projekt
+                    </h2>
+                    <p className="text-[#7A9992] dark:text-[#CCCCCC] mb-6">
+                      Füge ein neues Projekt hinzu, um mit der Zusammenarbeit zu beginnen
+                    </p>
+                    <Button onClick={() => setIsModalOpen(true)} className="bg-[#14A090] hover:bg-[#14A090]/90">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Neues Projekt
+                    </Button>
+                  </>
+                )}
               </div>
             ) : (
-              projects.map((project, index) => (
+              filteredProjects.map((project, index) => (
                 <div 
                   key={project.id} 
                   className={`transition-all duration-500 ease-out opacity-0`}
@@ -148,13 +201,13 @@ const Projects = () => {
                   <ProjectCard 
                     project={project} 
                     onUpdate={fetchProjects}
+                    isArchived={project.is_archived || false}
                   />
                 </div>
               ))
             )}
           </div>
           
-          {/* Add animation keyframes in a standard style tag */}
           <style dangerouslySetInnerHTML={{
             __html: `
               @keyframes fadeInUp {
