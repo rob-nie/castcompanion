@@ -43,7 +43,8 @@ export const MessageList = ({ messages, isLoading, error, currentUserId }: Messa
       if (scrollContainer) {
         scrollContainer.addEventListener('scroll', handleScroll);
         // Initial check
-        handleScroll({ target: scrollContainer } as Event);
+        const fakeEvent = { target: scrollContainer } as unknown as Event;
+        handleScroll(fakeEvent);
         
         return () => {
           scrollContainer.removeEventListener('scroll', handleScroll);
@@ -53,15 +54,15 @@ export const MessageList = ({ messages, isLoading, error, currentUserId }: Messa
   }, [messages]);
 
   if (isLoading) {
-    return <EmptyStates.Loading />;
+    return <EmptyStates isLoading={true} error={null} hasMessages={false} />;
   }
 
   if (error) {
-    return <EmptyStates.Error error={error} />;
+    return <EmptyStates isLoading={false} error={error} hasMessages={false} />;
   }
 
   if (messages.length === 0) {
-    return <EmptyStates.NoMessages />;
+    return <EmptyStates isLoading={false} error={null} hasMessages={false} />;
   }
 
   return (
@@ -70,7 +71,7 @@ export const MessageList = ({ messages, isLoading, error, currentUserId }: Messa
         <div className="space-y-2 p-1">
           {groupedMessages.map((group, groupIndex) => (
             <div key={`group-${groupIndex}`}>
-              {group.showDateSeparator && <DateSeparator date={new Date(group.message.created_at)} />}
+              {group.showDateSeparator && <DateSeparator date={group.message.created_at} />}
               <MessageBubble
                 key={group.message.id}
                 message={group.message}
