@@ -125,11 +125,6 @@ export const ProjectCard = ({ project, onUpdate, isArchived = false }: ProjectCa
               Zuletzt bearbeitet: {formattedDate}
             </p>
           )}
-          {isArchived && (
-            <div className="absolute top-2 left-2">
-              <Archive className="w-4 h-4 text-white opacity-60" />
-            </div>
-          )}
           <div className="absolute top-4 right-4 flex gap-2">
             <button
               onClick={handleArchiveToggle}
