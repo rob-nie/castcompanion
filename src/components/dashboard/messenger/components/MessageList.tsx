@@ -5,7 +5,7 @@ import { DateSeparator } from "./DateSeparator";
 import { EmptyStates } from "./EmptyStates";
 import { useMessageGrouping } from "../hooks/useMessageGrouping";
 import type { Tables } from "@/integrations/supabase/types";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface MessageListProps {
   messages: Tables<"messages">[];
@@ -17,6 +17,7 @@ interface MessageListProps {
 export const MessageList = ({ messages, isLoading, error, currentUserId }: MessageListProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { groupedMessages } = useMessageGrouping(messages);
+  const [showBottomFade, setShowBottomFade] = useState(false);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -24,6 +25,29 @@ export const MessageList = ({ messages, isLoading, error, currentUserId }: Messa
       const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [messages]);
+
+  // Check if we need to show bottom fade
+  const handleScroll = (event: Event) => {
+    const target = event.target as HTMLElement;
+    const { scrollTop, scrollHeight, clientHeight } = target;
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 10;
+    setShowBottomFade(!isNearBottom && scrollHeight > clientHeight);
+  };
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.addEventListener('scroll', handleScroll);
+        // Initial check
+        handleScroll({ target: scrollContainer } as Event);
+        
+        return () => {
+          scrollContainer.removeEventListener('scroll', handleScroll);
+        };
       }
     }
   }, [messages]);
@@ -58,8 +82,15 @@ export const MessageList = ({ messages, isLoading, error, currentUserId }: Messa
           ))}
         </div>
       </ScrollArea>
-      {/* Fade-Effekt am unteren Rand */}
-      <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-[#222625] to-transparent pointer-events-none" />
+      {/* Dynamic fade effect */}
+      {showBottomFade && (
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-10 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to top, var(--background) 0%, transparent 100%)'
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -2,14 +2,14 @@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface QuickPhrase {
   id: string;
   content: string;
   created_at: string;
   updated_at: string;
-  order?: number | null; // Made order optional
+  order?: number | null;
 }
 
 interface QuickPhrasesProps {
@@ -19,6 +19,8 @@ interface QuickPhrasesProps {
 
 export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showBottomFade, setShowBottomFade] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   // Sort phrases by order if available
   const sortedPhrases = [...phrases].sort((a, b) => {
@@ -27,6 +29,28 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
     }
     return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
   });
+
+  // Check if we need to show bottom fade
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 10;
+      setShowBottomFade(!isNearBottom && scrollHeight > clientHeight);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen && scrollContainerRef.current) {
+      const scrollContainer = scrollContainerRef.current;
+      scrollContainer.addEventListener('scroll', handleScroll);
+      // Initial check
+      handleScroll();
+      
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, [isOpen, sortedPhrases]);
   
   return (
     <Collapsible
@@ -34,7 +58,7 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
       onOpenChange={setIsOpen}
       className="overflow-hidden"
     >
-      <CollapsibleTrigger className="w-full text-left flex items-center text-sm text-[#7A9992] dark:text-[#CCCCCC] py-0 border-none bg-transparent hover:bg-transparent cursor-pointer hover:text-[#14A090] transition-colors">
+      <CollapsibleTrigger className="w-full text-left flex items-center text-sm text-[#7A9992] dark:text-[#CCCCCC] py-0 border-none bg-transparent hover:bg-transparent cursor-pointer hover:text-[#14A090] transition-colors pr-1">
         <span className="font-medium">Schnellphrasen</span>
         {isOpen ? (
           <ChevronUp className="ml-1 h-4 w-4" />
@@ -49,7 +73,10 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
           </p>
         ) : (
           <div className="relative">
-            <div className="space-y-1 max-h-[200px] overflow-y-auto pr-1 hide-scrollbar">
+            <div 
+              ref={scrollContainerRef}
+              className="space-y-1 max-h-[200px] overflow-y-auto pr-1 hide-scrollbar"
+            >
               {sortedPhrases.map((phrase) => (
                 <Button
                   key={phrase.id}
@@ -61,8 +88,15 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
                 </Button>
               ))}
             </div>
-            {/* Fade-Effekt am unteren Rand */}
-            <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-[#222625] to-transparent pointer-events-none" />
+            {/* Dynamic fade effect */}
+            {showBottomFade && (
+              <div 
+                className="absolute bottom-0 left-0 right-0 h-10 pointer-events-none"
+                style={{
+                  background: 'linear-gradient(to top, var(--background) 0%, transparent 100%)'
+                }}
+              />
+            )}
           </div>
         )}
       </CollapsibleContent>

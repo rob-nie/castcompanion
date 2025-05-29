@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, Download } from 'lucide-react';
 import { LiveNoteItem } from './LiveNoteItem';
@@ -14,6 +14,8 @@ interface LiveNotesTabProps {
 export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId }) => {
   const { liveNotes, isLoading, createLiveNote, updateLiveNote, deleteLiveNote } = useLiveNotes(projectId);
   const { displayTime } = useTimer(projectId);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showBottomFade, setShowBottomFade] = useState(false);
 
   const handleCreateNote = async () => {
     console.log("Creating live note with time marker:", displayTime);
@@ -22,6 +24,15 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId }) => {
 
   const handleExportCSV = () => {
     exportLiveNotesAsCSV(liveNotes);
+  };
+
+  // Check if we need to show bottom fade
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 10;
+      setShowBottomFade(!isNearBottom && scrollHeight > clientHeight);
+    }
   };
 
   useEffect(() => {
@@ -38,7 +49,20 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [displayTime]); // displayTime als Dependency hinzufügen
+  }, [displayTime]);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      const scrollContainer = scrollContainerRef.current;
+      scrollContainer.addEventListener('scroll', handleScroll);
+      // Initial check
+      handleScroll();
+      
+      return () => {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, [liveNotes]);
 
   // Sortiere nach Erstellungsdatum (älteste zuerst)
   const sortedLiveNotes = [...liveNotes].sort(
@@ -47,9 +71,12 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId }) => {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Scrollbarer Bereich mit Fade-Effekt */}
+      {/* Scrollbarer Bereich mit dynamischem Fade-Effekt */}
       <div className="flex-1 overflow-hidden min-h-0 relative">
-        <div className="h-full overflow-auto hide-scrollbar pr-2">
+        <div 
+          ref={scrollContainerRef}
+          className="h-full overflow-auto hide-scrollbar pr-2"
+        >
           {isLoading ? (
             <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">Laden...</div>
           ) : liveNotes.length === 0 ? (
@@ -68,8 +95,15 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId }) => {
             </div>
           )}
         </div>
-        {/* Fade-Effekt am unteren Rand */}
-        <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-[#222625] to-transparent pointer-events-none" />
+        {/* Dynamic fade effect */}
+        {showBottomFade && (
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-10 pointer-events-none"
+            style={{
+              background: 'linear-gradient(to top, var(--background) 0%, transparent 100%)'
+            }}
+          />
+        )}
       </div>
 
       {/* Immer sichtbare Button-Leiste unten */}
