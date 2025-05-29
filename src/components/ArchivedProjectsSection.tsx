@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Archive } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ProjectCard } from "./ProjectCard";
 import type { Tables } from "@/integrations/supabase/types";
@@ -28,20 +27,15 @@ export const ArchivedProjectsSection = ({
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-8">
       <CollapsibleTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full h-[44px] rounded-[10px] border-[#7A9992] text-[#7A9992] dark:text-[#CCCCCC] hover:bg-[#7A9992]/10 justify-between"
-        >
-          <div className="flex items-center">
-            <Archive className="mr-2 h-4 w-4" />
-            Archivierte Projekte ({archivedProjects.length})
-          </div>
+        <div className="flex items-center cursor-pointer text-[#7A9992] dark:text-[#CCCCCC] hover:text-[#14A090] transition-colors">
+          <Archive className="mr-2 h-4 w-4" />
+          <span className="text-sm font-medium">Archivierte Projekte ({archivedProjects.length})</span>
           {isOpen ? (
-            <ChevronUp className="h-4 w-4" />
+            <ChevronUp className="ml-1 h-4 w-4" />
           ) : (
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className="ml-1 h-4 w-4" />
           )}
-        </Button>
+        </div>
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-4">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">

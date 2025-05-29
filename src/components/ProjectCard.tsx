@@ -106,7 +106,7 @@ export const ProjectCard = ({ project, onUpdate, isArchived = false }: ProjectCa
   return (
     <>
       <div 
-        className={`h-[175px] max-w-[414px] p-6 rounded-[20px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] relative ${isArchived ? 'opacity-75' : ''}`}
+        className="h-[175px] max-w-[414px] p-6 rounded-[20px] overflow-hidden cursor-pointer transition-transform hover:scale-[1.02] relative"
         onClick={handleCardClick}
         style={{
           background: isDarkMode 
