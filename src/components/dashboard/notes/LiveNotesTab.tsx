@@ -47,25 +47,29 @@ export const LiveNotesTab: React.FC<LiveNotesTabProps> = ({ projectId }) => {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Scrollbarer Bereich */}
-      <div className="flex-1 overflow-auto min-h-0">
-        {isLoading ? (
-          <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">Laden...</div>
-        ) : liveNotes.length === 0 ? (
-          <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Notizen vorhanden.</div>
-        ) : (
-          <div className="pr-2">
-            {sortedLiveNotes.map(note => (
-              <LiveNoteItem
-                key={note.id}
-                note={note}
-                onUpdate={updateLiveNote}
-                onDelete={deleteLiveNote}
-                autoFocus={note.content === '' && note.created_at === note.updated_at}
-              />
-            ))}
-          </div>
-        )}
+      {/* Scrollbarer Bereich mit Fade-Effekt */}
+      <div className="flex-1 overflow-hidden min-h-0 relative">
+        <div className="h-full overflow-auto hide-scrollbar pr-2">
+          {isLoading ? (
+            <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">Laden...</div>
+          ) : liveNotes.length === 0 ? (
+            <div className="text-center py-8 text-[#7A9992] dark:text-[#CCCCCC]">Noch keine Notizen vorhanden.</div>
+          ) : (
+            <div>
+              {sortedLiveNotes.map(note => (
+                <LiveNoteItem
+                  key={note.id}
+                  note={note}
+                  onUpdate={updateLiveNote}
+                  onDelete={deleteLiveNote}
+                  autoFocus={note.content === '' && note.created_at === note.updated_at}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Fade-Effekt am unteren Rand */}
+        <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-[#222625] to-transparent pointer-events-none" />
       </div>
 
       {/* Immer sichtbare Button-Leiste unten */}

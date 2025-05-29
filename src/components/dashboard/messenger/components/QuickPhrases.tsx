@@ -48,17 +48,21 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
             Keine Schnellphrasen vorhanden.
           </p>
         ) : (
-          <div className="space-y-1 max-h-[200px] overflow-y-auto pr-1">
-            {sortedPhrases.map((phrase) => (
-              <Button
-                key={phrase.id}
-                onClick={() => onSelectPhrase(phrase.content)}
-                variant="outline"
-                className="w-full h-[40px] text-[14px] px-4 text-left justify-start text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] hover:bg-muted hover:text-[#0A1915] dark:hover:bg-accent dark:hover:text-white transition-colors duration-200"
-              >
-                {phrase.content}
-              </Button>
-            ))}
+          <div className="relative">
+            <div className="space-y-1 max-h-[200px] overflow-y-auto pr-1 hide-scrollbar">
+              {sortedPhrases.map((phrase) => (
+                <Button
+                  key={phrase.id}
+                  onClick={() => onSelectPhrase(phrase.content)}
+                  variant="outline"
+                  className="w-full h-[40px] text-[14px] px-4 text-left justify-start text-[#7A9992] dark:text-[#CCCCCC] border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] hover:bg-muted hover:text-[#0A1915] dark:hover:bg-accent dark:hover:text-white transition-colors duration-200"
+                >
+                  {phrase.content}
+                </Button>
+              ))}
+            </div>
+            {/* Fade-Effekt am unteren Rand */}
+            <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-[#222625] to-transparent pointer-events-none" />
           </div>
         )}
       </CollapsibleContent>

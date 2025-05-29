@@ -1,131 +1,67 @@
-import { useRef, useEffect } from "react";
+
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble } from "./MessageBubble";
 import { DateSeparator } from "./DateSeparator";
 import { EmptyStates } from "./EmptyStates";
 import { useMessageGrouping } from "../hooks/useMessageGrouping";
-
-interface Message {
-  id: string;
-  content: string;
-  project_id: string;
-  sender_id: string;
-  created_at: string;
-  sender_full_name: string | null;
-}
+import type { Tables } from "@/integrations/supabase/types";
+import { useEffect, useRef } from "react";
 
 interface MessageListProps {
-  messages: Message[];
+  messages: Tables<"messages">[];
   isLoading: boolean;
-  error: string | null;
-  currentUserId: string | undefined;
-  lastSentMessageId?: string;
+  error: Error | null;
+  currentUserId?: string;
 }
 
-export const MessageList = ({
-  messages,
-  isLoading,
-  error,
-  currentUserId,
-  lastSentMessageId
-}: MessageListProps) => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const initialScrollDone = useRef(false); // Ref, um den initialen Scroll zu verfolgen
-  const { groupedMessages } = useMessageGrouping(messages);
+export const MessageList = ({ messages, isLoading, error, currentUserId }: MessageListProps) => {
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const groupedMessages = useMessageGrouping(messages);
 
-  // Regel 3: App-Start - Scrolle beim ersten Laden zum Ende (nur einmal)
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    const container = scrollContainerRef.current;
-    // Nur scrollen, wenn geladen, Nachrichten da, Container existiert UND noch nicht initial gescrollt wurde
-    if (!isLoading && messages.length > 0 && container && !initialScrollDone.current) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'auto' // 'auto' für einen sofortigen Sprung beim Start
-      });
-      initialScrollDone.current = true; // Markiere, dass der initiale Scroll erfolgt ist
-    }
-    // Wenn keine Nachrichten geladen werden (z.B. neuer Chat), setze das Flag zurück,
-    // damit beim nächsten Laden gescrollt wird.
-    if (!isLoading && messages.length === 0) {
-        initialScrollDone.current = false;
-    }
-
-  }, [isLoading, messages.length]); // Abhängig von Ladezustand und Nachrichtenlänge
-
-  // Regel 1 & 2: Autoscroll bei neuen Nachrichten
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    // Wenn kein Container da ist oder keine Nachrichten, nichts tun.
-    if (!container || messages.length === 0) return;
-
-    const lastMessage = messages[messages.length - 1];
-    const isOwnMessage = lastMessage.sender_id === currentUserId;
-
-    // Regel 1: Eigene Nachrichten - IMMER scrollen, wenn es die letzte gesendete ist
-    if (isOwnMessage && lastSentMessageId === lastMessage.id) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      });
-      return; // Wichtig: return, um nicht auch Regel 2 zu prüfen
-    }
-
-    // Regel 2: Fremde Nachrichten - nur scrollen wenn am Ende (innerhalb 100px)
-    // Dieser Teil sollte nur laufen, wenn die letzte Nachricht NICHT die eigene ist
-    // oder eine eigene, die nicht die 'lastSentMessageId' ist (weniger wahrscheinlich, aber sicher ist sicher)
-    if (!isOwnMessage) {
-      // Prüfe, ob der User *vor* dem Hinzufügen der neuen Nachricht am Ende war.
-      // Hinweis: Diese Logik kann knifflig sein, da sie läuft, *nachdem* die Nachricht hinzugefügt wurde.
-      // Die 100px Toleranz hilft hier.
-      const isAtBottom = (container.scrollTop + container.clientHeight) >=
-                         (container.scrollHeight - container.lastElementChild!.scrollHeight - 100);
-
-      if (isAtBottom) {
-        container.scrollTo({
-          top: container.scrollHeight,
-          behavior: 'smooth'
-        });
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
     }
-    // Wichtig: Dieser Effekt MUSS laufen, wenn sich 'messages' ändert.
-    // Die Logik *im* Effekt entscheidet dann, ob gescrollt wird.
-  }, [messages, currentUserId, lastSentMessageId]); // Abhängig von Nachrichten, User-ID und letzter gesendeter ID
+  }, [messages]);
+
+  if (isLoading) {
+    return <EmptyStates.Loading />;
+  }
+
+  if (error) {
+    return <EmptyStates.Error error={error} />;
+  }
+
+  if (messages.length === 0) {
+    return <EmptyStates.NoMessages />;
+  }
 
   return (
-    <div className="relative h-full flex flex-col">
-      {/* Der Scroll-Container wird jetzt IMMER gerendert */}
-      <div
-        ref={scrollContainerRef}
-        className="space-y-3 overflow-y-auto h-full hide-scrollbar flex-1 p-4" // Padding hinzugefügt für Abstand
-      >
-        {/* Lade-/Fehler-/Leerzustand INNEN anzeigen */}
-        {(isLoading && messages.length === 0) || error || messages.length === 0 ? (
-          <EmptyStates
-            isLoading={isLoading && messages.length === 0} // Zeige Loading nur, wenn WIRKLICH noch nichts da ist
-            error={error}
-            hasMessages={messages.length > 0}
-          />
-        ) : (
-          /* Nachrichten nur rendern, wenn vorhanden */
-          groupedMessages.map(({ message, isFirstInSequence, showDateSeparator }) => {
-            const isSentByMe = message.sender_id === currentUserId;
-
-            return (
-              <div key={message.id}>
-                {showDateSeparator && (
-                  <DateSeparator date={message.created_at} />
-                )}
-
-                <MessageBubble
-                  message={message}
-                  isCurrentUser={isSentByMe}
-                  isFirstInSequence={isFirstInSequence}
-                  showTimestamp={true}
-                />
+    <div className="relative h-full">
+      <ScrollArea className="h-full hide-scrollbar" ref={scrollAreaRef}>
+        <div className="space-y-2 p-1">
+          {groupedMessages.map((group, groupIndex) => (
+            <div key={`group-${groupIndex}`}>
+              <DateSeparator date={group.date} />
+              <div className="space-y-2">
+                {group.messages.map((message) => (
+                  <MessageBubble
+                    key={message.id}
+                    message={message}
+                    isOwn={message.user_id === currentUserId}
+                  />
+                ))}
               </div>
-            );
-          })
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+      {/* Fade-Effekt am unteren Rand */}
+      <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-white dark:from-[#222625] to-transparent pointer-events-none" />
     </div>
   );
 };
