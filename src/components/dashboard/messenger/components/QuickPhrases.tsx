@@ -34,12 +34,12 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
       onOpenChange={setIsOpen}
       className="overflow-hidden"
     >
-      <CollapsibleTrigger className="w-full text-left flex items-center justify-between text-sm text-[#7A9992] dark:text-[#CCCCCC] py-0 border-none bg-transparent hover:bg-transparent">
+      <CollapsibleTrigger className="w-full text-left flex items-center text-sm text-[#7A9992] dark:text-[#CCCCCC] py-0 border-none bg-transparent hover:bg-transparent cursor-pointer hover:text-[#14A090] transition-colors">
         <span className="font-medium">Schnellphrasen</span>
         {isOpen ? (
-          <ChevronUp className="h-4 w-4" />
+          <ChevronUp className="ml-1 h-4 w-4" />
         ) : (
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="ml-1 h-4 w-4" />
         )}
       </CollapsibleTrigger>
       <CollapsibleContent className="pt-2">
@@ -48,7 +48,7 @@ export const QuickPhrases = ({ phrases, onSelectPhrase }: QuickPhrasesProps) => 
             Keine Schnellphrasen vorhanden.
           </p>
         ) : (
-          <div className="space-y-1 max-h-[200px] overflow-y-auto">
+          <div className="space-y-1 max-h-[200px] overflow-y-auto pr-1">
             {sortedPhrases.map((phrase) => (
               <Button
                 key={phrase.id}
