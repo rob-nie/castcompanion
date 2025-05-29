@@ -54,15 +54,15 @@ export const MessageList = ({ messages, isLoading, error, currentUserId }: Messa
   }, [messages]);
 
   if (isLoading) {
-    return <EmptyStates isLoading={true} error={null} hasMessages={false} />;
+    return <EmptyStates.Loading />;
   }
 
   if (error) {
-    return <EmptyStates isLoading={false} error={error} hasMessages={false} />;
+    return <EmptyStates.Error error={error} />;
   }
 
   if (messages.length === 0) {
-    return <EmptyStates isLoading={false} error={null} hasMessages={false} />;
+    return <EmptyStates.NoMessages />;
   }
 
   return (
