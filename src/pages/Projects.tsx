@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthProvider";
@@ -6,9 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProjectCard } from "@/components/ProjectCard";
-import { ProjectSearch } from "@/components/ProjectSearch";
+import { ProjectSearchInput } from "@/components/ProjectSearchInput";
+import { ArchivedProjectsSection } from "@/components/ArchivedProjectsSection";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { CreateProjectModal } from "@/components/CreateProjectModal";
 import type { Tables } from "@/integrations/supabase/types";
 import { toast } from "sonner";
@@ -27,7 +27,6 @@ const Projects = () => {
   const [error, setError] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showArchived, setShowArchived] = useState(false);
 
   const fetchProjects = async () => {
     if (!user) return;
@@ -104,16 +103,18 @@ const Projects = () => {
 
   if (!user) return null;
 
-  // Filter projects based on search and archive status
-  const filteredProjects = projects.filter(project => {
+  // Filter projects based on search term
+  const activeProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesArchiveFilter = showArchived ? project.is_archived : !project.is_archived;
-    
-    return matchesSearch && matchesArchiveFilter;
+    return matchesSearch && !project.is_archived;
   });
 
-  const archivedCount = projects.filter(p => p.is_archived).length;
+  const archivedProjects = projects.filter(project => {
+    const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    return matchesSearch && project.is_archived;
+  });
   
   const contentClassNames = isVisible 
     ? "opacity-100 translate-y-0 transition-all duration-500 ease-out" 
@@ -125,20 +126,16 @@ const Projects = () => {
       
       <main className={`flex-grow px-6 md:px-12 lg:px-24 py-16 ${contentClassNames}`}>
         <div className="mx-auto max-w-[1288px]">
-          <div className="flex justify-between mb-6">
-            <Button onClick={() => setIsModalOpen(true)} className="bg-[#14A090] hover:bg-[#14A090]/90">
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            <ProjectSearchInput
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+            />
+            <Button onClick={() => setIsModalOpen(true)} className="bg-[#14A090] hover:bg-[#14A090]/90 h-[44px] shrink-0">
               <Plus className="mr-2 h-4 w-4" />
               Neues Projekt
             </Button>
           </div>
-
-          <ProjectSearch
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            showArchived={showArchived}
-            onToggleArchived={() => setShowArchived(!showArchived)}
-            archivedCount={archivedCount}
-          />
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-[10px] mb-6 animate-in fade-in duration-300">
@@ -154,24 +151,15 @@ const Projects = () => {
                   <Skeleton className="h-full w-full" />
                 </div>
               ))
-            ) : filteredProjects.length === 0 ? (
+            ) : activeProjects.length === 0 ? (
               <div className="col-span-full text-center py-12 animate-in fade-in duration-300">
                 {searchTerm ? (
                   <>
                     <h2 className="text-xl font-normal mb-4">
-                      Keine Projekte gefunden
+                      Keine aktiven Projekte gefunden
                     </h2>
                     <p className="text-[#7A9992] dark:text-[#CCCCCC] mb-6">
                       Versuche einen anderen Suchbegriff oder überprüfe deine Filter
-                    </p>
-                  </>
-                ) : showArchived ? (
-                  <>
-                    <h2 className="text-xl font-normal mb-4">
-                      Keine archivierten Projekte
-                    </h2>
-                    <p className="text-[#7A9992] dark:text-[#CCCCCC] mb-6">
-                      Du hast noch keine Projekte archiviert
                     </p>
                   </>
                 ) : (
@@ -190,7 +178,7 @@ const Projects = () => {
                 )}
               </div>
             ) : (
-              filteredProjects.map((project, index) => (
+              activeProjects.map((project, index) => (
                 <div 
                   key={project.id} 
                   className={`transition-all duration-500 ease-out opacity-0`}
@@ -201,12 +189,17 @@ const Projects = () => {
                   <ProjectCard 
                     project={project} 
                     onUpdate={fetchProjects}
-                    isArchived={project.is_archived || false}
+                    isArchived={false}
                   />
                 </div>
               ))
             )}
           </div>
+
+          <ArchivedProjectsSection 
+            archivedProjects={archivedProjects}
+            onUpdate={fetchProjects}
+          />
           
           <style dangerouslySetInnerHTML={{
             __html: `
