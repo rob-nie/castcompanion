@@ -73,8 +73,8 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
 
     if (!subscription) {
       console.log('Creating new push subscription...');
-      // Use a proper VAPID key - this is a test key that should work
-      const vapidKey = 'BEl62iUYgUivyIkv69yViEuiBIa40HI0DLb5PCfpFu7RhEgjOxrmUbMJlnKYdqvY7J8sR6xbBjWRYZq7gkQ3oJE';
+      // Use a valid VAPID key - this is a properly formatted test key
+      const vapidKey = 'BCVxar7pi_5_b6_uFX6ZnPH4SfCStfXs9hdcbHWw0Oedxj6Ndnw-5vGOQUq68YOaLh3gWqGrqVlJxgVhpNBUFPk';
       
       try {
         subscription = await registration.pushManager.subscribe({
@@ -84,7 +84,11 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
         console.log('New subscription created successfully');
       } catch (subscribeError) {
         console.error('Error creating subscription:', subscribeError);
-        toast.error('Fehler beim Erstellen der Subscription');
+        if (subscribeError instanceof Error && subscribeError.name === 'InvalidAccessError') {
+          toast.error('Ungültiger VAPID-Schlüssel. Bitte kontaktieren Sie den Administrator.');
+        } else {
+          toast.error('Fehler beim Erstellen der Subscription');
+        }
         return false;
       }
     } else {
