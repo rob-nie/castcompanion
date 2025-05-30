@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { arrayBufferToBase64 } from './utils';
@@ -33,8 +32,8 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
 
     if (!subscription) {
       console.log('Creating new push subscription...');
-      // Use the actual VAPID public key you provided
-      const vapidKey = 'BFiNl3y-eGKW83UeZ36bDDjfjmDuqDdVcYLAR6Pb3qg4_-D5ZowOoZYVnM6Igr8K1dIGiQCtRSPJ0KnHc9TByHM';
+      // Use the new VAPID public key
+      const vapidKey = 'BE4Ocy3L9ny88onKsr2UTp2B88gGpNX1uDrhAL4sZ3xBKEjF6Fl53-4vpq-jqr1ruMC-0CdS_WXFR7fNab0EiHI';
       
       try {
         subscription = await registration.pushManager.subscribe({
