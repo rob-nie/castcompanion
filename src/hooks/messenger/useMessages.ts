@@ -48,26 +48,6 @@ export const useMessages = (projectId: string) => {
     }
   };
 
-  // Send push notification
-  const sendPushNotification = async (messageContent: string, senderName: string | null) => {
-    try {
-      const { error } = await supabase.functions.invoke('send-push-notification', {
-        body: {
-          projectId,
-          senderId: user?.id,
-          messageContent,
-          senderName
-        }
-      });
-
-      if (error) {
-        console.error('Error sending push notification:', error);
-      }
-    } catch (error) {
-      console.error('Exception sending push notification:', error);
-    }
-  };
-
   // Send a message
   const sendMessage = async (content: string) => {
     if (!projectId || !user || !content.trim()) return;
@@ -97,8 +77,8 @@ export const useMessages = (projectId: string) => {
         throw error;
       }
       
-      // Send push notification to other project members
-      await sendPushNotification(content.trim(), profileData?.full_name || null);
+      // Note: Push notification will be triggered by the realtime listener
+      // when the message is inserted, so we don't need to call it here
       
       await fetchMessages();
       return true;
@@ -124,8 +104,37 @@ export const useMessages = (projectId: string) => {
           table: 'messages',
           filter: `project_id=eq.${projectId}`
         },
-        (payload) => {
-          fetchMessages();
+        async (payload) => {
+          console.log('New message received via realtime:', payload);
+          
+          // Only send push notification if the message is NOT from the current user
+          if (payload.new.sender_id !== user.id) {
+            console.log('Sending push notification for new message from another user');
+            
+            try {
+              const { error } = await supabase.functions.invoke('send-push-notification', {
+                body: {
+                  projectId,
+                  senderId: payload.new.sender_id,
+                  messageContent: payload.new.content,
+                  senderName: payload.new.sender_full_name
+                }
+              });
+
+              if (error) {
+                console.error('Error sending push notification:', error);
+              } else {
+                console.log('Push notification sent successfully');
+              }
+            } catch (error) {
+              console.error('Exception sending push notification:', error);
+            }
+          } else {
+            console.log('Message is from current user, not sending push notification');
+          }
+          
+          // Refresh messages to show the new message
+          await fetchMessages();
         }
       )
       .subscribe();
