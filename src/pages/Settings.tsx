@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { QuickPhrasesSection } from "@/components/settings/QuickPhrasesSection";
+import { PushNotificationSettings } from "@/components/settings/PushNotificationSettings";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -124,6 +125,11 @@ export default function Settings() {
                   </Button>
                 </div>
               </div>
+            </div>
+
+            {/* Push Notification Settings */}
+            <div className="border-t pt-6 border-[#CCCCCC] dark:border-[#5E6664]">
+              <PushNotificationSettings />
             </div>
 
             {/* Quick Phrases Section */}

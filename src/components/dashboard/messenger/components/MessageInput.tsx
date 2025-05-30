@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 import { QuickPhrases } from "./QuickPhrases";
-import { PushNotificationSettings } from "./PushNotificationSettings";
 
 interface QuickPhrase {
   id: string;
@@ -69,11 +68,6 @@ export const MessageInput = ({
 
   return (
     <div className="border-t border-[#CCCCCC] dark:border-[#5E6664] bg-background">
-      {/* Push Notification Settings */}
-      <div className="px-4 py-2 border-b border-[#CCCCCC] dark:border-[#5E6664]">
-        <PushNotificationSettings />
-      </div>
-      
       {/* Quick Phrases */}
       <div className="px-4 py-2 border-b border-[#CCCCCC] dark:border-[#5E6664]">
         <QuickPhrases phrases={phrases} onSelectPhrase={handleSelectPhrase} />
