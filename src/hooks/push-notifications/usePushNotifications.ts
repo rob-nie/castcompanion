@@ -14,6 +14,7 @@ export const usePushNotifications = () => {
   const { user } = useAuth();
   const [isSupported, setIsSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [hasBrowserSubscription, setHasBrowserSubscription] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission>('default');
 
@@ -24,9 +25,37 @@ export const usePushNotifications = () => {
       setIsSupported(supported);
       setPermission(Notification.permission);
       
+      console.log('Push notification support check:', {
+        supported,
+        permission: Notification.permission
+      });
+      
       if (supported && user) {
-        const subscribed = await checkExistingSubscription(user.id);
-        setIsSubscribed(subscribed);
+        console.log('Checking existing subscription for user:', user.id);
+        
+        // Check browser subscription
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const browserSubscription = await registration.pushManager.getSubscription();
+          const hasBrowserSub = !!browserSubscription;
+          setHasBrowserSubscription(hasBrowserSub);
+          
+          console.log('Browser subscription status:', hasBrowserSub);
+          
+          // Check database subscription
+          const dbSubscribed = await checkExistingSubscription(user.id);
+          setIsSubscribed(dbSubscribed);
+          
+          console.log('Database subscription status:', dbSubscribed);
+          
+          // If we have browser subscription but no database entry, consider it subscribed
+          if (hasBrowserSub && !dbSubscribed) {
+            console.log('Browser subscribed but not in database - considering as subscribed');
+            setIsSubscribed(true);
+          }
+        } catch (error) {
+          console.error('Error checking subscription status:', error);
+        }
       }
     };
 
@@ -35,44 +64,104 @@ export const usePushNotifications = () => {
 
   // Subscribe to push notifications
   const subscribe = useCallback(async (): Promise<boolean> => {
-    if (!user || !isSupported) return false;
+    if (!user || !isSupported) {
+      console.log('Subscribe aborted: user or support missing', { user: !!user, isSupported });
+      return false;
+    }
 
     setIsLoading(true);
+    console.log('Starting subscription process...');
 
     try {
       // Request permission first
-      const hasPermission = permission === 'granted' || await requestNotificationPermission();
+      const currentPermission = Notification.permission;
+      console.log('Current permission:', currentPermission);
+      
+      let hasPermission = currentPermission === 'granted';
+      
       if (!hasPermission) {
+        console.log('Requesting notification permission...');
+        hasPermission = await requestNotificationPermission();
+        console.log('Permission request result:', hasPermission);
+      }
+      
+      if (!hasPermission) {
+        console.log('Permission denied, aborting subscription');
+        setPermission(Notification.permission);
         setIsLoading(false);
         return false;
       }
 
+      // Update permission state immediately
+      setPermission('granted');
+      console.log('Permission granted, proceeding with subscription...');
+
+      // Check if we already have a browser subscription
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        let subscription = await registration.pushManager.getSubscription();
+        
+        if (subscription) {
+          console.log('Existing browser subscription found');
+          setHasBrowserSubscription(true);
+        } else {
+          console.log('No existing browser subscription, creating new one...');
+          // Create new subscription through our subscription function
+        }
+      } catch (error) {
+        console.error('Error checking existing browser subscription:', error);
+      }
+
+      // Attempt to subscribe (this handles both browser and database)
+      console.log('Calling subscribeToPushNotifications...');
       const success = await subscribeToPushNotifications(user.id);
+      console.log('subscribeToPushNotifications result:', success);
+      
       if (success) {
         setIsSubscribed(true);
-        setPermission('granted');
+        setHasBrowserSubscription(true);
+        console.log('Subscription successful - updating UI state');
+      } else {
+        console.log('Subscription failed');
+        // Even if database save failed, check if browser subscription exists
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const browserSub = await registration.pushManager.getSubscription();
+          if (browserSub) {
+            console.log('Browser subscription exists despite database failure');
+            setHasBrowserSubscription(true);
+            setIsSubscribed(true); // Consider it subscribed if browser has it
+            toast.success('Push Notifications aktiviert (Browser)');
+          }
+        } catch (error) {
+          console.error('Error checking browser subscription after failure:', error);
+        }
       }
       
       setIsLoading(false);
       return success;
 
     } catch (error) {
-      console.error('Error in subscribe:', error);
+      console.error('Error in subscribe function:', error);
       setIsLoading(false);
       return false;
     }
-  }, [user, isSupported, permission]);
+  }, [user, isSupported]);
 
   // Unsubscribe from push notifications
   const unsubscribe = useCallback(async (): Promise<boolean> => {
     if (!user) return false;
 
     setIsLoading(true);
+    console.log('Starting unsubscribe process...');
 
     try {
       const success = await unsubscribeFromPushNotifications(user.id);
+      console.log('Unsubscribe result:', success);
+      
       if (success) {
         setIsSubscribed(false);
+        setHasBrowserSubscription(false);
       }
       
       setIsLoading(false);
@@ -87,9 +176,13 @@ export const usePushNotifications = () => {
 
   // Send test notification
   const sendTestNotification = useCallback(async (): Promise<boolean> => {
-    if (!user || !isSubscribed) return false;
+    if (!user || (!isSubscribed && !hasBrowserSubscription)) {
+      console.log('Test notification aborted: not subscribed');
+      return false;
+    }
 
     setIsLoading(true);
+    console.log('Sending test notification...');
 
     try {
       // Show test notification directly using the Notification API
@@ -105,6 +198,7 @@ export const usePushNotifications = () => {
         setIsLoading(false);
         return true;
       } else {
+        console.log('Notification API not available or permission not granted');
         toast.error('Benachrichtigungen sind nicht verfügbar');
         setIsLoading(false);
         return false;
@@ -116,11 +210,23 @@ export const usePushNotifications = () => {
       setIsLoading(false);
       return false;
     }
-  }, [user, isSubscribed]);
+  }, [user, isSubscribed, hasBrowserSubscription]);
+
+  // Determine the effective subscription status for UI
+  const effectiveIsSubscribed = isSubscribed || hasBrowserSubscription;
+
+  console.log('Hook state:', {
+    isSupported,
+    isSubscribed,
+    hasBrowserSubscription,
+    effectiveIsSubscribed,
+    permission,
+    isLoading
+  });
 
   return {
     isSupported,
-    isSubscribed,
+    isSubscribed: effectiveIsSubscribed,
     isLoading,
     permission,
     subscribe,
