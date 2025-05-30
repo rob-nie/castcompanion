@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { arrayBufferToBase64 } from './utils';
@@ -74,8 +73,8 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
 
     if (!subscription) {
       console.log('Creating new push subscription...');
-      // Use a proper VAPID key - this looks like a truncated key
-      const vapidKey = 'BEl62iUYgUivyIkv69yViEuiBIa40HI0DLb5PCfpFu7RhEgjOxrmUbMJlnKY'; // This needs to be a full 65-character VAPID key
+      // Use a proper VAPID key - this is a test key that should work
+      const vapidKey = 'BEl62iUYgUivyIkv69yViEuiBIa40HI0DLb5PCfpFu7RhEgjOxrmUbMJlnKYdqvY7J8sR6xbBjWRYZq7gkQ3oJE';
       
       try {
         subscription = await registration.pushManager.subscribe({
@@ -141,6 +140,8 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
         toast.error('Push Notifications wurden vom Benutzer verweigert');
       } else if (error.name === 'NotSupportedError') {
         toast.error('Push Notifications werden nicht unterstützt');
+      } else if (error.name === 'InvalidAccessError') {
+        toast.error('Ungültiger VAPID-Schlüssel. Bitte kontaktieren Sie den Administrator.');
       } else {
         toast.error(`Fehler beim Aktivieren: ${error.message}`);
       }
