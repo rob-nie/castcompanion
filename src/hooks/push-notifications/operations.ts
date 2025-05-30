@@ -60,6 +60,7 @@ export const usePushNotificationOperations = ({
       setPermission('granted');
       console.log('Permission granted, proceeding with subscription...');
 
+      // Check for existing browser subscription first
       try {
         const registration = await navigator.serviceWorker.ready;
         let subscription = await registration.pushManager.getSubscription();
@@ -68,7 +69,7 @@ export const usePushNotificationOperations = ({
           console.log('Existing browser subscription found');
           setHasBrowserSubscription(true);
         } else {
-          console.log('No existing browser subscription, creating new one...');
+          console.log('No existing browser subscription found');
         }
       } catch (error) {
         console.error('Error checking existing browser subscription:', error);
@@ -82,8 +83,9 @@ export const usePushNotificationOperations = ({
         setIsSubscribed(true);
         setHasBrowserSubscription(true);
         console.log('Subscription successful - updating UI state');
+        toast.success('Push Notifications aktiviert');
       } else {
-        console.log('Subscription failed');
+        console.log('Subscription failed - checking browser subscription...');
         try {
           const registration = await navigator.serviceWorker.ready;
           const browserSub = await registration.pushManager.getSubscription();
@@ -92,9 +94,13 @@ export const usePushNotificationOperations = ({
             setHasBrowserSubscription(true);
             setIsSubscribed(true);
             toast.success('Push Notifications aktiviert (Browser)');
+          } else {
+            console.log('No browser subscription found');
+            toast.error('Fehler beim Aktivieren der Push Notifications');
           }
         } catch (error) {
           console.error('Error checking browser subscription after failure:', error);
+          toast.error('Fehler beim Aktivieren der Push Notifications');
         }
       }
       
@@ -104,6 +110,7 @@ export const usePushNotificationOperations = ({
     } catch (error) {
       console.error('Error in subscribe function:', error);
       setIsLoading(false);
+      toast.error('Fehler beim Aktivieren der Push Notifications');
       return false;
     }
   }, [user, isSupported, setIsLoading, setPermission, setIsSubscribed, setHasBrowserSubscription]);
@@ -122,6 +129,9 @@ export const usePushNotificationOperations = ({
       if (success) {
         setIsSubscribed(false);
         setHasBrowserSubscription(false);
+        toast.success('Push Notifications deaktiviert');
+      } else {
+        toast.error('Fehler beim Deaktivieren der Push Notifications');
       }
       
       setIsLoading(false);
@@ -130,6 +140,7 @@ export const usePushNotificationOperations = ({
     } catch (error) {
       console.error('Error in unsubscribe:', error);
       setIsLoading(false);
+      toast.error('Fehler beim Deaktivieren der Push Notifications');
       return false;
     }
   }, [user, setIsLoading, setIsSubscribed, setHasBrowserSubscription]);

@@ -60,7 +60,6 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
     const registration = await registerServiceWorker();
     if (!registration) {
       console.error('Service Worker registration failed');
-      toast.error('Service Worker konnte nicht registriert werden');
       return false;
     }
     console.log('Service Worker registered successfully');
@@ -101,12 +100,10 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
 
     if (error) {
       console.error('Error saving subscription to database:', error);
-      toast.error('Fehler beim Speichern der Subscription');
       return false;
     }
 
     console.log('Subscription saved to database successfully');
-    toast.success('Push Notifications aktiviert');
     return true;
 
   } catch (error) {
@@ -115,14 +112,12 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
     // Provide more specific error messages
     if (error instanceof Error) {
       if (error.name === 'NotAllowedError') {
-        toast.error('Push Notifications wurden vom Benutzer verweigert');
+        console.error('Push Notifications wurden vom Benutzer verweigert');
       } else if (error.name === 'NotSupportedError') {
-        toast.error('Push Notifications werden nicht unterstützt');
+        console.error('Push Notifications werden nicht unterstützt');
       } else {
-        toast.error(`Fehler beim Aktivieren: ${error.message}`);
+        console.error(`Fehler beim Aktivieren: ${error.message}`);
       }
-    } else {
-      toast.error('Fehler beim Aktivieren der Push Notifications');
     }
     
     return false;
@@ -158,6 +153,7 @@ export const unsubscribeFromPushNotifications = async (userId: string): Promise<
 
       if (error) {
         console.error('Error removing subscription from database:', error);
+        return false;
       } else {
         console.log('Database removal successful');
       }
@@ -171,15 +167,14 @@ export const unsubscribeFromPushNotifications = async (userId: string): Promise<
 
       if (error) {
         console.error('Error removing subscription from database:', error);
+        return false;
       }
     }
 
-    toast.success('Push Notifications deaktiviert');
     return true;
 
   } catch (error) {
     console.error('Error unsubscribing:', error);
-    toast.error('Fehler beim Deaktivieren der Push Notifications');
     return false;
   }
 };
