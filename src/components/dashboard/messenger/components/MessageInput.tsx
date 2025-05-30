@@ -69,7 +69,7 @@ export const MessageInput = ({
   return (
     <div className="bg-background">
       {/* Quick Phrases */}
-      <div className="px-4 py-2">
+      <div className="px-4 pt-2 pb-1">
         <QuickPhrases phrases={phrases} onSelectPhrase={handleSelectPhrase} />
       </div>
       
@@ -83,7 +83,7 @@ export const MessageInput = ({
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Nachricht eingeben..."
-              className="min-h-[44px] max-h-[120px] resize-none border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] text-[14px] leading-5"
+              className="min-h-[40px] max-h-[120px] resize-none border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] text-[14px] leading-5"
               disabled={isSending}
             />
           </div>
