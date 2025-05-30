@@ -83,7 +83,7 @@ export const MessageInput = ({
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Nachricht eingeben..."
-              className="min-h-[40px] max-h-[120px] resize-none border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] text-[14px] leading-5"
+              className="min-h-[40px] max-h-[40px] resize-none border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] text-[14px] leading-5"
               disabled={isSending}
             />
           </div>
