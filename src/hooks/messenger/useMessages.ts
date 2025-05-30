@@ -48,6 +48,26 @@ export const useMessages = (projectId: string) => {
     }
   };
 
+  // Send push notification
+  const sendPushNotification = async (messageContent: string, senderName: string | null) => {
+    try {
+      const { error } = await supabase.functions.invoke('send-push-notification', {
+        body: {
+          projectId,
+          senderId: user?.id,
+          messageContent,
+          senderName
+        }
+      });
+
+      if (error) {
+        console.error('Error sending push notification:', error);
+      }
+    } catch (error) {
+      console.error('Exception sending push notification:', error);
+    }
+  };
+
   // Send a message
   const sendMessage = async (content: string) => {
     if (!projectId || !user || !content.trim()) return;
@@ -76,6 +96,9 @@ export const useMessages = (projectId: string) => {
         toast.error("Nachricht konnte nicht gesendet werden");
         throw error;
       }
+      
+      // Send push notification to other project members
+      await sendPushNotification(content.trim(), profileData?.full_name || null);
       
       await fetchMessages();
       return true;

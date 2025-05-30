@@ -1,75 +1,106 @@
 
-import { useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 import { QuickPhrases } from "./QuickPhrases";
+import { PushNotificationSettings } from "./PushNotificationSettings";
 
-interface MessageInputProps {
-  onSendMessage: (content: string) => Promise<void>;
-  isProjectMember: boolean;
-  isSending: boolean;
-  phrases: Array<{ id: string; content: string; created_at: string; updated_at: string; order?: number | null }>;
+interface QuickPhrase {
+  id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  order?: number | null;
 }
 
-export const MessageInput = ({
-  onSendMessage,
-  isProjectMember,
-  isSending,
-  phrases
-}: MessageInputProps) => {
-  const [newMessage, setNewMessage] = useState("");
-  
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !isProjectMember || isSending) return;
-    
-    await onSendMessage(newMessage);
-    setNewMessage("");
-  };
+interface MessageInputProps {
+  onSendMessage: (message: string) => void;
+  isProjectMember: boolean;
+  isSending: boolean;
+  phrases: QuickPhrase[];
+}
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+export const MessageInput = ({ 
+  onSendMessage, 
+  isProjectMember, 
+  isSending, 
+  phrases 
+}: MessageInputProps) => {
+  const [message, setMessage] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleSend = () => {
+    if (message.trim() && isProjectMember && !isSending) {
+      onSendMessage(message.trim());
+      setMessage("");
     }
   };
 
-  const handleQuickPhraseSelect = (phrase: string) => {
-    setNewMessage(phrase);
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
+  const handleSelectPhrase = (phrase: string) => {
+    setMessage(phrase);
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  };
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [message]);
+
+  if (!isProjectMember) {
+    return (
+      <div className="p-4 text-center text-[#7A9992] dark:text-[#CCCCCC] text-sm border-t border-[#CCCCCC] dark:border-[#5E6664]">
+        Sie sind kein Mitglied dieses Projekts und können keine Nachrichten senden.
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-2 pt-2 shrink-0 px-0">
-      <div className="flex flex-col gap-2">
-        <div className="flex gap-2">
+    <div className="border-t border-[#CCCCCC] dark:border-[#5E6664] bg-background">
+      {/* Push Notification Settings */}
+      <div className="px-4 py-2 border-b border-[#CCCCCC] dark:border-[#5E6664]">
+        <PushNotificationSettings />
+      </div>
+      
+      {/* Quick Phrases */}
+      <div className="px-4 py-2 border-b border-[#CCCCCC] dark:border-[#5E6664]">
+        <QuickPhrases phrases={phrases} onSelectPhrase={handleSelectPhrase} />
+      </div>
+      
+      {/* Message Input */}
+      <div className="p-4">
+        <div className="flex gap-2 items-end">
           <div className="flex-1">
-            <Textarea 
-              value={newMessage} 
-              onChange={(e) => setNewMessage(e.target.value)}
+            <Textarea
+              ref={textareaRef}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Nachricht schreiben..."
-              className="w-full border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] resize-none h-[40px] min-h-[40px] py-2 px-4"
-              style={{ display: 'flex', alignItems: 'center' }}
-              maxLength={500}
-              disabled={!isProjectMember || isSending}
+              placeholder="Nachricht eingeben..."
+              className="min-h-[44px] max-h-[120px] resize-none border-[#7A9992] dark:border-[#CCCCCC] rounded-[10px] text-[14px] leading-5"
+              disabled={isSending}
             />
           </div>
-          <Button 
-            onClick={handleSendMessage}
-            disabled={!newMessage.trim() || !isProjectMember || isSending}
-            className="bg-[#14A090] hover:bg-[#14A090]/80 h-[40px] w-[40px] min-w-[40px] rounded-[10px] px-0"
+          <Button
+            onClick={handleSend}
+            disabled={!message.trim() || isSending}
+            className="h-[44px] px-4 bg-[#14A090] hover:bg-[#14A090] text-white rounded-[10px] shrink-0"
           >
-            <Send className="w-5 h-5" />
+            <Send className="h-4 w-4" />
           </Button>
         </div>
-        
-        <QuickPhrases phrases={phrases} onSelectPhrase={handleQuickPhraseSelect} />
-        
-        {!isProjectMember && (
-          <p className="text-[10px] text-[#7A9992] dark:text-[#CCCCCC] mt-2">
-            Du musst Mitglied dieses Projekts sein, um Nachrichten senden zu können.
-          </p>
-        )}
       </div>
     </div>
   );
