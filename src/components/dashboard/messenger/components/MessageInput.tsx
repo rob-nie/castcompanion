@@ -67,7 +67,7 @@ export const MessageInput = ({
   }
 
   return (
-    <div className="border-t border-[#CCCCCC] dark:border-[#5E6664] bg-background">
+    <div className="bg-background">
       {/* Quick Phrases */}
       <div className="px-4 py-2">
         <QuickPhrases phrases={phrases} onSelectPhrase={handleSelectPhrase} />
