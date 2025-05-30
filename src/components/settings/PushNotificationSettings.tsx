@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Bell, BellOff } from "lucide-react";
+import { Bell, BellOff, Zap } from "lucide-react";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 export const PushNotificationSettings = () => {
@@ -10,7 +10,8 @@ export const PushNotificationSettings = () => {
     isLoading,
     permission,
     subscribe,
-    unsubscribe
+    unsubscribe,
+    sendTestNotification
   } = usePushNotifications();
 
   if (!isSupported) {
@@ -32,6 +33,10 @@ export const PushNotificationSettings = () => {
     }
   };
 
+  const handleTestNotification = async () => {
+    await sendTestNotification();
+  };
+
   const getButtonText = () => {
     if (isLoading) return "Lädt...";
     if (isSubscribed) return "Benachrichtigungen deaktivieren";
@@ -50,7 +55,7 @@ export const PushNotificationSettings = () => {
           Erhalten Sie Benachrichtigungen für neue Nachrichten in Ihren Projekten.
         </p>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <Button
             onClick={handleToggle}
             disabled={isDisabled}
@@ -70,9 +75,21 @@ export const PushNotificationSettings = () => {
           </Button>
           
           {isSubscribed && (
-            <span className="text-sm text-[#14A090] font-medium">
-              Aktiviert
-            </span>
+            <>
+              <span className="text-sm text-[#14A090] font-medium">
+                Aktiviert
+              </span>
+              <Button
+                onClick={handleTestNotification}
+                disabled={isLoading}
+                variant="outline"
+                size="sm"
+                className="border-[#7A9992] text-[#7A9992] dark:border-[#CCCCCC] dark:text-[#CCCCCC] hover:bg-[#7A9992] hover:text-white dark:hover:bg-[#CCCCCC] dark:hover:text-[#0A1915]"
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Test senden
+              </Button>
+            </>
           )}
         </div>
         

@@ -85,6 +85,39 @@ export const usePushNotifications = () => {
     }
   }, [user]);
 
+  // Send test notification
+  const sendTestNotification = useCallback(async (): Promise<boolean> => {
+    if (!user || !isSubscribed) return false;
+
+    setIsLoading(true);
+
+    try {
+      // Show test notification directly using the Notification API
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Test-Benachrichtigung', {
+          body: 'Dies ist eine Test-Push-Benachrichtigung von Cast Companion.',
+          icon: '/favicon.ico',
+          badge: '/favicon.ico',
+          tag: 'test-notification'
+        });
+        
+        toast.success('Test-Benachrichtigung gesendet');
+        setIsLoading(false);
+        return true;
+      } else {
+        toast.error('Benachrichtigungen sind nicht verfügbar');
+        setIsLoading(false);
+        return false;
+      }
+
+    } catch (error) {
+      console.error('Error sending test notification:', error);
+      toast.error('Fehler beim Senden der Test-Benachrichtigung');
+      setIsLoading(false);
+      return false;
+    }
+  }, [user, isSubscribed]);
+
   return {
     isSupported,
     isSubscribed,
@@ -92,6 +125,7 @@ export const usePushNotifications = () => {
     permission,
     subscribe,
     unsubscribe,
+    sendTestNotification,
     requestPermission: requestNotificationPermission
   };
 };
