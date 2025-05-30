@@ -74,7 +74,7 @@ export const MessageInput = ({
       </div>
       
       {/* Message Input */}
-      <div className="py-4">
+      <div className="pt-4">
         <div className="flex gap-2 items-end">
           <div className="flex-1">
             <Textarea
@@ -90,7 +90,7 @@ export const MessageInput = ({
           <Button
             onClick={handleSend}
             disabled={!message.trim() || isSending}
-            className="h-[40px] px-4 bg-[#14A090] hover:bg-[#14A090] text-white rounded-[10px] shrink-0"
+            className="h-[40px] w-[40px] px-4 bg-[#14A090] hover:bg-[#14A090] text-white rounded-[10px] shrink-0"
           >
             <Send className="h-4 w-4" />
           </Button>
