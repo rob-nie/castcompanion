@@ -69,12 +69,12 @@ export const MessageInput = ({
   return (
     <div className="bg-background">
       {/* Quick Phrases */}
-      <div className="px-4 pt-2 pb-1">
+      <div className="pt-2">
         <QuickPhrases phrases={phrases} onSelectPhrase={handleSelectPhrase} />
       </div>
       
       {/* Message Input */}
-      <div className="p-4">
+      <div className="py-4">
         <div className="flex gap-2 items-end">
           <div className="flex-1">
             <Textarea
