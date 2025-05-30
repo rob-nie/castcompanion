@@ -1,4 +1,3 @@
-
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { requestNotificationPermission } from './permissions';
@@ -83,9 +82,9 @@ export const usePushNotificationOperations = ({
         setIsSubscribed(true);
         setHasBrowserSubscription(true);
         console.log('Subscription successful - updating UI state');
-        toast.success('Push Notifications aktiviert');
       } else {
-        console.log('Subscription failed - checking browser subscription...');
+        console.log('Subscription failed');
+        // Check if we still have a browser subscription despite database failure
         try {
           const registration = await navigator.serviceWorker.ready;
           const browserSub = await registration.pushManager.getSubscription();
@@ -93,25 +92,23 @@ export const usePushNotificationOperations = ({
             console.log('Browser subscription exists despite database failure');
             setHasBrowserSubscription(true);
             setIsSubscribed(true);
-            toast.success('Push Notifications aktiviert (Browser)');
+            toast.success('Push Notifications aktiviert (nur Browser)');
           } else {
             console.log('No browser subscription found');
-            toast.error('Fehler beim Aktivieren der Push Notifications');
           }
         } catch (error) {
           console.error('Error checking browser subscription after failure:', error);
-          toast.error('Fehler beim Aktivieren der Push Notifications');
         }
       }
       
-      setIsLoading(false);
       return success;
 
     } catch (error) {
       console.error('Error in subscribe function:', error);
-      setIsLoading(false);
       toast.error('Fehler beim Aktivieren der Push Notifications');
       return false;
+    } finally {
+      setIsLoading(false);
     }
   }, [user, isSupported, setIsLoading, setPermission, setIsSubscribed, setHasBrowserSubscription]);
 

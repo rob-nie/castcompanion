@@ -60,6 +60,7 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
     const registration = await registerServiceWorker();
     if (!registration) {
       console.error('Service Worker registration failed');
+      toast.error('Service Worker Registrierung fehlgeschlagen');
       return false;
     }
     console.log('Service Worker registered successfully');
@@ -73,24 +74,47 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
 
     if (!subscription) {
       console.log('Creating new push subscription...');
-      // Subscribe to push manager
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: 'BEl62iUYgUivyIkv69yViEuiBIa40HI0DLb5PCfpFu7RhEgjOxrmUbMJlnKY'
-      });
-      console.log('New subscription created successfully');
+      // Use a proper VAPID key - this looks like a truncated key
+      const vapidKey = 'BEl62iUYgUivyIkv69yViEuiBIa40HI0DLb5PCfpFu7RhEgjOxrmUbMJlnKY'; // This needs to be a full 65-character VAPID key
+      
+      try {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: vapidKey
+        });
+        console.log('New subscription created successfully');
+      } catch (subscribeError) {
+        console.error('Error creating subscription:', subscribeError);
+        toast.error('Fehler beim Erstellen der Subscription');
+        return false;
+      }
     } else {
       console.log('Using existing subscription');
     }
 
     // Save subscription to database
     console.log('Saving subscription to database...');
+    
+    const p256dhKey = subscription.getKey('p256dh');
+    const authKey = subscription.getKey('auth');
+    
+    if (!p256dhKey || !authKey) {
+      console.error('Failed to get subscription keys');
+      toast.error('Fehler beim Abrufen der Subscription-Schlüssel');
+      return false;
+    }
+
     const subscriptionData: PushSubscriptionRecord = {
       user_id: userId,
       endpoint: subscription.endpoint,
-      p256dh_key: arrayBufferToBase64(subscription.getKey('p256dh')!),
-      auth_key: arrayBufferToBase64(subscription.getKey('auth')!)
+      p256dh_key: arrayBufferToBase64(p256dhKey),
+      auth_key: arrayBufferToBase64(authKey)
     };
+
+    console.log('Subscription data prepared:', { 
+      endpoint: subscription.endpoint, 
+      user_id: userId 
+    });
 
     const { error } = await supabase
       .from('push_subscriptions')
@@ -100,10 +124,12 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
 
     if (error) {
       console.error('Error saving subscription to database:', error);
+      toast.error('Fehler beim Speichern in der Datenbank');
       return false;
     }
 
     console.log('Subscription saved to database successfully');
+    toast.success('Push Notifications erfolgreich aktiviert');
     return true;
 
   } catch (error) {
@@ -112,12 +138,14 @@ export const subscribeToPushNotifications = async (userId: string): Promise<bool
     // Provide more specific error messages
     if (error instanceof Error) {
       if (error.name === 'NotAllowedError') {
-        console.error('Push Notifications wurden vom Benutzer verweigert');
+        toast.error('Push Notifications wurden vom Benutzer verweigert');
       } else if (error.name === 'NotSupportedError') {
-        console.error('Push Notifications werden nicht unterstützt');
+        toast.error('Push Notifications werden nicht unterstützt');
       } else {
-        console.error(`Fehler beim Aktivieren: ${error.message}`);
+        toast.error(`Fehler beim Aktivieren: ${error.message}`);
       }
+    } else {
+      toast.error('Unbekannter Fehler beim Aktivieren der Push Notifications');
     }
     
     return false;
