@@ -79,7 +79,7 @@ export const PushNotificationSettings = () => {
             variant={isSubscribed ? "outline" : "default"}
             className={
               isSubscribed 
-                ? "border-[#7A9992] text-[#7A9992] dark:border-[#CCCCCC] dark:text-[#CCCCCC]"
+                ? "border-[#7A9992] text-[#7A9992] dark:border-[#CCCCCC] dark:text-[#CCCCCC] hover:bg-[#7A9992] hover:text-white dark:hover:bg-[#CCCCCC] dark:hover:text-[#0A1915]"
                 : "bg-[#14A090] hover:bg-[#14A090]/90 text-white"
             }
           >
@@ -100,8 +100,11 @@ export const PushNotificationSettings = () => {
           }`}>
             Status: {getStatusText()}
           </span>
-          
-          {isSubscribed && (
+        </div>
+
+        {/* Test Button - Zeige ihn wenn Permission granted ist, auch wenn isSubscribed false ist */}
+        {(permission === 'granted' || isSubscribed) && (
+          <div className="mt-3">
             <Button
               onClick={handleTestNotification}
               disabled={isLoading}
@@ -112,8 +115,8 @@ export const PushNotificationSettings = () => {
               <Zap className="h-4 w-4 mr-2" />
               Test senden
             </Button>
-          )}
-        </div>
+          </div>
+        )}
         
         {permission === 'denied' && (
           <div className="p-3 rounded-[10px] bg-[#DAE5E2] dark:bg-[#5E6664]">
