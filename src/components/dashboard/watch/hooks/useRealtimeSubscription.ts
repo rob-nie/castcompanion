@@ -134,19 +134,13 @@ export const useRealtimeSubscription = (
               try {
                 const newData = payload.new as any;
                 
-                // Check if this is our own update to avoid processing it
-                const currentUpdateId = stateRef.current.optimisticUpdateId;
-                if (stateRef.current.pendingChanges && currentUpdateId > 0) {
-                  stateRef.current.pendingChanges = false;
-                  stateRef.current.optimisticUpdateId = 0;
-                  setIsSyncing(false);
-                  stateRef.current.syncInProgress = false;
-                  return;
-                }
-                
                 console.info("Received realtime update:", newData);
                 
-                // Update local state with remote changes
+                // Always apply remote state to ensure cross-user sync
+                // Clear any pending optimistic state
+                stateRef.current.pendingChanges = false;
+                stateRef.current.optimisticUpdateId = 0;
+                
                 const newIsRunning = newData.is_running || false;
                 const newStartTime = newData.start_time;
                 const newAccumulatedTime = newData.accumulated_time || 0;
