@@ -18,10 +18,11 @@ export const useProjectMembership = (projectId: string) => {
 
       try {
         const { data, error } = await supabase
-          .rpc('is_project_member', { 
-            project_id: projectId, 
-            user_id: user.id 
-          });
+          .from('project_members')
+          .select('id')
+          .eq('project_id', projectId)
+          .eq('user_id', user.id)
+          .maybeSingle();
 
         if (error) {
           console.error("Error checking project membership:", error);
