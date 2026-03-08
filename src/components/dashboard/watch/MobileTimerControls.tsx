@@ -113,7 +113,6 @@ export const MobileTimerControls = ({
         tabIndex={0}
         aria-label="Reset"
         onClick={handleReset}
-        onTouchEnd={handleReset}
         onKeyDown={handleKeyDown(handleReset)}
         className={`h-10 w-10 flex items-center justify-center rounded-full 
           ${showSyncingState && optimisticLastAction === 'reset' ? 'bg-[#14A090]/70 cursor-not-allowed' : 'bg-[#14A090] cursor-pointer active:bg-[#118174]'}
